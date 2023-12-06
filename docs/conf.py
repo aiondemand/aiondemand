@@ -6,7 +6,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u"aiod_py_sdk"
+project = u"aiod-py-sdk"
 copyright = u"2023, Jean Matias"
 author = u"Jean Matias"
 
