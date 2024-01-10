@@ -412,13 +412,5 @@ Class | Method | HTTP request | Description
  - [ValidationError](docs/ValidationError.md)
  - [XSDDateTime](docs/XSDDateTime.md)
 
-## Documentation For Authorization
-
-
-## OpenIdConnect
-
-
-
-## Author
-
+---
 
