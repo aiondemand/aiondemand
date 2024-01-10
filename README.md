@@ -13,7 +13,7 @@ Please refer to the **api-client-via-swagger** branch for the full SDK automatic
 ├── LICENSE
 ├── venv
 └── python
-    └── aiod_sdk                # maybe remove this directory since we're not building a mono-repo
+    └── aiod_sdk                
         ├── README.md           # general README
         ├── aiod                # SDK code for different APIs: AIOD, AIDA, etc.
         │   ├── README.md       # how to use / build code
