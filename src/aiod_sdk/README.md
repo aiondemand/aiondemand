@@ -1,1 +1,0 @@
-# AIoD SDK
