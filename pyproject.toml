@@ -1,15 +1,21 @@
 [tool.poetry]
-name = "aiod_py_sdk"
+name = "aiod_sdk"
 version = "0.1.0"
-description = "Python SDK for the AIoD metadata ctathalogue"
-authors = ["Jean Matias"]
+description = "Python SDK for the AIoD metadata catalogue"
+authors = ["Jean Matias <smatias.jean@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.11"
+requests = "^2.31.0"
 
-[tool.poetry.dev-dependencies]
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.5.0"
+
+[tool.poetry.scripts]
+install-hooks = "pre-commit:install"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

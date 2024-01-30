@@ -6,9 +6,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u"aiod-py-sdk"
-copyright = u"2023, Jean Matias"
-author = u"Jean Matias"
+project = "aiod_sdk"
+copyright = "2023, Jean Matias"
+author = "Jean Matias"
 
 # -- General configuration ---------------------------------------------------
 
