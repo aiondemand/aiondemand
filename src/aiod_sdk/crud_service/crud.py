@@ -4,12 +4,11 @@ from urllib.parse import urljoin
 API_BASE_URL = "https://api.aiod.eu/"
 
 
-def get(endpoint: str) -> dict:
+def get(endpoint: str) -> requests.Response:
     url = urljoin(API_BASE_URL, endpoint)
     res = requests.get(url)
-    res.raise_for_status()
 
-    return res.json()
+    return res
 
 
 def post(endpoint: str):
