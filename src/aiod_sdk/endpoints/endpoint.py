@@ -1,6 +1,6 @@
 import abc
 import requests
-from urllib.parse import urljoin
+import urllib
 
 API_BASE_URL = "https://api.aiod.eu/"
 LATEST_VERSION = "v1"
@@ -14,14 +14,33 @@ class EndpointBase(abc.ABC):
 
 class Endpoint(EndpointBase, abc.ABC):
     @classmethod
-    def _get(cls, version: str | None = None) -> requests.Response:
+    def list(
+        cls, offset: int = 0, limit: int = 10, version: str | None = None
+    ) -> requests.Response:
+        query = urllib.parse.urlencode({"offset": offset, "limit": limit})
         version = version if version is not None else cls.latest_version
-        url = urljoin(cls.api_base_url, cls.name)
-        if version:
-            url = urljoin(url + "/", version)
+        url = f"{cls.api_base_url}{cls.name}/{version}?{query}"
 
         res = requests.get(url)
+        return res
 
+    @classmethod
+    def counts(
+        cls, version: str | None = None, detailed: bool = False
+    ) -> requests.Response:
+        query = urllib.parse.urlencode({"detailed": detailed}).lower()
+        version = version if version is not None else cls.latest_version
+        url = f"{cls.api_base_url}counts/{cls.name}/{version}?{query}"
+
+        res = requests.get(url)
+        return res
+
+    @classmethod
+    def get(cls, identifier: int, version: str | None = None) -> requests.Response:
+        version = version if version is not None else cls.latest_version
+        url = f"{cls.api_base_url}{cls.name}/{version}/{identifier}"
+
+        res = requests.get(url)
         return res
 
     @classmethod
