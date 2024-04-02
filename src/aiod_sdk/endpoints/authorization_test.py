@@ -1,10 +1,10 @@
-import requests
-from aiod_sdk import crud_service
+from requests import Response
+from aiod_sdk.endpoints.endpoint import Endpoint
 
 
-class AuthorizationTest:
-    endpoint: str = "authorization_test"
+class AuthorizationTest(Endpoint):
+    name = "authorization_test"
 
     @classmethod
-    def authorization_test(cls) -> requests.Response:
-        return crud_service.get(cls.endpoint)
+    def test(cls) -> Response:
+        return cls._get(version="")

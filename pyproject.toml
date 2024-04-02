@@ -12,6 +12,7 @@ requests = "^2.31.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.5.0"
+responses = "^0.25.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
