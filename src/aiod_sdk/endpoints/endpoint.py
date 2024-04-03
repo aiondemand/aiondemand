@@ -13,10 +13,15 @@ class EndpointBase(abc.ABC):
 
 
 class Endpoint(EndpointBase, abc.ABC):
+    """Abstract class for endpoints"""
+
     @classmethod
     def list(
         cls, offset: int = 0, limit: int = 10, version: str | None = None
     ) -> requests.Response:
+        f"""
+        Retrieve all meta-data of the {cls.name}.
+        """
         query = urllib.parse.urlencode({"offset": offset, "limit": limit})
         version = version if version is not None else cls.latest_version
         url = f"{cls.api_base_url}{cls.name}/{version}?{query}"

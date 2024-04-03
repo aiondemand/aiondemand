@@ -1,3 +1,4 @@
+import pytest
 import responses
 
 import aiod_sdk as aiod
@@ -9,55 +10,82 @@ class TestEndpoint(Endpoint):
     name = "test"
 
 
-def test_endpoints_are_created():
+endpoint_list = [
+    "case_studies",
+    "computational_assets",
+    "contacts",
+    "datasets",
+    "educational_resources",
+    "events",
+    "experiments",
+    "ml_models",
+    "news",
+    "organisations",
+    "persons",
+    "platforms",
+    "projects",
+    "publications",
+    "services",
+    "teams",
+]
 
-    assert aiod.case_studies.name == "case_studies"
-    assert issubclass(aiod.case_studies, Endpoint)
 
-    assert aiod.computational_assets.name == "computational_assets"
-    assert issubclass(aiod.computational_assets, Endpoint)
-
-    assert aiod.platforms.name == "platforms"
-    assert issubclass(aiod.platforms, Endpoint)
+@pytest.fixture(params=endpoint_list)
+def endpoint_name(request):
+    return request.param
 
 
-def test_endpoint_list():
+def test_endpoints_are_created(endpoint_name):
+
+    endpoint = getattr(aiod, endpoint_name)
+    assert endpoint.name == endpoint_name
+    assert issubclass(endpoint, Endpoint)
+
+
+def test_endpoint_list(endpoint_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            API_BASE_URL + "test/" + LATEST_VERSION + "?offset=0&limit=10",
+            API_BASE_URL + f"{endpoint_name}/" + LATEST_VERSION + "?offset=0&limit=10",
             body=b'["resource_1","resource_2"]',
             status=200,
         )
-        res = TestEndpoint.list()
+        endpoint = getattr(aiod, endpoint_name)
+        res = endpoint.list()
 
         assert res.status_code == 200
         assert len(res.json()) == 2
 
 
-def test_endpoint_counts():
+def test_endpoint_counts(endpoint_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            API_BASE_URL + "counts/" + "test/" + LATEST_VERSION + "?detailed=false",
+            API_BASE_URL
+            + "counts/"
+            + f"{endpoint_name}/"
+            + LATEST_VERSION
+            + "?detailed=false",
             body=b"2",
             status=200,
         )
-        res = TestEndpoint.counts()
+        endpoint = getattr(aiod, endpoint_name)
+        res = endpoint.counts()
 
         assert res.status_code == 200
         assert res.json() == 2
 
 
-def test_endpoint_get():
+def test_endpoint_get(endpoint_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            API_BASE_URL + "test/" + LATEST_VERSION + "/" + "1",
+            API_BASE_URL + f"{endpoint_name}/" + LATEST_VERSION + "/" + "1",
             body=b'{"resource":"fake_details"}',
             status=200,
         )
-        res = TestEndpoint.get(identifier=1)
+        endpoint = getattr(aiod, endpoint_name)
+        res = endpoint.get(identifier=1)
 
         assert res.status_code == 200
         assert res.json() == {"resource": "fake_details"}
