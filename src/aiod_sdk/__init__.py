@@ -1,5 +1,4 @@
 from importlib.metadata import version
-from aiod_sdk import aiod
 from aiod_sdk.endpoints.authorization_test import AuthorizationTest
 from aiod_sdk.endpoints.case_studies import CaseStudies
 from aiod_sdk.endpoints.computational_assets import ComputationalAssets
