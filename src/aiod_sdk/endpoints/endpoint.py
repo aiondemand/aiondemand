@@ -4,7 +4,7 @@ import urllib
 import pandas as pd
 from typing import Literal
 
-API_BASE_URL = "https://api.aiod.eu/"
+API_BASE_URL = "http://localhost/"
 LATEST_VERSION = "v1"
 
 

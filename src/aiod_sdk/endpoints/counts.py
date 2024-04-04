@@ -1,4 +1,6 @@
+import pandas as pd
 import requests
+from typing import Literal
 
 from aiod_sdk.endpoints.endpoint import EndpointBase
 
@@ -23,8 +25,35 @@ class Counts(EndpointBase):
 
     name = "counts"
 
+    @staticmethod
+    def _format_response(
+        response: list | dict, format: Literal["pandas", "dict"]
+    ) -> pd.DataFrame | dict:
+        """
+        Format the response data based on the specified format.
+
+        Parameters:
+            response (list | dict): The response data to format.
+            format (Literal["pandas", "dict"]): The desired format for the response.
+
+        Returns:
+            pd.DataFrame | dict: The formatted response data.
+
+        Raises:
+            Exception: If the specified format is invalid or not supported.
+        """
+
+        if format == "pandas":
+            return pd.DataFrame(response)
+        elif format == "dict":
+            return response
+        else:
+            raise Exception(f"Format: {format} invalid or not supported.")
+
     @classmethod
-    def asset_counts(cls, version: str | None = None) -> requests.Response:
+    def asset_counts(
+        cls, version: str | None = None, format: Literal["pandas", "dict"] = "pandas"
+    ) -> pd.DataFrame | dict:
         """
         Retrieve counts of assets.
 
@@ -32,9 +61,10 @@ class Counts(EndpointBase):
 
         Parameters:
             version (str | None): The version of the counts endpoint (default is None).
+            format (Literal["pandas", "dict"]): The desired format for the response (default is "pandas").
 
         Returns:
-            requests.Response: The response object containing the HTTP response from the server.
+            pd.DataFrame | dict: Counts as a Pandas data frame or a dictionary.
         """
         version = version if version is not None else cls.latest_version
         url = cls.api_base_url + cls.name
@@ -42,4 +72,5 @@ class Counts(EndpointBase):
             url += "/" + version
 
         res = requests.get(url)
-        return res
+        counts = cls._format_response(res.json(), format)
+        return counts
