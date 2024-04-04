@@ -47,14 +47,13 @@ def test_endpoint_list(endpoint_name):
         mocked_requests.add(
             responses.GET,
             API_BASE_URL + f"{endpoint_name}/" + LATEST_VERSION + "?offset=0&limit=10",
-            body=b'["resource_1","resource_2"]',
+            body=b'[{"resource_1": "info"},{"resource_2": "info"}]',
             status=200,
         )
         endpoint = getattr(aiod, endpoint_name)
-        res = endpoint.list()
+        metadata_list = endpoint.list()
 
-        assert res.status_code == 200
-        assert len(res.json()) == 2
+        assert len(metadata_list) == 2
 
 
 def test_endpoint_counts(endpoint_name):
@@ -70,10 +69,9 @@ def test_endpoint_counts(endpoint_name):
             status=200,
         )
         endpoint = getattr(aiod, endpoint_name)
-        res = endpoint.counts()
+        counts = endpoint.counts()
 
-        assert res.status_code == 200
-        assert res.json() == 2
+        assert counts == 2
 
 
 def test_endpoint_get(endpoint_name):
@@ -85,7 +83,6 @@ def test_endpoint_get(endpoint_name):
             status=200,
         )
         endpoint = getattr(aiod, endpoint_name)
-        res = endpoint.get(identifier=1)
+        metadata = endpoint.get(identifier=1, format="dict")
 
-        assert res.status_code == 200
-        assert res.json() == {"resource": "fake_details"}
+        assert metadata == {"resource": "fake_details"}
