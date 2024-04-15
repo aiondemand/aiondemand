@@ -6,10 +6,6 @@ import aiod_sdk as aiod
 from aiod_sdk.endpoints.endpoint import Endpoint, API_BASE_URL, LATEST_VERSION
 
 
-class TestEndpoint(Endpoint):
-    name = "test"
-
-
 endpoint_list = [
     "case_studies",
     "computational_assets",

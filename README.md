@@ -1,6 +1,6 @@
 # aiod_py_sdk
 
-Python SDK for the AIoD metadata ctathalogue
+Python SDK for the AIoD metadata catalogue
 
 ## Installation
 
