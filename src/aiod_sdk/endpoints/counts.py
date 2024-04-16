@@ -2,75 +2,54 @@ import pandas as pd
 import requests
 from typing import Literal
 
-from aiod_sdk.endpoints.endpoint import EndpointBase
+from aiod_sdk.endpoints.settings import api_base_url, latest_version
 
 
-class Counts(EndpointBase):
+def asset_counts(
+    version: str | None = None, format: Literal["pandas", "dict"] = "pandas"
+) -> pd.DataFrame | dict:
     """
-    Class for retrieving counts of resources.
+    Retrieve counts of assets.
 
-    This class provides a method to retrieve counts of resources from the counts endpoint.
+    This method sends a GET request to the counts endpoint to retrieve counts of assets.
 
-    Inherits From:
-        EndpointBase: Provides base functionality for endpoint interactions.
+    Parameters:
+        version (str | None): The version of the counts endpoint (default is None).
+        format (Literal["pandas", "dict"]): The desired format for the response (default is "pandas").
 
-    Attributes:
-        name (str): The name of the counts endpoint.
-        latest_version (str): The latest version of the counts endpoint.
+    Returns:
+        pd.DataFrame | dict: Counts as a Pandas data frame or a dictionary.
+    """
+    version = version if version is not None else latest_version
+    url = api_base_url + "counts"
+    if version:
+        url += "/" + version
 
-    Methods:
-        asset_counts(version=None) -> requests.Response:
-            Retrieve counts of assets.
+    res = requests.get(url)
+    counts = _format_response(res.json(), format)
+    return counts
+
+
+def _format_response(
+    response: list | dict, data_format: Literal["pandas", "dict"]
+) -> pd.DataFrame | dict:
+    """
+    Format the response data based on the specified format.
+
+    Parameters:
+        response (list | dict): The response data to format.
+        format (Literal["pandas", "dict"]): The desired format for the response.
+
+    Returns:
+        pd.DataFrame | dict: The formatted response data.
+
+    Raises:
+        Exception: If the specified format is invalid or not supported.
     """
 
-    name = "counts"
-
-    @staticmethod
-    def _format_response(
-        response: list | dict, format: Literal["pandas", "dict"]
-    ) -> pd.DataFrame | dict:
-        """
-        Format the response data based on the specified format.
-
-        Parameters:
-            response (list | dict): The response data to format.
-            format (Literal["pandas", "dict"]): The desired format for the response.
-
-        Returns:
-            pd.DataFrame | dict: The formatted response data.
-
-        Raises:
-            Exception: If the specified format is invalid or not supported.
-        """
-
-        if format == "pandas":
-            return pd.DataFrame(response)
-        elif format == "dict":
-            return response
-        else:
-            raise Exception(f"Format: {format} invalid or not supported.")
-
-    @classmethod
-    def asset_counts(
-        cls, version: str | None = None, format: Literal["pandas", "dict"] = "pandas"
-    ) -> pd.DataFrame | dict:
-        """
-        Retrieve counts of assets.
-
-        This method sends a GET request to the counts endpoint to retrieve counts of assets.
-
-        Parameters:
-            version (str | None): The version of the counts endpoint (default is None).
-            format (Literal["pandas", "dict"]): The desired format for the response (default is "pandas").
-
-        Returns:
-            pd.DataFrame | dict: Counts as a Pandas data frame or a dictionary.
-        """
-        version = version if version is not None else cls.latest_version
-        url = cls.api_base_url + cls.name
-        if version:
-            url += "/" + version
-
-        res = requests.get(url)
-        counts = cls._format_response(res.json(), format)
-        return counts
+    if data_format == "pandas":
+        return pd.DataFrame(response)
+    elif data_format == "dict":
+        return response
+    else:
+        raise Exception(f"Format: {data_format} invalid or not supported.")

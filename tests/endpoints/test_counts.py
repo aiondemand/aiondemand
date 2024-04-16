@@ -2,7 +2,7 @@ import responses
 from pathlib import Path
 
 import aiod_sdk as aiod
-from aiod_sdk.endpoints.endpoint import API_BASE_URL, LATEST_VERSION
+from aiod_sdk.endpoints.settings import API_BASE_URL, LATEST_VERSION
 
 resources_path = Path(__file__).parent.parent / "resources"
 
