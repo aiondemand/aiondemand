@@ -80,17 +80,6 @@ def get_asset(
     return resources
 
 
-async def _fetch_resources(urls) -> dict:
-    async def _fetch_data(session, url) -> dict:
-        async with session.get(url) as response:
-            return await response.json()
-
-    async with aiohttp.ClientSession() as session:
-        tasks = [_fetch_data(session, url) for url in urls]
-        response_data = await asyncio.gather(*tasks)
-    return response_data
-
-
 async def get_asset_async(
     asset_type: str,
     identifiers: list[int],
@@ -161,6 +150,16 @@ async def get_list_async(
     return resources
 
 
-wrap_common_calls = partial(wrap_calls, calls=[get_list, counts, get_asset])
+async def _fetch_resources(urls) -> dict:
+    async def _fetch_data(session, url) -> dict:
+        async with session.get(url) as response:
+            return await response.json()
 
+    async with aiohttp.ClientSession() as session:
+        tasks = [_fetch_data(session, url) for url in urls]
+        response_data = await asyncio.gather(*tasks)
+    return response_data
+
+
+wrap_common_calls = partial(wrap_calls, calls=[get_list, counts, get_asset])
 wrap_common_async_calls = partial(wrap_calls, calls=[get_asset_async, get_list_async])
