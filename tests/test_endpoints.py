@@ -1,6 +1,8 @@
+import asyncio
 import pytest
 import responses
 
+from aioresponses import aioresponses
 from typing import Callable
 
 import aiod_sdk as aiod
@@ -39,9 +41,11 @@ def test_endpoints_are_created(asset_name: str):
     assert isinstance(getattr(asset, "get_list"), Callable)
     assert isinstance(getattr(asset, "get_asset"), Callable)
     assert isinstance(getattr(asset, "counts"), Callable)
+    assert isinstance(getattr(asset, "get_list_async"), Callable)
+    assert isinstance(getattr(asset, "get_asset_async"), Callable)
 
 
-def test_endpoint_list(asset_name):
+def test_endpoint_get_list(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
@@ -73,7 +77,7 @@ def test_endpoint_counts(asset_name):
         assert counts == 2
 
 
-def test_endpoint_get(asset_name):
+def test_endpoint_get_asset(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
@@ -82,6 +86,55 @@ def test_endpoint_get(asset_name):
             status=200,
         )
         endpoint = getattr(aiod, asset_name)
-        metadata = endpoint.get_asset(identifier=1, format="dict")
+        metadata = endpoint.get_asset(identifier=1, data_format="dict")
 
         assert metadata == {"resource": "fake_details"}
+
+
+def test_endpoint_get_asset_async(asset_name):
+    loop = asyncio.get_event_loop()
+    with aioresponses() as mocked_responses:
+        mocked_responses.get(
+            API_BASE_URL + f"{asset_name}/" + LATEST_VERSION + "/" + "1",
+            payload={"resource": "fake_details"},
+            status=200,
+        )
+        mocked_responses.get(
+            API_BASE_URL + f"{asset_name}/" + LATEST_VERSION + "/" + "3",
+            payload={"resource": "fake_details_2"},
+            status=200,
+        )
+
+        endpoint = getattr(aiod, asset_name)
+        metadata = loop.run_until_complete(
+            endpoint.get_asset_async(identifiers=[1, 3], data_format="dict")
+        )
+        assert metadata == [
+            {"resource": "fake_details"},
+            {"resource": "fake_details_2"},
+        ]
+
+
+def test_endpoint_get_list_async(asset_name):
+    loop = asyncio.get_event_loop()
+    with aioresponses() as mocked_responses:
+        mocked_responses.get(
+            API_BASE_URL + f"{asset_name}/" + LATEST_VERSION + "?offset=0&limit=2",
+            payload=[{"resource_1": "info"}, {"resource_2": "info"}],
+            status=200,
+        )
+        mocked_responses.get(
+            API_BASE_URL + f"{asset_name}/" + LATEST_VERSION + "?offset=2&limit=1",
+            payload=[{"resource_3": "info"}],
+            status=200,
+        )
+
+        endpoint = getattr(aiod, asset_name)
+        metadata = loop.run_until_complete(
+            endpoint.get_list_async(offset=0, limit=3, batch_size=2, data_format="dict")
+        )
+        assert metadata == [
+            {"resource_1": "info"},
+            {"resource_2": "info"},
+            {"resource_3": "info"},
+        ]

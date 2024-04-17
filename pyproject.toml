@@ -11,10 +11,14 @@ python = ">=3.11"
 requests = "^2.31.0"
 pandas = "^2.2.1"
 aiohttp = "^3.9.4"
+asyncio = "^3.4.3"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.5.0"
 responses = "^0.25.0"
+aioresponses = "^0.7.6"
+pytest = "^8.1.1"
+pytest-asyncio = "^0.23.6"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

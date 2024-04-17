@@ -61,7 +61,7 @@ def get_asset(
     asset_type: str,
     identifier: int,
     version: str | None = None,
-    format: Literal["pandas", "dict"] = "pandas",
+    data_format: Literal["pandas", "dict"] = "pandas",
 ) -> pd.Series | dict:
     """
     Retrieve metadata for a specific ASSET_TYPE.
@@ -76,7 +76,7 @@ def get_asset(
     """
     url = url_to_get_asset(asset_type, identifier, version)
     res = requests.get(url)
-    resources = format_response(res.json(), format)
+    resources = format_response(res.json(), data_format)
     return resources
 
 
