@@ -5,7 +5,7 @@ from typing import Callable
 
 import aiod_sdk as aiod
 
-from aiod_sdk.endpoints.settings import API_BASE_URL, LATEST_VERSION
+from aiod_sdk.config.settings import API_BASE_URL, LATEST_VERSION
 
 
 asset_names = [

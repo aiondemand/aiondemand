@@ -1,6 +1,6 @@
 import requests
 
-from aiod_sdk.endpoints.settings import api_base_url
+from aiod_sdk.config.settings import api_base_url
 
 
 def test() -> requests.Response:

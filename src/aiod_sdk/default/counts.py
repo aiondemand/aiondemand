@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 from typing import Literal
 
-from aiod_sdk.endpoints.settings import api_base_url, latest_version
+from aiod_sdk.config.settings import api_base_url, latest_version
 
 
 def asset_counts(
