@@ -140,16 +140,14 @@ async def get_list_async(
         raise ValueError(
             "batch_size must be larger than 0, otherwise you can use the synchronous get_list function!"
         )
-    current_offset = offset
-    next_limit = min(batch_size, limit)
-    batches = []
-    while current_offset < offset + limit:
-        batches.append((current_offset, next_limit))
-        current_offset += next_limit
-        next_limit = min(batch_size, offset + limit - current_offset)
+
+    offsets = range(offset, offset + limit, batch_size)
+    last_batch_size = (limit % batch_size) or batch_size
+    batch_sizes = [batch_size] * (len(offsets) - 1) + [last_batch_size]
 
     urls = [
-        url_to_get_list(asset_type, offset, limit, version) for offset, limit in batches
+        url_to_get_list(asset_type, offset, limit, version)
+        for offset, limit in zip(offsets, batch_sizes)
     ]
 
     response_data = await _fetch_resources(urls)
