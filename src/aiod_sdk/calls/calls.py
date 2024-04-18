@@ -171,5 +171,6 @@ async def _fetch_resources(urls) -> dict:
     return response_data
 
 
-wrap_common_calls = partial(wrap_calls, calls=[get_list, counts, get_asset])
-wrap_common_async_calls = partial(wrap_calls, calls=[get_asset_async, get_list_async])
+wrap_common_calls = partial(
+    wrap_calls, calls=[get_list, counts, get_asset, get_asset_async, get_list_async]
+)
