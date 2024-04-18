@@ -17,7 +17,7 @@ def test_counts():
             body=res_body,
             status=200,
         )
-        counts = aiod.counts(format="dict")
+        counts = aiod.counts(data_format="json")
 
         assert isinstance(counts, dict)
         assert "datasets" in counts

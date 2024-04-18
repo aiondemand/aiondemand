@@ -37,14 +37,15 @@ def url_to_resource_counts(
 
 
 def format_response(
-    response: list | dict, data_format: Literal["pandas", "dict"]
-) -> pd.Series | pd.DataFrame | dict:
+    response: list | dict, data_format: Literal["pandas", "json"]
+) -> pd.Series | pd.DataFrame | dict | list:
     """
     Format the response data based on the specified format.
 
     Parameters:
         response (list | dict): The response data to format.
-        data_format (Literal["pandas", "dict"]): The desired format for the response.
+        data_format (Literal["pandas", "json"]): The desired format for the response.
+            For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
 
     Returns:
         pd.Series | pd.DataFrame | dict: The formatted response data.
@@ -58,10 +59,14 @@ def format_response(
             return pd.Series(response)
         if isinstance(response, list):
             return pd.DataFrame(response)
-    elif data_format == "dict":
+    elif data_format == "json" and (
+        isinstance(response, dict) or isinstance(response, list)
+    ):
         return response
-    else:
-        raise Exception(f"Format: {data_format} invalid or not supported.")
+
+    raise Exception(
+        f"Format: {data_format} invalid or not supported for responses of {type(response)=}."
+    )
 
 
 def wrap_calls(asset_type: str, calls: list[Callable]) -> Tuple[Callable, ...]:

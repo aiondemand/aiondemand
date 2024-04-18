@@ -86,7 +86,7 @@ def test_endpoint_get_asset(asset_name):
             status=200,
         )
         endpoint = getattr(aiod, asset_name)
-        metadata = endpoint.get_asset(identifier=1, data_format="dict")
+        metadata = endpoint.get_asset(identifier=1, data_format="json")
 
         assert metadata == {"resource": "fake_details"}
 
@@ -107,7 +107,7 @@ def test_endpoint_get_asset_async(asset_name):
 
         endpoint = getattr(aiod, asset_name)
         metadata = loop.run_until_complete(
-            endpoint.get_asset_async(identifiers=[1, 3], data_format="dict")
+            endpoint.get_asset_async(identifiers=[1, 3], data_format="json")
         )
         assert metadata == [
             {"resource": "fake_details"},
@@ -131,7 +131,7 @@ def test_endpoint_get_list_async(asset_name):
 
         endpoint = getattr(aiod, asset_name)
         metadata = loop.run_until_complete(
-            endpoint.get_list_async(offset=0, limit=3, batch_size=2, data_format="dict")
+            endpoint.get_list_async(offset=0, limit=3, batch_size=2, data_format="json")
         )
         assert metadata == [
             {"resource_1": "info"},

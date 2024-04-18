@@ -20,8 +20,8 @@ def get_list(
     offset: int = 0,
     limit: int = 10,
     version: str | None = None,
-    data_format: Literal["pandas", "dict"] = "pandas",
-) -> pd.DataFrame | dict:
+    data_format: Literal["pandas", "json"] = "pandas",
+) -> pd.DataFrame | list:
     """
     Retrieve a list of ASSET_TYPE from the catalogue.
 
@@ -29,10 +29,11 @@ def get_list(
         offset (int): The offset for pagination (default is 0).
         limit (int): The maximum number of items to retrieve (default is 10).
         version (str | None): The version of the endpoint (default is None).
-        data_format (Literal["pandas", "dict"]): The desired format for the response (default is "pandas").
+        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
+            For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
 
     Returns:
-        pd.DataFrame | dict: The retrieved metadata in the specified format.
+        pd.DataFrame | dict | list: The retrieved metadata in the specified format.
     """
     url = url_to_get_list(asset_type, offset, limit, version)
     res = requests.get(url)
@@ -61,7 +62,7 @@ def get_asset(
     asset_type: str,
     identifier: int,
     version: str | None = None,
-    data_format: Literal["pandas", "dict"] = "pandas",
+    data_format: Literal["pandas", "json"] = "pandas",
 ) -> pd.Series | dict:
     """
     Retrieve metadata for a specific ASSET_TYPE.
@@ -69,7 +70,8 @@ def get_asset(
     Parameters:
         identifier (int): The identifier of the ASSET_TYPE to retrieve.
         version (str | None): The version of the endpoint (default is None).
-        format (Literal["pandas", "dict"]): The desired format for the response (default is "pandas").
+        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
+            For "json" formats, the returned type is a json decoded type, in this case a dict.
 
     Returns:
         pd.Series | dict: The retrieved metadata for the specified ASSET_TYPE.
@@ -84,15 +86,16 @@ async def get_asset_async(
     asset_type: str,
     identifiers: list[int],
     version: str | None = None,
-    data_format: Literal["pandas", "dict"] = "pandas",
-):
+    data_format: Literal["pandas", "json"] = "pandas",
+) -> pd.DataFrame | list:
     """
     Asynchronously retrieve metadata for a list of ASSET_TYPE identifiers.
 
     Parameters:
         identifiers (list[int]): The list of identifiers of the ASSET_TYPE to retrieve.
         version (str | None): The version of the endpoint (default is None).
-        format (Literal["pandas", "dict"]): The desired format for the response (default is "pandas").
+        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
+            For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
 
     Returns:
         pd.Series | dict: The retrieved metadata for the specified ASSET_TYPE.
@@ -111,8 +114,8 @@ async def get_list_async(
     limit: int = 100,
     batch_size: int = 10,
     version: str | None = None,
-    data_format: Literal["pandas", "dict"] = "pandas",
-) -> pd.DataFrame | dict:
+    data_format: Literal["pandas", "json"] = "pandas",
+) -> pd.DataFrame | list:
     """
     Asynchronously retrieve a list of ASSET_TYPE from the catalogue in batches.
 
@@ -121,7 +124,8 @@ async def get_list_async(
         limit (int): The maximum number of items to retrieve (default is 10).
         batch_size (int): The number of items in a a batch.
         version (str | None): The version of the endpoint (default is None).
-        data_format (Literal["pandas", "dict"]): The desired format for the response (default is "pandas").
+        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
+            For "json" formats, the returned type is a json decoded type, in this case a list.
 
     Returns:
         pd.DataFrame | dict: The retrieved metadata in the specified format.
