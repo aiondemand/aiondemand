@@ -16,6 +16,7 @@ from aiod_sdk.calls.utils import (
 
 
 def get_list(
+    *,
     asset_type: str,
     offset: int = 0,
     limit: int = 10,
@@ -25,7 +26,7 @@ def get_list(
     """
     Retrieve a list of ASSET_TYPE from the catalogue.
 
-    Parameters:
+    Parameters (keywords required):
         offset (int): The offset for pagination (default is 0).
         limit (int): The maximum number of items to retrieve (default is 10).
         version (str | None): The version of the endpoint (default is None).
@@ -41,11 +42,13 @@ def get_list(
     return resources
 
 
-def counts(asset_type: str, version: str | None = None, detailed: bool = False) -> int:
+def counts(
+    *, asset_type: str, version: str | None = None, detailed: bool = False
+) -> int:
     """
     Retrieve the counts of ASSET_TYPE.
 
-    Parameters:
+    Parameters (keywords required):
         version (str | None): The version of the endpoint (default is None).
         detailed (bool): Whether to retrieve detailed counts (default is False).
 
@@ -59,6 +62,7 @@ def counts(asset_type: str, version: str | None = None, detailed: bool = False) 
 
 
 def get_asset(
+    *,
     asset_type: str,
     identifier: int,
     version: str | None = None,
@@ -67,7 +71,7 @@ def get_asset(
     """
     Retrieve metadata for a specific ASSET_TYPE.
 
-    Parameters:
+    Parameters (keywords required):
         identifier (int): The identifier of the ASSET_TYPE to retrieve.
         version (str | None): The version of the endpoint (default is None).
         data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
@@ -83,6 +87,7 @@ def get_asset(
 
 
 async def get_asset_async(
+    *,
     asset_type: str,
     identifiers: list[int],
     version: str | None = None,
@@ -91,7 +96,7 @@ async def get_asset_async(
     """
     Asynchronously retrieve metadata for a list of ASSET_TYPE identifiers.
 
-    Parameters:
+    Parameters (keywords required):
         identifiers (list[int]): The list of identifiers of the ASSET_TYPE to retrieve.
         version (str | None): The version of the endpoint (default is None).
         data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
@@ -109,6 +114,7 @@ async def get_asset_async(
 
 
 async def get_list_async(
+    *,
     asset_type: str,
     offset: int = 0,
     limit: int = 100,
@@ -119,7 +125,7 @@ async def get_list_async(
     """
     Asynchronously retrieve a list of ASSET_TYPE from the catalogue in batches.
 
-    Parameters:
+    Parameters (keywords required):
         offset (int): The offset for pagination (default is 0).
         limit (int): The maximum number of items to retrieve (default is 10).
         batch_size (int): The number of items in a a batch.
