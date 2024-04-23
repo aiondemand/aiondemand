@@ -6,18 +6,23 @@ import pandas as pd
 from typing import Literal
 from functools import partial
 
-from aiod_sdk.calls.utils import (
+from aiod_sdk.calls.urls import (
     url_to_get_asset,
+    url_to_get_content,
     url_to_get_list,
+    url_to_get_list_from_platform,
+    url_to_get_asset_from_platform,
     url_to_resource_counts,
-    format_response,
-    wrap_calls,
+    url_to_search,
 )
+
+from aiod_sdk.calls.utils import format_response, wrap_calls
 
 
 def get_list(
     *,
     asset_type: str,
+    platform: str | None = None,
     offset: int = 0,
     limit: int = 10,
     version: str | None = None,
@@ -27,6 +32,7 @@ def get_list(
     Retrieve a list of ASSET_TYPE from the catalogue.
 
     Parameters (keywords required):
+        platform (str | None, optional): Return ASSET_TYPE of this platform (default is None).
         offset (int): The offset for pagination (default is 0).
         limit (int): The maximum number of items to retrieve (default is 10).
         version (str | None): The version of the endpoint (default is None).
@@ -34,9 +40,13 @@ def get_list(
             For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
 
     Returns:
-        pd.DataFrame | dict | list: The retrieved metadata in the specified format.
+        pd.DataFrame | list: The retrieved metadata in the specified format.
     """
-    url = url_to_get_list(asset_type, offset, limit, version)
+    url = (
+        url_to_get_list_from_platform(asset_type, platform, offset, limit, version)
+        if platform is not None
+        else url_to_get_list(asset_type, offset, limit, version)
+    )
     res = requests.get(url)
     resources = format_response(res.json(), data_format)
     return resources
@@ -83,6 +93,109 @@ def get_asset(
     url = url_to_get_asset(asset_type, identifier, version)
     res = requests.get(url)
     resources = format_response(res.json(), data_format)
+    return resources
+
+
+def get_asset_from_platform(
+    *,
+    asset_type: str,
+    platform: str,
+    platform_identifier: str,
+    version: str | None = None,
+    data_format: Literal["pandas", "json"] = "pandas",
+) -> pd.Series | dict:
+    """
+    Retrieve metadata for a specific ASSET_TYPE identified by the external platform identifier.
+
+    Parameters (keywords required):
+        platform (str): Return ASSET_TYPE of this platform.
+        platform_identifier (str): The identifier under which the ASSET_TYPE is known by the platform.
+        version (str | None): The version of the endpoint (default is None).
+        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
+            For "json" formats, the returned type is a json decoded type, in this case a dict.
+
+    Returns:
+        pd.Series | dict: The retrieved metadata for the specified ASSET_TYPE.
+    """
+    url = url_to_get_asset_from_platform(
+        asset_type, platform, platform_identifier, version
+    )
+    res = requests.get(url)
+    resources = format_response(res.json(), data_format)
+    return resources
+
+
+def get_content(
+    *,
+    asset_type: str,
+    identifier: int,
+    distribution_idx: int = 0,
+    version: str | None = None,
+) -> bytes:
+    """
+    Retrieve the distribution's content of a specific ASSET_TYPE.
+
+    Parameters (keywords required):
+        identifier (int): The identifier of the ASSET_TYPE.
+        distribution_idx (int, optional): The index of a specific distribution
+            from the distribution list (default is 0).
+        version (str | None): The version of the endpoint (default is None).
+
+    Returns:
+        pd.Series | dict: The retrieved metadata for the specified ASSET_TYPE.
+    """
+    url = url_to_get_content(asset_type, identifier, distribution_idx, version)
+    res = requests.get(url)
+    distribution = res.content
+    return distribution
+
+
+def search(
+    *,
+    asset_type: str,
+    search_query: str,
+    platforms: list[str] | None = None,
+    offset: int = 0,
+    limit: int = 10,
+    search_fields: (
+        None | Literal["name", "issn", "description_html", "description_plain"]
+    ) = None,
+    get_all: bool = True,
+    version: str | None = None,
+    data_format: Literal["pandas", "json"] = "pandas",
+) -> pd.DataFrame | list:
+    """
+    Search metadata for ASSET_TYPE type using the Elasticsearch endpoint of the AIoD catalogue.
+
+    Parameters (keywords required):
+        search_query (str): The search query to be executed.
+        platforms (list[str] | None, optional): The platforms to filter the search results.
+            If None, results from all platforms will be returned (default is None).
+        offset (int, optional): The offset for pagination (default is 0).
+        limit (int, optional): The maximum number of results to retrieve (default is 10).
+        search_fields (None | Literal["name", "issn", "description_html", "description_plain"], optional):
+            The specific fields to search within. If None, the query will be matched against all fields (default is None).
+        get_all (bool, optional): If true, a request to the database is made to retrieve all data.
+            If false, only the indexed information is returned. (default is True).
+        version (str | None, optional): The version of the endpoint to use (default is None).
+        data_format (Literal["pandas", "json"], optional): The desired format for the response (default is "pandas").
+
+    Returns:
+        pd.DataFrame | list: The retrieved metadata for the ASSET_TYPE.
+    """
+
+    url = url_to_search(
+        asset_type,
+        search_query,
+        platforms,
+        offset,
+        limit,
+        search_fields,
+        get_all,
+        version,
+    )
+    res = requests.get(url)
+    resources = format_response(res.json()["resources"], data_format)
     return resources
 
 
@@ -170,5 +283,15 @@ async def _fetch_resources(urls) -> dict:
 
 
 wrap_common_calls = partial(
-    wrap_calls, calls=[get_list, counts, get_asset, get_asset_async, get_list_async]
+    wrap_calls,
+    calls=[
+        get_list,
+        counts,
+        get_asset,
+        get_asset_from_platform,
+        get_content,
+        search,
+        get_asset_async,
+        get_list_async,
+    ],
 )
