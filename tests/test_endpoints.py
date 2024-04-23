@@ -3,11 +3,14 @@ import pytest
 import responses
 
 from aioresponses import aioresponses
+from pathlib import Path
 from typing import Callable
 
 import aiod_sdk as aiod
 
 from aiod_sdk.config.settings import API_BASE_URL, LATEST_VERSION
+
+resources_path = Path(__file__).parent / "resources"
 
 
 asset_names = [
@@ -39,8 +42,11 @@ def test_endpoints_are_created(asset_name: str):
 
     asset = getattr(aiod, asset_name)
     assert isinstance(getattr(asset, "get_list"), Callable)
-    assert isinstance(getattr(asset, "get_asset"), Callable)
     assert isinstance(getattr(asset, "counts"), Callable)
+    assert isinstance(getattr(asset, "get_asset"), Callable)
+    assert isinstance(getattr(asset, "get_asset_from_platform"), Callable)
+    assert isinstance(getattr(asset, "get_content"), Callable)
+    assert isinstance(getattr(asset, "search"), Callable)
     assert isinstance(getattr(asset, "get_list_async"), Callable)
     assert isinstance(getattr(asset, "get_asset_async"), Callable)
 
@@ -49,7 +55,7 @@ def test_endpoint_get_list(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            API_BASE_URL + f"{asset_name}/" + LATEST_VERSION + "?offset=0&limit=10",
+            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}?offset=0&limit=10",
             body=b'[{"resource_1": "info"},{"resource_2": "info"}]',
             status=200,
         )
@@ -63,11 +69,7 @@ def test_endpoint_counts(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            API_BASE_URL
-            + "counts/"
-            + f"{asset_name}/"
-            + LATEST_VERSION
-            + "?detailed=false",
+            f"{API_BASE_URL}counts/{asset_name}/{LATEST_VERSION}?detailed=false",
             body=b"2",
             status=200,
         )
@@ -81,7 +83,7 @@ def test_endpoint_get_asset(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            API_BASE_URL + f"{asset_name}/" + LATEST_VERSION + "/" + "1",
+            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}/1",
             body=b'{"resource":"fake_details"}',
             status=200,
         )
@@ -91,11 +93,78 @@ def test_endpoint_get_asset(asset_name):
         assert metadata == {"resource": "fake_details"}
 
 
+def test_endpoint_get_list_from_platform(asset_name):
+    platform_name = "zenodo"
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{API_BASE_URL}platforms/{platform_name}/{asset_name}/{LATEST_VERSION}?offset=0&limit=10",
+            body=b'[{"resource_1": "info"},{"resource_2": "info"}]',
+            status=200,
+        )
+        endpoint = getattr(aiod, asset_name)
+        metadata_list = endpoint.get_list(platform=platform_name)
+
+        assert len(metadata_list) == 2
+
+
+def test_endpoint_get_asset_from_platform(asset_name):
+    platform_name = "zenodo"
+    platform_identifier = "zenodo.org:1000"
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{API_BASE_URL}platforms/{platform_name}/{asset_name}/{LATEST_VERSION}/{platform_identifier}",
+            body=b'{"resource":"fake_details"}',
+            status=200,
+        )
+        endpoint = getattr(aiod, asset_name)
+        metadata = endpoint.get_asset_from_platform(
+            platform=platform_name,
+            platform_identifier=platform_identifier,
+            data_format="json",
+        )
+
+        assert metadata == {"resource": "fake_details"}
+
+
+def test_get_content(asset_name):
+    with responses.RequestsMock() as mocked_requests:
+        with open(resources_path / "content.csv", "r") as f:
+            res_body = f.read()
+        mocked_requests.add(
+            responses.GET,
+            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}/1/content",
+            body=res_body,
+            status=200,
+        )
+        endpoint = getattr(aiod, asset_name)
+        content = endpoint.get_content(identifier=1)
+
+        assert content == b"a,b,c\n1,2,3"
+
+
+def test_get_content_with_distribution_idx(asset_name):
+    with responses.RequestsMock() as mocked_requests:
+        with open(resources_path / "content.csv", "r") as f:
+            res_body = f.read()
+        mocked_requests.add(
+            responses.GET,
+            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}/1/content/2",
+            body=res_body,
+            status=200,
+        )
+        endpoint = getattr(aiod, asset_name)
+        content = endpoint.get_content(identifier=1, distribution_idx=2)
+
+        assert content == b"a,b,c\n1,2,3"
+
+
 def test_endpoint_get_asset_async(asset_name):
     loop = asyncio.get_event_loop()
     with aioresponses() as mocked_responses:
         mocked_responses.get(
-            API_BASE_URL + f"{asset_name}/" + LATEST_VERSION + "/" + "1",
+            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}/1",
             payload={"resource": "fake_details"},
             status=200,
         )
@@ -119,12 +188,12 @@ def test_endpoint_get_list_async(asset_name):
     loop = asyncio.get_event_loop()
     with aioresponses() as mocked_responses:
         mocked_responses.get(
-            API_BASE_URL + f"{asset_name}/" + LATEST_VERSION + "?offset=0&limit=2",
+            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}?offset=0&limit=2",
             payload=[{"resource_1": "info"}, {"resource_2": "info"}],
             status=200,
         )
         mocked_responses.get(
-            API_BASE_URL + f"{asset_name}/" + LATEST_VERSION + "?offset=2&limit=1",
+            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}?offset=2&limit=1",
             payload=[{"resource_3": "info"}],
             status=200,
         )
