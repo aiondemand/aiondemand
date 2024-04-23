@@ -160,6 +160,36 @@ def test_get_content_with_distribution_idx(asset_name):
         assert content == b"a,b,c\n1,2,3"
 
 
+def test_search(asset_name):
+    search_query = "my query"
+    search_field = "name"
+    platforms = ["aiod", "openml"]
+    get_all = True
+
+    query = (
+        f"?search_query={search_query.replace(' ', '+')}&platforms={platforms[0]}"
+        f"&platforms={platforms[1]}&offset=0&limit=10&search_fields={search_field}&get_all=true"
+    )
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{API_BASE_URL}search/{asset_name}/{LATEST_VERSION}{query}",
+            body=b'{"total_hits": 2,"resources": [{"resource_1": "info"},{"resource_2": "info"}],"limit": 10,"offset": 0}',
+            status=200,
+        )
+        endpoint = getattr(aiod, asset_name)
+        metadata_list = endpoint.search(
+            search_query=search_query,
+            search_fields=search_field,
+            platforms=platforms,
+            get_all=get_all,
+            data_format="json",
+        )
+
+        assert len(metadata_list) == 2
+        assert metadata_list == [{"resource_1": "info"}, {"resource_2": "info"}]
+
+
 def test_endpoint_get_asset_async(asset_name):
     loop = asyncio.get_event_loop()
     with aioresponses() as mocked_responses:
