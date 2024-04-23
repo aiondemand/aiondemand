@@ -290,8 +290,8 @@ wrap_common_calls = partial(
         get_asset,
         get_asset_from_platform,
         get_content,
-        search,
         get_asset_async,
         get_list_async,
     ],
 )
+wrap_search_call = partial(wrap_calls, calls=[search])

@@ -6,7 +6,8 @@ from aiod_sdk.calls import calls
     get_asset,
     get_asset_from_platform,
     get_content,
-    search,
     get_asset_async,
     get_list_async,
 ) = calls.wrap_common_calls(asset_type="projects")
+
+(search,) = calls.wrap_search_call(asset_type="projects")

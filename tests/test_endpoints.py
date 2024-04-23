@@ -32,23 +32,43 @@ asset_names = [
     "teams",
 ]
 
+assets_with_search = [
+    "datasets",
+    "events",
+    "experiments",
+    "ml_models",
+    "news",
+    "organisations",
+    "projects",
+    "publications",
+    "services",
+]
+
 
 @pytest.fixture(params=asset_names)
 def asset_name(request):
     return request.param
 
 
-def test_endpoints_are_created(asset_name: str):
+@pytest.fixture(params=assets_with_search)
+def asset_with_search(request):
+    return request.param
 
+
+def test_common_endpoints_are_created(asset_name: str):
     asset = getattr(aiod, asset_name)
     assert isinstance(getattr(asset, "get_list"), Callable)
     assert isinstance(getattr(asset, "counts"), Callable)
     assert isinstance(getattr(asset, "get_asset"), Callable)
     assert isinstance(getattr(asset, "get_asset_from_platform"), Callable)
     assert isinstance(getattr(asset, "get_content"), Callable)
-    assert isinstance(getattr(asset, "search"), Callable)
     assert isinstance(getattr(asset, "get_list_async"), Callable)
     assert isinstance(getattr(asset, "get_asset_async"), Callable)
+
+
+def test_search_endpoints_are_created(asset_with_search: str):
+    asset = getattr(aiod, asset_with_search)
+    assert isinstance(getattr(asset, "search"), Callable)
 
 
 def test_endpoint_get_list(asset_name):
@@ -160,7 +180,7 @@ def test_get_content_with_distribution_idx(asset_name):
         assert content == b"a,b,c\n1,2,3"
 
 
-def test_search(asset_name):
+def test_search(asset_with_search):
     search_query = "my query"
     search_field = "name"
     platforms = ["aiod", "openml"]
@@ -173,11 +193,11 @@ def test_search(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{API_BASE_URL}search/{asset_name}/{LATEST_VERSION}{query}",
+            f"{API_BASE_URL}search/{asset_with_search}/{LATEST_VERSION}{query}",
             body=b'{"total_hits": 2,"resources": [{"resource_1": "info"},{"resource_2": "info"}],"limit": 10,"offset": 0}',
             status=200,
         )
-        endpoint = getattr(aiod, asset_name)
+        endpoint = getattr(aiod, asset_with_search)
         metadata_list = endpoint.search(
             search_query=search_query,
             search_fields=search_field,
