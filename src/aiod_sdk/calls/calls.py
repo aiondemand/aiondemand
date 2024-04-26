@@ -22,7 +22,7 @@ def get_list(
     limit: int = 10,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
-) -> pd.DataFrame | list:
+) -> pd.DataFrame | list[dict]:
     """
     Retrieve a list of ASSET_TYPE from the catalogue.
 
@@ -31,10 +31,10 @@ def get_list(
         limit (int): The maximum number of items to retrieve (default is 10).
         version (str | None): The version of the endpoint (default is None).
         data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
+            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
 
     Returns:
-        pd.DataFrame | dict | list: The retrieved metadata in the specified format.
+        pd.DataFrame | list[dict]: The retrieved metadata in the specified format.
     """
     url = url_to_get_list(asset_type, offset, limit, version)
     res = requests.get(url)
@@ -92,7 +92,7 @@ async def get_asset_async(
     identifiers: list[int],
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
-) -> pd.DataFrame | list:
+) -> pd.DataFrame | list[dict]:
     """
     Asynchronously retrieve metadata for a list of ASSET_TYPE identifiers.
 
@@ -100,10 +100,10 @@ async def get_asset_async(
         identifiers (list[int]): The list of identifiers of the ASSET_TYPE to retrieve.
         version (str | None): The version of the endpoint (default is None).
         data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
+            For "json" formats, the returned type is a json decoded type, in this case a list of dict's.
 
     Returns:
-        pd.Series | dict: The retrieved metadata for the specified ASSET_TYPE.
+        pd.DataFrame | list[dict]: The retrieved metadata for the specified ASSET_TYPE.
     """
     urls = [
         url_to_get_asset(asset_type, identifier, version) for identifier in identifiers
@@ -121,7 +121,7 @@ async def get_list_async(
     batch_size: int = 10,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
-) -> pd.DataFrame | list:
+) -> pd.DataFrame | list[dict]:
     """
     Asynchronously retrieve a list of ASSET_TYPE from the catalogue in batches.
 
@@ -131,10 +131,10 @@ async def get_list_async(
         batch_size (int): The number of items in a a batch.
         version (str | None): The version of the endpoint (default is None).
         data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, in this case a list.
+            For "json" formats, the returned type is a json decoded type, in this case a list of dict's.
 
     Returns:
-        pd.DataFrame | dict: The retrieved metadata in the specified format.
+        pd.DataFrame | list[dict]: The retrieved metadata in the specified format.
     """
     if batch_size <= 0:
         raise ValueError(
