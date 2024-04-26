@@ -87,7 +87,7 @@ def get_asset(
     return resources
 
 
-async def get_asset_async(
+async def get_assets_async(
     *,
     asset_type: str,
     identifiers: list[int],
@@ -171,5 +171,5 @@ async def _fetch_resources(urls) -> dict:
 
 
 wrap_common_calls = partial(
-    wrap_calls, calls=[get_list, counts, get_asset, get_asset_async, get_list_async]
+    wrap_calls, calls=[get_list, counts, get_asset, get_assets_async, get_list_async]
 )
