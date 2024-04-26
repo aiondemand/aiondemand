@@ -1,4 +1,4 @@
-from aiod_sdk.calls import calls
+from aiod.calls import calls
 
 (
     get_list,

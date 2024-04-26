@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aiod_sdk"
+name = "aiod"
 version = "0.1.0"
 description = "Python SDK for the AIoD metadata catalogue"
 authors = [

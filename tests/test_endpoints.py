@@ -6,9 +6,9 @@ from aioresponses import aioresponses
 from pathlib import Path
 from typing import Callable
 
-import aiod_sdk as aiod
+import aiod
 
-from aiod_sdk.config.settings import API_BASE_URL, LATEST_VERSION
+from aiod.config.settings import API_BASE_URL, LATEST_VERSION
 
 resources_path = Path(__file__).parent / "resources"
 

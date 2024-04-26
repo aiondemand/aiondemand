@@ -6,7 +6,7 @@ import pandas as pd
 from typing import Literal
 from functools import partial
 
-from aiod_sdk.calls.urls import (
+from aiod.calls.urls import (
     url_to_get_asset,
     url_to_get_content,
     url_to_get_list,
@@ -16,7 +16,7 @@ from aiod_sdk.calls.urls import (
     url_to_search,
 )
 
-from aiod_sdk.calls.utils import format_response, wrap_calls
+from aiod.calls.utils import format_response, wrap_calls
 
 
 def get_list(
