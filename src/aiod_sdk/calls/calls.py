@@ -32,7 +32,7 @@ def get_list(
     Retrieve a list of ASSET_TYPE from the catalogue.
 
     Parameters (keywords required):
-        platform (str | None, optional): Return ASSET_TYPE of this platform (default is None).
+        platform (str | None): Return metadata of ASSET_TYPE assets of this platform (default is None).
         offset (int): The offset for pagination (default is 0).
         limit (int): The maximum number of items to retrieve (default is 10).
         version (str | None): The version of the endpoint (default is None).
@@ -109,7 +109,7 @@ def get_asset_from_platform(
     Retrieve metadata for a specific ASSET_TYPE identified by the external platform identifier.
 
     Parameters (keywords required):
-        platform (str): Return ASSET_TYPE of this platform.
+        platform (str): The platform where the ASSET_TYPE asset is retrieved from.
         platform_identifier (str): The identifier under which the ASSET_TYPE is known by the platform.
         version (str | None): The version of the endpoint (default is None).
         data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
@@ -134,16 +134,15 @@ def get_content(
     version: str | None = None,
 ) -> bytes:
     """
-    Retrieve the distribution's content of a specific ASSET_TYPE.
+    Retrieve the data content of a specific ASSET_TYPE.
 
     Parameters (keywords required):
-        identifier (int): The identifier of the ASSET_TYPE.
-        distribution_idx (int, optional): The index of a specific distribution
-            from the distribution list (default is 0).
+        identifier (int): The identifier of the ASSET_TYPE asset.
+        distribution_idx (int): The index of a specific distribution from the distribution list (default is 0).
         version (str | None): The version of the endpoint (default is None).
 
     Returns:
-        pd.Series | dict: The retrieved metadata for the specified ASSET_TYPE.
+        bytes: The data content for the specified ASSET_TYPE.
     """
     url = url_to_get_content(asset_type, identifier, distribution_idx, version)
     res = requests.get(url)
@@ -158,31 +157,32 @@ def search(
     platforms: list[str] | None = None,
     offset: int = 0,
     limit: int = 10,
-    search_fields: (
+    search_field: (
         None | Literal["name", "issn", "description_html", "description_plain"]
     ) = None,
     get_all: bool = True,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
-) -> pd.DataFrame | list:
+) -> pd.DataFrame | list[dict]:
     """
-    Search metadata for ASSET_TYPE type using the Elasticsearch endpoint of the AIoD catalogue.
+    Search metadata for ASSET_TYPE type using the Elasticsearch endpoint of the AIoD metadata catalogue.
 
     Parameters (keywords required):
-        search_query (str): The search query to be executed.
-        platforms (list[str] | None, optional): The platforms to filter the search results.
+        search_query (str): The string to be matched against the search fields.
+        platforms (list[str] | None): The platforms to filter the search results.
             If None, results from all platforms will be returned (default is None).
-        offset (int, optional): The offset for pagination (default is 0).
-        limit (int, optional): The maximum number of results to retrieve (default is 10).
-        search_fields (None | Literal["name", "issn", "description_html", "description_plain"], optional):
+        offset (int): The offset for pagination (default is 0).
+        limit (int): The maximum number of results to retrieve (default is 10).
+        search_field (None | Literal["name", "issn", "description_html", "description_plain"]):
             The specific fields to search within. If None, the query will be matched against all fields (default is None).
-        get_all (bool, optional): If true, a request to the database is made to retrieve all data.
+        get_all (bool): If true, a request to the database is made to retrieve all data.
             If false, only the indexed information is returned. (default is True).
-        version (str | None, optional): The version of the endpoint to use (default is None).
-        data_format (Literal["pandas", "json"], optional): The desired format for the response (default is "pandas").
+        version (str | None): The version of the endpoint to use (default is None).
+        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
+            For "json" formats, the returned type is a json decoded type, in this case a list of dict's.
 
     Returns:
-        pd.DataFrame | list: The retrieved metadata for the ASSET_TYPE.
+        pd.DataFrame | list[dict]: The retrieved metadata in the specified format.
     """
 
     url = url_to_search(
@@ -191,7 +191,7 @@ def search(
         platforms,
         offset,
         limit,
-        search_fields,
+        search_field,
         get_all,
         version,
     )
