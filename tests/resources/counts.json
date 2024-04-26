@@ -1,0 +1,54 @@
+{
+    "case_studies": {
+        "example": 1
+    },
+    "computational_assets": {
+        "example": 1
+    },
+    "contacts": {
+        "example": 1
+    },
+    "datasets": {
+        "huggingface": 117506,
+        "openml": 5451,
+        "zenodo": 219761
+    },
+    "educational_resources": {
+        "aiod": 1,
+        "example": 1,
+        "robotics4eu": 16
+    },
+    "events": {
+        "example": 3
+    },
+    "experiments": {
+        "example": 1
+    },
+    "ml_models": {
+        "example": 1,
+        "huggingface": 1,
+        "openml": 12745
+    },
+    "news": {
+        "example": 1
+    },
+    "organisations": {
+        "example": 1
+    },
+    "persons": {
+        "example": 1
+    },
+    "publications": {
+        "example": 1,
+        "robotics4eu": 3
+    },
+    "projects": {
+        "example": 1
+    },
+    "services": {
+        "example": 1
+    },
+    "teams": {
+        "example": 1
+    }
+}

@@ -1,6 +1,6 @@
 # aiod_py_sdk
 
-Python SDK for the AIoD metadata ctathalogue
+Python SDK for the AIoD metadata catalogue
 
 ## Installation
 
@@ -18,7 +18,7 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 ## License
 
-`aiod_py_sdk` was created by Jean Matias. It is licensed under the terms of the MIT license.
+`aiod_py_sdk` is an AI-on-Demand under development initiative, and created by Jean Matias. It is licensed under the terms of the MIT license.
 
 ## Credits
 
