@@ -43,20 +43,21 @@ def get_list(
 
 
 def counts(
-    *, asset_type: str, version: str | None = None, detailed: bool = False
-) -> int:
+    *, asset_type: str, version: str | None = None, per_platform: bool = False
+) -> int | dict[str, int]:
     """
-    Retrieve the counts of ASSET_TYPE.
+    Retrieve the number of ASSET_TYPE assets in the metadata catalogue.
 
     Parameters (keywords required):
         version (str | None): The version of the endpoint (default is None).
-        detailed (bool): Whether to retrieve detailed counts (default is False).
+        per_platform (bool): Whether to list counts per platform (default is False).
 
     Returns:
-        int: The count of ASSET_TYPE.
+        int | dict[str, int]: The number ASSET_TYPE assets in the metadata catalogue.
+            If the parameter per_platform is True, it returns a dict[str, int].
     """
 
-    url = url_to_resource_counts(version, detailed, asset_type)
+    url = url_to_resource_counts(version, per_platform, asset_type)
     res = requests.get(url)
     return res.json()
 
