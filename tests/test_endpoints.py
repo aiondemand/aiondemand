@@ -63,7 +63,7 @@ def test_common_endpoints_are_created(asset_name: str):
     assert isinstance(getattr(asset, "get_asset_from_platform"), Callable)
     assert isinstance(getattr(asset, "get_content"), Callable)
     assert isinstance(getattr(asset, "get_list_async"), Callable)
-    assert isinstance(getattr(asset, "get_asset_async"), Callable)
+    assert isinstance(getattr(asset, "get_assets_async"), Callable)
 
 
 def test_search_endpoints_are_created(asset_with_search: str):
@@ -226,7 +226,7 @@ def test_endpoint_get_asset_async(asset_name):
 
         endpoint = getattr(aiod, asset_name)
         metadata = loop.run_until_complete(
-            endpoint.get_asset_async(identifiers=[1, 3], data_format="json")
+            endpoint.get_assets_async(identifiers=[1, 3], data_format="json")
         )
         assert metadata == [
             {"resource": "fake_details"},

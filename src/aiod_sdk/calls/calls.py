@@ -27,7 +27,7 @@ def get_list(
     limit: int = 10,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
-) -> pd.DataFrame | list:
+) -> pd.DataFrame | list[dict]:
     """
     Retrieve a list of ASSET_TYPE from the catalogue.
 
@@ -37,10 +37,10 @@ def get_list(
         limit (int): The maximum number of items to retrieve (default is 10).
         version (str | None): The version of the endpoint (default is None).
         data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
+            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
 
     Returns:
-        pd.DataFrame | list: The retrieved metadata in the specified format.
+        pd.DataFrame | list[dict]: The retrieved metadata in the specified format.
     """
     url = (
         url_to_get_list_from_platform(asset_type, platform, offset, limit, version)
@@ -53,20 +53,21 @@ def get_list(
 
 
 def counts(
-    *, asset_type: str, version: str | None = None, detailed: bool = False
-) -> int:
+    *, asset_type: str, version: str | None = None, per_platform: bool = False
+) -> int | dict[str, int]:
     """
-    Retrieve the counts of ASSET_TYPE.
+    Retrieve the number of ASSET_TYPE assets in the metadata catalogue.
 
     Parameters (keywords required):
         version (str | None): The version of the endpoint (default is None).
-        detailed (bool): Whether to retrieve detailed counts (default is False).
+        per_platform (bool): Whether to list counts per platform (default is False).
 
     Returns:
-        int: The count of ASSET_TYPE.
+        int | dict[str, int]: The number ASSET_TYPE assets in the metadata catalogue.
+            If the parameter per_platform is True, it returns a dict[str, int].
     """
 
-    url = url_to_resource_counts(version, detailed, asset_type)
+    url = url_to_resource_counts(version, per_platform, asset_type)
     res = requests.get(url)
     return res.json()
 
@@ -199,13 +200,13 @@ def search(
     return resources
 
 
-async def get_asset_async(
+async def get_assets_async(
     *,
     asset_type: str,
     identifiers: list[int],
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
-) -> pd.DataFrame | list:
+) -> pd.DataFrame | list[dict]:
     """
     Asynchronously retrieve metadata for a list of ASSET_TYPE identifiers.
 
@@ -213,10 +214,10 @@ async def get_asset_async(
         identifiers (list[int]): The list of identifiers of the ASSET_TYPE to retrieve.
         version (str | None): The version of the endpoint (default is None).
         data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
+            For "json" formats, the returned type is a json decoded type, in this case a list of dict's.
 
     Returns:
-        pd.Series | dict: The retrieved metadata for the specified ASSET_TYPE.
+        pd.DataFrame | list[dict]: The retrieved metadata for the specified ASSET_TYPE.
     """
     urls = [
         url_to_get_asset(asset_type, identifier, version) for identifier in identifiers
@@ -234,7 +235,7 @@ async def get_list_async(
     batch_size: int = 10,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
-) -> pd.DataFrame | list:
+) -> pd.DataFrame | list[dict]:
     """
     Asynchronously retrieve a list of ASSET_TYPE from the catalogue in batches.
 
@@ -244,10 +245,10 @@ async def get_list_async(
         batch_size (int): The number of items in a a batch.
         version (str | None): The version of the endpoint (default is None).
         data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, in this case a list.
+            For "json" formats, the returned type is a json decoded type, in this case a list of dict's.
 
     Returns:
-        pd.DataFrame | dict: The retrieved metadata in the specified format.
+        pd.DataFrame | list[dict]: The retrieved metadata in the specified format.
     """
     if batch_size <= 0:
         raise ValueError(
@@ -290,7 +291,7 @@ wrap_common_calls = partial(
         get_asset,
         get_asset_from_platform,
         get_content,
-        get_asset_async,
+        get_assets_async,
         get_list_async,
     ],
 )

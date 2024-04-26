@@ -48,9 +48,11 @@ def url_to_search(
 
 
 def url_to_resource_counts(
-    version: str | None = None, detailed: bool = False, asset_type: str | None = None
+    version: str | None = None,
+    per_platform: bool = False,
+    asset_type: str | None = None,
 ) -> str:
-    query = urllib.parse.urlencode({"detailed": detailed}).lower()
+    query = urllib.parse.urlencode({"detailed": per_platform}).lower()
     version = version if version is not None else latest_version
     url = f"{api_base_url}counts/{asset_type}/{version}?{query}"
     return url
