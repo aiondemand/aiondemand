@@ -1,8 +1,8 @@
 import responses
 from pathlib import Path
 
-import aiod_sdk as aiod
-from aiod_sdk.config.settings import API_BASE_URL, LATEST_VERSION
+import aiod
+from aiod.config.settings import API_BASE_URL, LATEST_VERSION
 
 resources_path = Path(__file__).parent / "resources"
 
