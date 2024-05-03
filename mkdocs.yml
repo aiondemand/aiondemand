@@ -4,6 +4,8 @@ theme:
   name: material
   features:
     - content.code.copy
+#nav:
+# - api: 'api/reference.md'
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -13,4 +15,8 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+
+plugins:
+- search
+- mkdocstrings
 
