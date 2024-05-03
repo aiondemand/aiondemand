@@ -1,18 +1,34 @@
+import http.client
+from collections import NamedTuple
+from typing import Sequence
 import requests
 
 from aiod.config.settings import api_base_url
 
 
-def test() -> requests.Response:
-    """
-    Send a test request to the authorization_test endpoint.
+class User(NamedTuple):
+    name: str
+    roles: Sequence[str, ...]
 
-    This method sends a GET request to the authorization_test endpoint and returns the response.
+
+class NotAuthenticatedError(Exception):
+    """Raised when an endpoint that requires authentication is called without authentication."""
+    pass
+
+def get_current_user() -> User:
+    """ Return name and roles of the user that is currently authenticated.
+
+    Raises:
+        NotAuthenticatedError: When the user is not authenticated.
 
     Returns:
-        requests.Response: The response object containing the HTTP response from the server.
+        User: The user information for the currently authenticated user.
     """
-
-    url = api_base_url + "authorization_test"
-    res = requests.get(url)
-    return res
+    response = requests.get(f"{api_base_url}authorization_test")
+    content = response.json()
+    if response.status_code == http.client.UNAUTHORIZED:
+        raise NotAuthenticatedError(content)
+    return User(
+        name=content["name"],
+        roles=tuple(content["roles"]),
+    )
