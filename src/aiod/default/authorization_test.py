@@ -1,7 +1,7 @@
 import requests
 
 from aiod.config.settings import api_base_url
-from aiod.authorisation.authorisation import get_token
+from aiod.authorisation.authorisation import get_access_token
 
 
 def test() -> requests.Response:
@@ -13,9 +13,8 @@ def test() -> requests.Response:
     Returns:
         requests.Response: The response object containing the HTTP response from the server.
     """
-
-    token = get_token()
-    headers = {"Authorization": f"Bearer {token['access_token']}"}
+    token = get_access_token()
+    headers = {"Authorization": f"Bearer {token}"}
     url = api_base_url + "authorization_test"
     res = requests.get(url, headers=headers)
     return res.json()
