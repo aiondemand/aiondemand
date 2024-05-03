@@ -1,0 +1,10 @@
+
+# Authentication and authorization
+[keycloak]
+server_url = "http://localhost/aiod-auth/"
+realm = "aiod"
+client_id = "aiod-sdk"
+
+[API]
+API_BASE_URL = "http://localhost/"
+LATEST_VERSION = "v1"
