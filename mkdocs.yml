@@ -1,9 +1,20 @@
-site_name: AI on Demand
+site_name: AIoD Python SDK
 site_url: https://aiondemand.github.io/aiondemand
+repo_url: https://www.github.com/aiondemand/aiondemand
+repo_name: aiondemand
+
 theme:
   name: material
+  logo: https://aiod.eu/wp-content/uploads/2023/06/logo.svg
   features:
     - content.code.copy
+  font:
+    text: 'Montserrat'
+  palette:
+    scheme: 'aiod'
+extra_css:
+  - stylesheets/extra.css
+
 nav:
   - Introduction: 'README.md'
   - API: 'api/reference.md'
@@ -23,4 +34,5 @@ markdown_extensions:
 plugins:
 - search
 - mkdocstrings
+- privacy
 
