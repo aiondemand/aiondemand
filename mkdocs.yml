@@ -4,8 +4,12 @@ theme:
   name: material
   features:
     - content.code.copy
-#nav:
-# - api: 'api/reference.md'
+nav:
+  - Introduction: 'README.md'
+  - API: 'api/reference.md'
+  - 'changelog.md'
+  - 'contributing.md'
+  - 'conduct.md'
 
 markdown_extensions:
   - pymdownx.highlight:
