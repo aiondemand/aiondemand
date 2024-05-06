@@ -1,10 +1,10 @@
-# AI on Demand 
+# AI-on-Demand 
 
-The [AI on Demand](https://aiod.eu) (AIOD) platform empowers AI research and innovation for industry and academia. 
+The [AI-on-Demand](https://aiod.eu) (AIOD) platform empowers AI research and innovation for industry and academia. 
 At its core if the [metadata catalogue](https://aiod.i3a.es) which indexes countless AI resources, such as datasets, papers, and educational material, 
 from many different platforms such as [Zenodo](https://www.zenodo.org), [OpenML](https://www.openml.org), and [AIDA](https://https://www.i-aida.org/ai-educational-resources/).
 This package allows you to explore all resources in the metadata catalogue through Python.
-You can also browse the contents of the AI on Demand metadata catalogue through the [MyLibrary](https://mylibrary.aiod.eu) service.
+You can also browse the contents of the AI-on-Demand metadata catalogue through the [MyLibrary](https://mylibrary.aiod.eu) service.
 
 ## Installation
 
