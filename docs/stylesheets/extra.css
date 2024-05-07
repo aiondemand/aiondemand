@@ -15,3 +15,14 @@ yellow: #FFED00
 dark gray: #646567
 light gray: #C5C6C8
  */
+
+/* At the default height and margin, the logo for AIoD is not recognizable. */
+.md-header__button.md-logo {
+    margin: 0;
+    padding: 0;
+}
+
+.md-header__button.md-logo img, .md-header__button.md-logo svg {
+    height: 2.4rem;
+    width: 2.4rem;
+}

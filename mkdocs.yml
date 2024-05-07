@@ -5,7 +5,7 @@ repo_name: aiondemand
 
 theme:
   name: material
-  logo: https://aiod.eu/wp-content/uploads/2023/06/logo.svg
+  logo: images/secondary-neg-white-25p.webp
   features:
     - content.code.copy
   font:
