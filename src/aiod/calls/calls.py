@@ -6,8 +6,12 @@ import pandas as pd
 from typing import Literal
 from functools import partial
 
+from aiod.authorisation.authorisation import get_access_token
 from aiod.calls.urls import (
     url_to_get_asset,
+    url_to_put_asset,
+    url_to_post_asset,
+    url_to_delete_asset,
     url_to_get_content,
     url_to_get_list,
     url_to_get_list_from_platform,
@@ -15,7 +19,6 @@ from aiod.calls.urls import (
     url_to_resource_counts,
     url_to_search,
 )
-
 from aiod.calls.utils import format_response, wrap_calls
 
 
@@ -50,6 +53,73 @@ def get_list(
     res = requests.get(url)
     resources = format_response(res.json(), data_format)
     return resources
+
+
+def delete_asset(
+    *,
+    asset_type: str,
+    identifier: int,
+    version: str | None = None,
+) -> requests.Response:
+    """
+    Delete ASSET_TYPE from the catalogue.
+
+    Parameters (keywords required):
+
+        version (str | None): The version of the endpoint (default is None).
+        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
+            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
+    """
+    url = url_to_delete_asset(asset_type, identifier, version)
+    headers = {"Authorization": f"Bearer {get_access_token()}"}
+    res = requests.delete(url, headers=headers)
+
+    return res
+
+
+def put_asset(
+    *,
+    asset_type: str,
+    identifier: int,
+    metadata: dict,
+    version: str | None = None,
+) -> requests.Response:
+    """
+    Delete ASSET_TYPE from the catalogue.
+
+    Parameters (keywords required):
+
+        version (str | None): The version of the endpoint (default is None).
+        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
+            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
+    """
+    url = url_to_put_asset(asset_type, identifier, version)
+    headers = {"Authorization": f"Bearer {get_access_token()}"}
+    res = requests.put(url, headers=headers, data=metadata)
+
+    return res
+
+
+def post_asset(
+    *,
+    asset_type: str,
+    metadata: dict,
+    version: str | None = None,
+) -> requests.Response:
+    """
+    Delete ASSET_TYPE from the catalogue.
+
+    Parameters (keywords required):
+
+        version (str | None): The version of the endpoint (default is None).
+        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
+            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
+    """
+    url = url_to_post_asset(asset_type, version)
+    headers = {"Authorization": f"Bearer {get_access_token()}"}
+    res = requests.post(url, headers=headers, data=metadata)
+
+    return res
 
 
 def counts(
@@ -289,6 +359,9 @@ wrap_common_calls = partial(
         get_list,
         counts,
         get_asset,
+        post_asset,
+        put_asset,
+        delete_asset,
         get_asset_from_platform,
         get_content,
         get_assets_async,

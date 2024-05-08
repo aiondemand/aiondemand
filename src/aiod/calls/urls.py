@@ -1,6 +1,7 @@
 import urllib
 
 from typing import Literal
+import urllib.parse
 
 from aiod.config.settings import api_base_url, latest_version
 
@@ -22,6 +23,23 @@ def url_to_get_list(
     version = version if version is not None else latest_version
     url = f"{api_base_url}{asset_type}/{version}?{query}"
     return url
+
+
+def url_to_post_asset(asset_type: str, version: str | None = None) -> str:
+    version = version if version is not None else latest_version
+    return f"{api_base_url}{asset_type}/{version}"
+
+
+def url_to_put_asset(
+    asset_type: str, identifier: int, version: str | None = None
+) -> str:
+    return url_to_get_asset(asset_type, identifier, version)
+
+
+def url_to_delete_asset(
+    asset_type: str, identifier: int, version: str | None = None
+) -> str:
+    return url_to_get_asset(asset_type, identifier, version)
 
 
 def url_to_search(
