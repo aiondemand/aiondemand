@@ -1,8 +1,9 @@
 import os
 from keycloak import KeycloakOpenID
 
-from aiod.config.settings import server_url, client_id, client_secrete, realm
+from aiod.config.settings import server_url, client_id, realm
 
+client_secrete = os.getenv("KEYCLOAK_CLIENT_SECRETE")
 
 keycloak_openid = KeycloakOpenID(
     server_url=server_url,
