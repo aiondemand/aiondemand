@@ -32,7 +32,7 @@ def test_authentication(mocked_token: Mock, mocked_logout: Mock):
     assert access_token is None, access_token
     assert refresh_token is None, refresh_token
 
-    aiod.authenticate("fake_username", "fake_p455w0rd")
+    aiod.login("fake_username", "fake_p455w0rd")
     access_token = get_access_token()
     refresh_token = get_refresh_token()
     assert access_token == "fake_token", access_token
@@ -55,7 +55,7 @@ def test_get_user_endpoint(mocked_token: Mock):
             json={"user": "name"},
             status=200,
         )
-        aiod.authenticate("fake_username", "fakeP455w0rd")
+        aiod.login("fake_username", "fakeP455w0rd")
         user = aiod.authorization_test()
 
         header = mocked_requests.calls[0].request.headers["Authorization"]

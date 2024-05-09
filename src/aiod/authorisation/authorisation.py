@@ -14,8 +14,7 @@ keycloak_openid = KeycloakOpenID(
 )
 
 
-def authenticate(username: str, password: str) -> None:
-
+def login(username: str, password: str) -> None:
     if username is None or password is None:
         raise Exception("User credentials missing, provide `username` and `password`")
     token = keycloak_openid.token(username, password)

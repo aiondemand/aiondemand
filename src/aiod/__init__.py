@@ -1,5 +1,5 @@
 from importlib.metadata import version
-from aiod.authorisation.authorisation import authenticate, logout
+from aiod.authorisation.authorisation import login, logout
 from aiod.default.authorization_test import test as authorization_test
 from aiod.resources import case_studies
 from aiod.resources import computational_assets
