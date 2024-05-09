@@ -1,0 +1,5 @@
+[keycloak]
+server_url = "http://localhost/aiod-auth/"
+realm = "aiod"
+client_id = "aiod-sdk"
+client_secrete = ""
