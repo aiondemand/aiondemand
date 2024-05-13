@@ -3,14 +3,10 @@ from keycloak import KeycloakOpenID
 
 from aiod.config.settings import server_url, client_id, realm
 
-client_secrete = os.getenv("KEYCLOAK_CLIENT_SECRETE")
-
 keycloak_openid = KeycloakOpenID(
     server_url=server_url,
     client_id=client_id,
-    client_secret_key=client_secrete,
     realm_name=realm,
-    verify=True,
 )
 
 
