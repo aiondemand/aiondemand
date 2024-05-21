@@ -20,7 +20,7 @@ class DynamicAnalysisExtension(Extension):
             return
 
         print(mod.path)
-        breakpoint()
+        #breakpoint()
         # Skip unselected modules.
         if mod.path not in self.modules:
             return
