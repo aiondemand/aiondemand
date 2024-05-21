@@ -54,6 +54,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           debug: true
+          changelog: false
 #          changelog_increment_filename: changelog-increment.md
           increment: ${{ inputs.increment }}
 #      - run: |
