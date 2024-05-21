@@ -42,7 +42,7 @@ jobs:
         with:
           fetch-tags: 1  # Essential to later commitizen
           fetch-depth: 0  # Recommended by the action
-          token: ${{ secrets.PUSH_ACCESS }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -52,7 +52,7 @@ jobs:
         uses: commitizen-tools/commitizen-action@master
         id: cz
         with:
-          github_token: ${{ secrets.PUSH_ACCESS }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           debug: true
 #          changelog_increment_filename: changelog-increment.md
           increment: ${{ inputs.increment }}
@@ -109,7 +109,7 @@ jobs:
 #          git config user.email doc-bot@amltk.com
 #          current_version=$(git tag | sort --version-sort | tail -n 1)
 #
-           This block will rename previous retitled versions
+##           This block will rename previous retitled versions
 #          retitled_versions=$(mike list -j | jq ".[] | select(.title != .version) | .version" | tr -d '"')
 #          for version in $retitled_versions; do
 #            mike retitle "${version}" "${version}"
@@ -153,10 +153,10 @@ jobs:
           current_version=$(git tag | sort --version-sort | tail -n 1)
           echo "Release for ${current_version}"
           gh release create  \
-#            --generate-notes \
-#            --notes-file changelog-increment.md \
             --verify-tag \
-            "${current_version}" "dist/aiondemand-fake-${current_version}.tar.gz"
+            "${current_version}" "dist/aiondemand-fake-${current_version}.tar.gz
+#            --generate-notes \
+#            --notes-file changelog-increment.md \"
   publish:
     needs: [release]
     runs-on: ubuntu-latest
