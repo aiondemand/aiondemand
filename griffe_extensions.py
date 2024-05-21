@@ -1,3 +1,5 @@
+import sys
+
 # griffe_extensions.py
 from ast import AST
 from griffe.agents.nodes import ObjectNode
@@ -26,7 +28,12 @@ class DynamicAnalysisExtension(Extension):
             return
 
         # Inspect the module using dynamic analysis.
-        inspected_module = inspect(mod.path, filepath=mod.filepath)
+        inspected_module = inspect(
+            mod.name,
+            filepath=mod.filepath,
+            parent=mod.parent,
+            import_paths=list(sys.path),
+        )
 
         # Discard all previous existing members obtained through static analysis,
         # and replace them with those obtained through dynamic analysis.
