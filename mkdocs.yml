@@ -17,7 +17,7 @@ extra_css:
 
 nav:
   - Introduction: 'README.md'
-#  - API: 'api/reference.md'
+  - API: 'api/reference.md'
   - 'changelog.md'
   - 'contributing.md'
   - 'conduct.md'
@@ -33,6 +33,18 @@ markdown_extensions:
 
 plugins:
 - search
-- mkdocstrings
 - privacy
+# mkdocs.yml
+- mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        options:
+          extensions:
+          - griffe_extensions.py:
+              modules:
+              - aiod
+              - aiod.case_studies
+              - aiod.resources.case_studies
+# wasn't entirely sure if it points to dynamic or static location
 
