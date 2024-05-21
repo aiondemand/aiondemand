@@ -1,0 +1,18 @@
+site_name: aiod
+theme:
+  material
+
+# mkdocs.yml
+plugins:
+- mkdocstrings:
+    handlers:
+      python:
+        options:
+          extensions:
+          - griffe_extensions.py:
+              modules:
+              - aiod
+              - aiod.case_studies
+              - aiod.resources.case_studies
+# Not sure whether to specify dynamic or static
+

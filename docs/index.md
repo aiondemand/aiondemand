@@ -1,13 +1,16 @@
-```{include} ../README.md
-```
+# Test
 
-```{toctree}
-:maxdepth: 1
-:hidden:
+## The following lists the AIOD module:
 
-example.ipynb
-changelog.md
-contributing.md
-conduct.md
-autoapi/index
-```
+::: aiod
+
+
+## The following lists `aiod.resources.case_studies`:
+
+::: aiod.resources.case_studies
+
+
+## The following lists `aiod.case_studies`:
+
+::: aiod.case_studies
+
