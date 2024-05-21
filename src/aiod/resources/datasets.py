@@ -8,6 +8,6 @@ from aiod.calls import calls
     get_content,
     get_assets_async,
     get_list_async,
-) = calls.wrap_common_calls(asset_type="datasets")
+) = calls.wrap_common_calls(asset_type="datasets", module=__name__)
 
-(search,) = calls.wrap_search_call(asset_type="datasets")
+(search,) = calls.wrap_search_call(asset_type="datasets", module=__name__)
