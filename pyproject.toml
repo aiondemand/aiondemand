@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "aiod"
-version = "0.1.0"
+name = "aiondemand-fake"
+version = "0.0.1"
 description = "Python SDK for the AIoD metadata catalogue"
 authors = [
     "Jean Matias <smatias.jean@gmail.com>",
@@ -22,6 +22,13 @@ responses = "^0.25.0"
 aioresponses = "^0.7.6"
 pytest = "^8.1.1"
 pytest-asyncio = "^0.23.6"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.1"
+#update_changelog_on_bump = true
+version_files = ["pyproject.toml:version", "src/aiod/__version__.py"]
+#changelog_start_rev = "1.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
