@@ -1,6 +1,6 @@
 [project]
 name = "aiondemand-fake"
-version = "0.0.4"
+version = "0.1.0"
 description = "Python SDK for the AIoD metadata catalogue"
 authors = [
     { name="Jean Matias", email= "smatias.jean@gmail.com"},
@@ -27,7 +27,7 @@ dev = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.0.4"
+version = "0.1.0"
 #update_changelog_on_bump = true
 version_files = ["pyproject.toml:version", "src/aiod/__version__.py"]
 #changelog_start_rev = "1.0.0"
