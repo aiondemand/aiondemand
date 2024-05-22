@@ -43,10 +43,11 @@ jobs:
           fetch-tags: 1  # Essential to later commitizen
           fetch-depth: 0  # Recommended by the action
           token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-          cache: pip
+#      - uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.10"
+#          cache: pip
+# For above, see https://github.com/actions/setup-python/issues/436
       - run: git tag  # Debug statement
       - name: Create bump and changelog
         uses: commitizen-tools/commitizen-action@master
