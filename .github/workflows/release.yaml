@@ -156,7 +156,7 @@ jobs:
           echo "Release for ${current_version}"
           gh release create  \
             --verify-tag \
-            "${current_version}" "dist/aiondemand-fake-${current_version}.tar.gz
+            "${current_version}" "dist/aiondemand_fake-${current_version}.tar.gz
 #            --generate-notes \
 #            --notes-file changelog-increment.md \"
   publish:
