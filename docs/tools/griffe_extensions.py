@@ -1,7 +1,6 @@
 import sys
-
-# griffe_extensions.py
 from ast import AST
+
 from griffe.agents.nodes import ObjectNode
 from griffe.dataclasses import Module
 from griffe.extensions import Extension
@@ -21,8 +20,6 @@ class DynamicAnalysisExtension(Extension):
         if isinstance(node, ObjectNode):
             return
 
-        print(mod.path)
-        #breakpoint()
         # Skip unselected modules.
         if mod.path not in self.modules:
             return

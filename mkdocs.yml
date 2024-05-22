@@ -47,7 +47,7 @@ plugins:
       python:
         options:
           extensions:
-          - griffe_extensions.py:
+          - docs/tools/griffe_extensions.py:
               modules:
               - aiod
               - aiod.case_studies
