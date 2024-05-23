@@ -7,7 +7,7 @@ authors = [
     "Pieter Gijsbers <p.gijsbers@tue.nl>",
 ]
 license = "MIT"
-readme = "README.md"
+readme = "docs/README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.11"
