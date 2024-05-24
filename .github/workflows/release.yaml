@@ -86,7 +86,7 @@ jobs:
           echo "Release for ${current_version}"
           gh release create  \
             --verify-tag \
-            "${current_version}" "dist/aiondemand_fake-${current_version}.tar.gz"
+            "${current_version}" "dist/aiondemand-${current_version}.tar.gz"
   publish:
     needs: [release]
     runs-on: ubuntu-latest
