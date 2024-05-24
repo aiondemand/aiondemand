@@ -7,57 +7,97 @@ helps, and credit will always be given.
 
 ### Report Bugs
 
-If you are reporting a bug, please include:
+Before reporting a bug, please check our [issue tracker](https://github.com/aiondemand/aiondemand/issues)
+that the bug has not yet been reported. If it has, you may add any additional information that might be 
+missing to that issue. If you have nothing to add, react with a 👍 to the original report to communicate
+you are also experiencing the issue.
 
-- Your operating system name and version.
-- Any details about your local setup that might be helpful in troubleshooting.
-- Detailed steps to reproduce the bug.
+In case the bug has not been reported yet, please follow these steps to ensure that we can investigate
+the issue and resolve it efficiently:
 
-### Fix Bugs
+- Describe the bug. What is the expected behavior, and what is the observed behavior?
+- As much as possible, provide steps to reproduce the bug. Preferably with a [minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).
+- Share your operating system name and version, Python and `aiondemand` version. The following 
+  code snippet can be used to automatically obtain the information:
+  ```python
+  import aiod
+  import platform
+  print(f"{platform.platform()=}")
+  print(f"{aiod.__version__=}")
+  print(f"{platform.python_version()=}")
+  ```
+  or, in one command; 
+  ```
+  python -c 'import aiod; import platform; print(f"{platform.platform()=}"); print(f"{aiod.__version__=}"); print(f"{platform.python_version()=}")'
+  ```
+- If you have any additional details about your local setup that might be helpful in troubleshooting, please share them.
 
-Look through the GitHub issues for bugs. Anything tagged with "bug" and "help
-wanted" is open to whoever wants to implement it.
+### Fixing bugs and adding features
 
-### Implement Features
+Our [issue tracker](https://github.com/aiondemand/aiondemand/issues) has a list of known bugs (labelled `bug`)
+and proposed features (labelled `enhancement`). Of particular interest may be those issues labelled `help wanted`,
+as those are best suited for outside contributors. 
 
-Look through the GitHub issues for features. Anything tagged with "enhancement"
-and "help wanted" is open to whoever wants to implement it.
+Before working on an open issue, please first indicate your interest in fixing it by posting a comment on the issue.
+That way, we can assign people (you) to the issue, and avoid multiple people working on fixing the same bug in parallel (and thus avoid double work).
 
 ### Write Documentation
 
 You can never have enough documentation! Please feel free to contribute to any
-part of the documentation, such as the official docs, docstrings, or even
-on the web in blog posts, articles, and such.
+part of the documentation, such as the official docs, docstrings, or even on the web in blog posts, articles, and such.
 
 ### Submit Feedback
 
-If you are proposing a feature:
+If you are proposing a feature, please explain in detail how it would work. 
+Answer at least the following questions:
 
-- Explain in detail how it would work.
-- Keep the scope as narrow as possible, to make it easier to implement.
-- Remember that this is a volunteer-driven project, and that contributions
-  are welcome :)
+  - What is the goal of the new feature? Which problem does it solve, or what functionality does it add?
+  - Does the feature change an existing interface, or add a new one? What is does the suggested new interface look like?
+  - Give an example of a use case where the feature would be of added benefit.
+  - How does the change affect other, existing functionality? Will it be a breaking change?
+
+When suggesting a new feature, try to keep scope as narrow as possible.
+This keeps the discussion focused, and makes it easier to get to an agreement and subsequently implement it.
+Even if a feature request is accepted, it is not a guarantee that we have time available to implement it ourselves.
+However, it makes it much easier for any contributor to start implementing the feature. Contributions welcome :)
 
 ## Get Started!
 
-Ready to contribute? Here's how to set up `aiod_sdk` for local development.
+Ready to contribute? Here's how to set up `aiondemand` for local development.
 
-1. Download a copy of `aiod_sdk` locally.
-2. Install `aiod_sdk` using `poetry`:
+### Setting up the Development Environment 
 
-   ```console
-   $ poetry install
-   ```
+1. Fork the repository from GitHub by clicking the `fork` button on the webpage.
+1. Clone the fork: `git clone https://github.com/USERNAME/aiondemand.git`. Remember to substitute your username.
+1. Install the project locally (after moving to the new directory). 
+Similar to a regular installation, we strongly recommend you to make use of a virtual environment.
+After activating the environment, install the package in editable mode and with the additional develop packages: `python -m pip install -e ".[dev]"`
 
-3. Use `git` (or similar) to create a branch for local development and make your changes:
+Before making any changes, first check your setup works:
+```console
+python -m pytest tests
+```
+All tests should pass.
 
-   ```console
-   $ git checkout -b name-of-your-bugfix-or-feature
-   ```
+### Making Changes
 
-4. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
+While working on a feature, you can work from the "develop"-branch, provided you are working on a fork.
+However, even if you are working on a fork we strongly recommend you to make changes on a new branch.
+When working on the main repository, this is required. When working on a fork, this makes it easier to 
+keep your fork in sync with the upstream repository (this one).
+Your new branch should branch off "develop":
 
-5. Commit your changes and open a pull request.
+```console
+git checkout -b name-of-your-bugfix-or-feature
+```
+
+When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
+Also add new tests. When fixing a bug, add a regression test that exposes the bug (i.e., it should fail without your changes, and pass with them)
+and add a reference to the GitHub issue number as a comment. When adding a feature, add new tests to cover the new code.
+
+Finally, you can open a pull request with the proposed changes. A core contributor will have a look at the changes,
+and possibly request some changes. After all concerns have been addressed, the contributor will merge the change
+and it will be included in the next release.
 
 ## Pull Request Guidelines
 
@@ -69,5 +109,5 @@ Before you submit a pull request, check that it meets these guidelines:
 
 ## Code of Conduct
 
-Please note that the `aiod_py_sdk` project is released with a
-Code of Conduct. By contributing to this project you agree to abide by its terms.
+Please note that the `aiondemand` project is released with a Code of Conduct. 
+By contributing to this project you agree to abide by its terms.
