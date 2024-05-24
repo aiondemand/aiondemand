@@ -1,6 +1,6 @@
 [project]
 name = "aiondemand"
-version = "1.0.2"
+version = "0.0.1"
 description = "Python SDK for the AIoD metadata catalogue"
 authors = [
     { name="Jean Matias", email= "smatias.jean@gmail.com"},
