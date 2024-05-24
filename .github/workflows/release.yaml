@@ -13,41 +13,25 @@ on:
 permissions:
   contents: write
 jobs:
-#  test-code:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: actions/setup-python@v5
-#        with:
-#          python-version: "3.10"
-#          cache: pip
-#      - run: python -m pip install ".[dev]"
-#      - run: pytest ${{ env.test-dir }}
-#  test-docs:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: actions/setup-python@v5
-#        with:
-#          python-version: "3.10"
-#          cache: pip
-#      - run: python -m pip install ".[dev]"
-#      - run: mkdocs build --clean --strict
-  # Need to ensure we bump before we create any artifacts
-  bump:
+  test-code:
     runs-on: ubuntu-latest
-#    needs: [test-code, test-docs]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+      - run: python -m pip install ".[dev]"
+      - run: python -m pytest tests
+  bump:
+    needs: [test-code]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-tags: 1  # Essential to later commitizen
           fetch-depth: 0  # Recommended by the action
           token: ${{ secrets.GITHUB_TOKEN }}
-#      - uses: actions/setup-python@v5
-#        with:
-#          python-version: "3.10"
-#          cache: pip
-# For above, see https://github.com/actions/setup-python/issues/436
       - run: git tag  # Debug statement
       - name: Create bump and changelog
         uses: commitizen-tools/commitizen-action@master
@@ -56,17 +40,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           debug: true
           changelog: false
-#          changelog_increment_filename: changelog-increment.md
           increment: ${{ inputs.increment }}
-#      - run: |
-#          mkdir changelog-output
-#          mv changelog-increment.md changelog-output/changelog-increment.md
-#          cat changelog-output/changelog-increment.md
-#      - name: Upload the changelog
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: changelog
-#          path: changelog-output
 
   build:
     needs: [bump]
@@ -88,42 +62,6 @@ jobs:
         with:
           name: build-output
           path: dist
-
-#  docs:
-#    needs: [bump]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          ref: "main"  # Necessary to download the latest of main as this will have been updated on the step before
-#          fetch-tags: 1
-#          fetch-depth: 0
-#      - uses: actions/setup-python@v5
-#        with:
-#          python-version: "3.10"
-#          cache: pip
-#      - run: python -m pip install ".[dev]"
-#      - name: "Deploy Docs"
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        run: |
-#          git config user.name doc-bot
-#          git config user.email doc-bot@amltk.com
-#          current_version=$(git tag | sort --version-sort | tail -n 1)
-#
-##           This block will rename previous retitled versions
-#          retitled_versions=$(mike list -j | jq ".[] | select(.title != .version) | .version" | tr -d '"')
-#          for version in $retitled_versions; do
-#            mike retitle "${version}" "${version}"
-#          done
-#
-#          echo "Deploying docs for ${current_version}"
-#          mike deploy \
-#            --push \
-#            --title "${current_version} (latest)" \
-#            --update-aliases \
-#            "${current_version}" \
-#            "latest"
   release:
     needs: [build]  # [docs, build]
     runs-on: ubuntu-latest
@@ -139,15 +77,6 @@ jobs:
             name: build-output
             path: dist
       - run: ls -R dist
-#      - name: Download the changelog
-#        uses: actions/download-artifact@v4
-#        with:
-#          name: changelog
-#          path: changelog-output
-#      - run: |
-#          ls -R changelog-output
-#          mv changelog-output/changelog-increment.md changelog-increment.md
-#          cat changelog-increment.md
       - name: "Create Github Release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -157,8 +86,6 @@ jobs:
           gh release create  \
             --verify-tag \
             "${current_version}" "dist/aiondemand_fake-${current_version}.tar.gz"
-#            --generate-notes \
-#            --notes-file changelog-increment.md \"
   publish:
     needs: [release]
     runs-on: ubuntu-latest
