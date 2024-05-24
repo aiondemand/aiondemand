@@ -1,3 +1,7 @@
+# This workflow is based on the workflow by automl/amltk under the BSD-3-Clause license:
+#   Copyright 2023 AutoML-Freiburg-Hannover-Tübingen
+#   https://github.com/automl/amltk/blob/c3eb4ac29c50bdbdf3c1e19a3c99a8a1e0794fba/LICENSE
+
 name: release
 on:
   workflow_dispatch:
