@@ -10,11 +10,12 @@ readme = "README.md"
 
 requires-python = ">=3.11"
 
-[dependencies]
-requests = "^2.31.0"
-pandas = "^2.2.1"
-aiohttp = "^3.9.4"
-asyncio = "^3.4.3"
+dependencies = [
+  "requests",
+  "pandas",
+  "aiohttp",
+  "asyncio",
+]
 
 [project.optional-dependencies]
 dev = [
