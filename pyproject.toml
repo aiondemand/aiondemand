@@ -15,7 +15,6 @@ dependencies = [
   "requests",
   "pandas",
   "aiohttp",
-  "asyncio",
 ]
 
 [project.optional-dependencies]
