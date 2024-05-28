@@ -52,11 +52,11 @@ If you are proposing a feature, please explain in detail how it would work.
 Answer at least the following questions:
 
   - What is the goal of the new feature? Which problem does it solve, or what functionality does it add?
-  - Does the feature change an existing interface, or add a new one? What is does the suggested new interface look like?
+  - Does the feature change an existing interface, or add a new one? What does the suggested new interface look like?
   - Give an example of a use case where the feature would be of added benefit.
-  - How does the change affect other, existing functionality? Will it be a breaking change?
+  - How does the change affect other existing functionality? Will it be a breaking change?
 
-When suggesting a new feature, try to keep scope as narrow as possible.
+When suggesting a new feature, try to keep the scope as narrow as possible.
 This keeps the discussion focused, and makes it easier to get to an agreement and subsequently implement it.
 Even if a feature request is accepted, it is not a guarantee that we have time available to implement it ourselves.
 However, it makes it much easier for any contributor to start implementing the feature. Contributions welcome :)
