@@ -1,22 +1,21 @@
 import http.client
-from collections import NamedTuple
-from typing import Sequence
 import requests
+from typing import Sequence, NamedTuple
 
 from aiod.config.settings import api_base_url
 
 
 class User(NamedTuple):
     name: str
-    roles: Sequence[str, ...]
+    roles: Sequence[str]
 
 
 class NotAuthenticatedError(Exception):
     """Raised when an endpoint that requires authentication is called without authentication."""
-    pass
+
 
 def get_current_user() -> User:
-    """ Return name and roles of the user that is currently authenticated.
+    """Return name and roles of the user that is currently authenticated.
 
     Raises:
         NotAuthenticatedError: When the user is not authenticated.
