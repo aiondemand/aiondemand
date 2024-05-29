@@ -1,0 +1,38 @@
+site_name: AIoD Python SDK
+site_url: https://aiondemand.github.io/aiondemand
+repo_url: https://www.github.com/aiondemand/aiondemand
+repo_name: aiondemand
+
+theme:
+  name: material
+  logo: images/secondary-neg-white-25p.webp
+  features:
+    - content.code.copy
+  font:
+    text: 'Montserrat'
+  palette:
+    scheme: 'aiod'
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Introduction: 'README.md'
+#  - API: 'api/reference.md'
+  - 'changelog.md'
+  - 'contributing.md'
+  - 'conduct.md'
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+plugins:
+- search
+- mkdocstrings
+- privacy
+
