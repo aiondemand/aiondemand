@@ -1,0 +1,108 @@
+# This workflow is based on the workflow by automl/amltk under the BSD-3-Clause license:
+#   Copyright 2023 AutoML-Freiburg-Hannover-Tübingen
+#   https://github.com/automl/amltk/blob/c3eb4ac29c50bdbdf3c1e19a3c99a8a1e0794fba/LICENSE
+
+name: release
+on:
+  workflow_dispatch:
+    inputs:
+      increment:
+        description: "Version segment to increment"
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+        default: patch
+
+permissions:
+  contents: write
+jobs:
+  test-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install ".[dev]"
+      - run: python -m pytest tests
+  bump:
+    needs: [test-code]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: 1  # Essential to later commitizen
+          fetch-depth: 0  # Recommended by the action
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - run: git tag  # Debug statement
+      - name: Create bump and changelog
+        uses: commitizen-tools/commitizen-action@master
+        id: cz
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          debug: true
+          changelog: false
+          increment: ${{ inputs.increment }}
+
+  build:
+    needs: [bump]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "develop"  # Necessary to download the latest of develop as this will have been updated on the step before
+          fetch-tags: 1
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install build
+      - run: python -m build --sdist
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: dist
+  release:
+    needs: [build]  # [docs, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "develop"  # Necessary to download the latest of develop as this will have been updated on the step before
+          fetch-tags: 1
+          fetch-depth: 0
+      - name: Download the build artifiact
+        uses: actions/download-artifact@v4
+        with:
+            name: build-output
+            path: dist
+      - run: ls -R dist
+      - name: "Create Github Release"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          current_version=$(git tag | sort --version-sort | tail -n 1)
+          echo "Release for ${current_version}"
+          gh release create  \
+            --verify-tag \
+            "${current_version}" "dist/aiondemand-${current_version}.tar.gz"
+  publish:
+    needs: [release]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "develop"  # Necessary to download the latest of develop as this will have been updated on the step before
+      - uses: actions/download-artifact@v4
+        with:
+            name: build-output
+            path: dist
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
