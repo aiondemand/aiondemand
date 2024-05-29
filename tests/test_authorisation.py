@@ -52,12 +52,13 @@ def test_get_user_endpoint(mocked_token: Mock):
         mocked_requests.add(
             responses.GET,
             f"{API_BASE_URL}authorization_test",
-            json={"user": "name"},
+            json={"name": "user", "roles": ["a_role"]},
             status=200,
         )
         aiod.login("fake_username", "fakeP455w0rd")
-        user = aiod.authorization_test()
+        user = aiod.get_current_user()
 
         header = mocked_requests.calls[0].request.headers["Authorization"]
         assert header == "Bearer fake_token", header
-        assert user == {"user": "name"}, user
+        assert user.name == "user", user
+        assert user.roles == ("a_role",), user
