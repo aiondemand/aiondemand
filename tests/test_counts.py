@@ -2,7 +2,8 @@ import responses
 from pathlib import Path
 
 import aiod
-from aiod.config.settings import API_BASE_URL, LATEST_VERSION
+from aiod.config import config
+
 
 resources_path = Path(__file__).parent / "resources"
 
@@ -13,7 +14,7 @@ def test_counts():
             res_body = f.read()
         mocked_requests.add(
             responses.GET,
-            API_BASE_URL + "counts/" + LATEST_VERSION,
+            url=f"{config.api_base_url}counts/{config.version}",
             body=res_body,
             status=200,
         )

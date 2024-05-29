@@ -1,7 +1,6 @@
 import requests
 
-from aiod.config.settings import api_base_url
-
+from aiod.config import config
 
 def test() -> requests.Response:
     """
@@ -13,6 +12,6 @@ def test() -> requests.Response:
         requests.Response: The response object containing the HTTP response from the server.
     """
 
-    url = api_base_url + "authorization_test"
+    url = f"{config.api_base_url}authorization_test"
     res = requests.get(url)
     return res

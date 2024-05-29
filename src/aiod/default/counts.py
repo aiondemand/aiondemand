@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 from typing import Literal
 
-from aiod.config.settings import api_base_url, latest_version
+from aiod.config import config
 
 
 def asset_counts(
@@ -21,8 +21,8 @@ def asset_counts(
     Returns:
         pd.DataFrame | dict: Counts as a Pandas data frame or a dictionary.
     """
-    version = version if version is not None else latest_version
-    url = api_base_url + "counts"
+    version = version or config.version
+    url = f"{config.api_base_url}counts"
     if version:
         url += "/" + version
 
