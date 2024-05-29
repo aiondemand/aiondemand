@@ -9,6 +9,8 @@ authors = [
 license = "MIT"
 readme = "docs/README.md"
 
+requires-python = ">=3.11"
+
 dependencies = ["aiohttp", "asyncio", "pandas", "python-keycloak", "requests"]
 
 [project.optional-dependencies]
