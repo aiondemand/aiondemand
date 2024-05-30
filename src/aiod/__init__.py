@@ -1,4 +1,4 @@
-from aiod.default.authorization_test import test as authorization_test
+from aiod.default.get_current_user import get_current_user
 from aiod.resources import case_studies
 from aiod.resources import computational_assets
 from aiod.resources import contacts
