@@ -18,6 +18,7 @@ extra_css:
 nav:
   - Introduction: 'README.md'
 #  - API: 'api/reference.md'
+  - notebook: 'example.ipynb'
   - 'changelog.md'
   - 'contributing.md'
   - 'conduct.md'
@@ -35,4 +36,11 @@ plugins:
 - search
 - mkdocstrings
 - privacy
+- mkdocs-jupyter:
+    # TODO: when we can configure aiod, we should start running notebooks
+    # execute: true
+    # allow_errors: false
+    execute_ignore:
+      - "*.py"
+    include_source: True
 
