@@ -25,6 +25,11 @@ dev = [
     "pytest",
     "pytest-asyncio",
 ]
+doc = [
+    "mkdocs-material",
+    "mkdocstrings-python",
+    "mkdocs-jupyter",
+]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
