@@ -1,13 +1,21 @@
+import http.client
+import requests
 import os
 from keycloak import KeycloakOpenID, KeycloakAuthenticationError
+from typing import Sequence, NamedTuple
 
-from aiod.config.settings import server_url, client_id, realm
+from aiod.config.settings import api_base_url, server_url, client_id, realm
 
 keycloak_openid = KeycloakOpenID(
     server_url=server_url,
     client_id=client_id,
     realm_name=realm,
 )
+
+
+class User(NamedTuple):
+    name: str
+    roles: Sequence[str]
 
 
 def login(username: str, password: str) -> None:
@@ -71,5 +79,33 @@ def get_refresh_token() -> str | None:
     return os.getenv("REFRESH_TOKEN")
 
 
+def get_current_user() -> User:
+    """Return name and roles of the user that is currently authenticated.
+
+    Raises:
+        NotAuthenticatedError: When the user is not authenticated.
+
+    Returns:
+        User: The user information for the currently authenticated user.
+    """
+    token = get_access_token()
+    response = requests.get(
+        f"{api_base_url}authorization_test",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    content = response.json()
+    if response.status_code == http.client.UNAUTHORIZED:
+        raise NotAuthenticatedError(content)
+    return User(
+        name=content["name"],
+        roles=tuple(content["roles"]),
+    )
+
+
 class FailedAuthenticationError(Exception):
     """Raised when an authentication error occurred."""
+
+
+class NotAuthenticatedError(Exception):
+    """Raised when an endpoint that requires authentication is called without authentication."""

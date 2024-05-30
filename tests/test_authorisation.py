@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 import aiod
 from aiod.config.settings import API_BASE_URL
-from aiod.authorisation.authorisation import (
+from aiod.authentication.authentication import (
     keycloak_openid,
     get_access_token,
     get_refresh_token,
