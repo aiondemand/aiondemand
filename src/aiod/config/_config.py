@@ -15,7 +15,7 @@ class Config:
 config = Config(
     api_base_url="https://api.aiod.eu/",
     version="v1",
-    auth_server_url="http://localhost/aiod-auth/",
+    auth_server_url="https://auth.aiod.eu/aiod-auth/",
     realm="aiod",
     client_id="aiod-sdk",
 )

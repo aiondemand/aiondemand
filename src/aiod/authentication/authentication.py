@@ -1,11 +1,22 @@
 import http.client
 import requests
-from keycloak import KeycloakOpenID, KeycloakAuthenticationError
+from keycloak import KeycloakOpenID, KeycloakAuthenticationError, ConnectionManager
 from typing import Sequence, NamedTuple
 
 from aiod.config import config
 
-keycloak_openid = KeycloakOpenID(
+
+class KeycloakOpenID_(KeycloakOpenID):
+    def __init__(self, server_url, realm_name, client_id):
+        super().__init__(server_url, realm_name, client_id)
+        self.server_url = server_url
+
+    def reset_connection(self, server_url: str):
+        self.server_url = server_url
+        self.connection = ConnectionManager(base_url=server_url)
+
+
+keycloak_openid = KeycloakOpenID_(
     server_url=config.auth_server_url,
     client_id=config.client_id,
     realm_name=config.realm,
@@ -31,6 +42,10 @@ def login(username: str, password: str) -> None:
         raise FailedAuthenticationError(
             "Username and/or password missing! Please provide your credentials and try again."
         )
+
+    if config.auth_server_url != keycloak_openid.server_url:
+        keycloak_openid.reset_connection(server_url=config.auth_server_url)
+
     try:
         token = keycloak_openid.token(username, password)
     except KeycloakAuthenticationError as e:
