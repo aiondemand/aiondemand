@@ -5,11 +5,7 @@ from unittest.mock import Mock
 
 import aiod
 from aiod.config import config
-from aiod.authentication.authentication import (
-    keycloak_openid,
-    get_access_token,
-    get_refresh_token,
-)
+from aiod.authentication.authentication import keycloak_openid
 
 
 @pytest.fixture
@@ -27,20 +23,20 @@ def test_authentication(mocked_token: Mock, mocked_logout: Mock):
     keycloak_openid.token = mocked_token
     keycloak_openid.logout = mocked_logout
 
-    access_token = get_access_token()
-    refresh_token = get_refresh_token()
+    access_token = config.access_token
+    refresh_token = config.refresh_token
     assert access_token is None, access_token
     assert refresh_token is None, refresh_token
 
     aiod.login("fake_username", "fake_p455w0rd")
-    access_token = get_access_token()
-    refresh_token = get_refresh_token()
+    access_token = config.access_token
+    refresh_token = config.refresh_token
     assert access_token == "fake_token", access_token
     assert refresh_token == "fake_refresh_token", refresh_token
 
     aiod.logout()
-    access_token = get_access_token()
-    refresh_token = get_refresh_token()
+    access_token = config.access_token
+    refresh_token = config.refresh_token
     assert access_token is None, access_token
     assert refresh_token is None, refresh_token
 
