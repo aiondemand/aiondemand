@@ -4,7 +4,7 @@ import responses
 from unittest.mock import Mock
 
 import aiod
-from aiod.config.settings import API_BASE_URL
+from aiod.config import config
 from aiod.authentication.authentication import (
     keycloak_openid,
     get_access_token,
@@ -51,7 +51,7 @@ def test_get_user_endpoint(mocked_token: Mock):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{API_BASE_URL}authorization_test",
+            f"{config.api_base_url}authorization_test",
             json={"name": "user", "roles": ["a_role"]},
             status=200,
         )

@@ -1,15 +1,14 @@
 import http.client
 import requests
-import os
 from keycloak import KeycloakOpenID, KeycloakAuthenticationError
 from typing import Sequence, NamedTuple
 
-from aiod.config.settings import api_base_url, auth_server_url, client_id, realm
+from aiod.config import config
 
 keycloak_openid = KeycloakOpenID(
-    server_url=auth_server_url,
-    client_id=client_id,
-    realm_name=realm,
+    server_url=config.auth_server_url,
+    client_id=config.client_id,
+    realm_name=config.realm,
 )
 
 
@@ -40,9 +39,8 @@ def login(username: str, password: str) -> None:
         raise FailedAuthenticationError(
             "Incorrect username or password! Please try again."
         ) from e
-
-    os.environ["ACCESS_TOKEN"] = token["access_token"]
-    os.environ["REFRESH_TOKEN"] = token["refresh_token"]
+    config.access_token = token["access_token"]
+    config.refresh_token = token["refresh_token"]
 
 
 def logout() -> None:
@@ -55,8 +53,8 @@ def logout() -> None:
     refresh_token = get_refresh_token()
 
     keycloak_openid.logout(refresh_token)
-    os.environ.pop("ACCESS_TOKEN")
-    os.environ.pop("REFRESH_TOKEN")
+    config.access_token = None
+    config.refresh_token = None
 
 
 def get_access_token() -> str | None:
@@ -66,7 +64,7 @@ def get_access_token() -> str | None:
     Returns:
         str | None: The access token if available, else None.
     """
-    return os.getenv("ACCESS_TOKEN")
+    return config.access_token
 
 
 def get_refresh_token() -> str | None:
@@ -76,7 +74,7 @@ def get_refresh_token() -> str | None:
     Returns:
         str | None: The refresh token if available, else None.
     """
-    return os.getenv("REFRESH_TOKEN")
+    return config.refresh_token
 
 
 def get_current_user() -> User:
@@ -90,7 +88,7 @@ def get_current_user() -> User:
     """
     token = get_access_token()
     response = requests.get(
-        f"{api_base_url}authorization_test",
+        f"{config.api_base_url}authorization_test",
         headers={"Authorization": f"Bearer {token}"},
     )
 
