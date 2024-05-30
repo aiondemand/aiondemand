@@ -47,6 +47,7 @@ plugins:
       python:
         options:
           show_source: false
+          filters: ["!^_"]
           extensions:
           - docs/tools/griffe_extensions.py:
               modules:
