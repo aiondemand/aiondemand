@@ -4,10 +4,10 @@ import os
 from keycloak import KeycloakOpenID, KeycloakAuthenticationError
 from typing import Sequence, NamedTuple
 
-from aiod.config.settings import api_base_url, server_url, client_id, realm
+from aiod.config.settings import api_base_url, auth_server_url, client_id, realm
 
 keycloak_openid = KeycloakOpenID(
-    server_url=server_url,
+    server_url=auth_server_url,
     client_id=client_id,
     realm_name=realm,
 )
