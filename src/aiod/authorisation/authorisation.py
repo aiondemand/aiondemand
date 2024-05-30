@@ -1,5 +1,5 @@
 import os
-from keycloak import KeycloakOpenID
+from keycloak import KeycloakOpenID, KeycloakAuthenticationError
 
 from aiod.config.settings import server_url, client_id, realm
 
@@ -23,13 +23,16 @@ def login(username: str, password: str) -> None:
         MissingTokenError: If Keycloak returns an invalid token.
     """
     if username is None or password is None:
-        raise MissingCredentialsError(
+        raise FailedAuthenticationError(
             "Username and/or password missing! Please provide your credentials and try again."
         )
-    token = keycloak_openid.token(username, password)
+    try:
+        token = keycloak_openid.token(username, password)
+    except KeycloakAuthenticationError as e:
+        raise FailedAuthenticationError(
+            "Incorrect username or password! Please try again."
+        ) from e
 
-    if not token:
-        raise MissingTokenError("Keycloak returned an invalid token!")
     os.environ["ACCESS_TOKEN"] = token["access_token"]
     os.environ["REFRESH_TOKEN"] = token["refresh_token"]
 
@@ -42,10 +45,6 @@ def logout() -> None:
         MissingTokenError: If the stored refresh token is empty.
     """
     refresh_token = get_refresh_token()
-    if not refresh_token:
-        raise MissingTokenError(
-            "The stored refresh token is empty! Please try to login again."
-        )
 
     keycloak_openid.logout(refresh_token)
     os.environ.pop("ACCESS_TOKEN")
@@ -72,9 +71,5 @@ def get_refresh_token() -> str | None:
     return os.getenv("REFRESH_TOKEN")
 
 
-class MissingCredentialsError(Exception):
-    """Raised when username and/or password is/are missing during login."""
-
-
-class MissingTokenError(Exception):
-    """Raised when a token was failed to be retrieved."""
+class FailedAuthenticationError(Exception):
+    """Raised when an authentication error occurred."""
