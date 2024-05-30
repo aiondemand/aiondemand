@@ -17,8 +17,8 @@ extra_css:
 
 nav:
   - Introduction: 'README.md'
-#  - API: 'api/reference.md'
   - notebook: 'example.ipynb'
+  - api: 'api.md'
   - 'changelog.md'
   - 'contributing.md'
   - 'conduct.md'
@@ -46,6 +46,7 @@ plugins:
     handlers:
       python:
         options:
+          show_source: false
           extensions:
           - docs/tools/griffe_extensions.py:
               modules:
