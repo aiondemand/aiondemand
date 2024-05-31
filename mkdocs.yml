@@ -21,6 +21,21 @@ nav:
   - API Reference:
       - 'api/index.md'
       - 'api/case_studies.md'
+      - 'api/computational_assets.md'
+      - 'api/contacts.md'
+      - 'api/datasets.md'
+      - 'api/educational_resources.md'
+      - 'api/events.md'
+      - 'api/experiments.md'
+      - 'api/ml_models.md'
+      - 'api/news.md'
+      - 'api/organisations.md'
+      - 'api/persons.md'
+      - 'api/platforms.md'
+      - 'api/projects.md'
+      - 'api/publications.md'
+      - 'api/services.md'
+      - 'api/teams.md'
   - 'changelog.md'
   - 'contributing.md'
   - 'conduct.md'
@@ -37,11 +52,12 @@ markdown_extensions:
 plugins:
 - search
 - privacy
+- asset-type-replacer 
 - mkdocs-jupyter:
     # TODO: when we can configure aiod, we should start running notebooks
     # execute: true
     # allow_errors: false
-    execute_ignore:
+    ignore:
       - "*.py"
     include_source: True
 - mkdocstrings:
@@ -54,6 +70,20 @@ plugins:
           - docs/tools/griffe_extensions.py:
               modules:
               - aiod
-              - aiod.case_studies
               - aiod.resources.case_studies
+              - aiod.resources.computational_assets
+              - aiod.resources.contacts
+              - aiod.resources.datasets
+              - aiod.resources.educational_resources
+              - aiod.resources.events
+              - aiod.resources.experiments
+              - aiod.resources.ml_models
+              - aiod.resources.news
+              - aiod.resources.organisations
+              - aiod.resources.persons
+              - aiod.resources.platforms
+              - aiod.resources.projects
+              - aiod.resources.publications
+              - aiod.resources.services
+              - aiod.resources.teams
 
