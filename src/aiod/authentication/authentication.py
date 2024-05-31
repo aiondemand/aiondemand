@@ -1,26 +1,30 @@
 import http.client
 import requests
-from keycloak import KeycloakOpenID, KeycloakAuthenticationError, ConnectionManager
+from keycloak import KeycloakOpenID, KeycloakAuthenticationError, ConnectionManager, KeycloakPostError
 from typing import Sequence, NamedTuple
 
 from aiod.configuration import config
 
 
-class KeycloakOpenID_(KeycloakOpenID):
-    def __init__(self, server_url, realm_name, client_id):
-        super().__init__(server_url, realm_name, client_id)
-        self.server_url = server_url
-
-    def reset_connection(self, server_url: str):
-        self.server_url = server_url
-        self.connection = ConnectionManager(base_url=server_url)
+def _connect_keycloak() -> KeycloakOpenID:
+    return KeycloakOpenID(
+        server_url=config.auth_server_url,
+        client_id=config.client_id,
+        realm_name=config.realm,
+    )
 
 
-keycloak_openid = KeycloakOpenID_(
-    server_url=config.auth_server_url,
-    client_id=config.client_id,
-    realm_name=config.realm,
-)
+def on_keycloak_config_changed(_: str, __: str, ___: str) -> None:
+    global _keycloak_openid
+    logout(ignore_post_error=True)
+    _keycloak_openid = _connect_keycloak()
+
+
+config.subscribe("auth_server_url", on_change=on_keycloak_config_changed)
+config.subscribe("realm", on_change=on_keycloak_config_changed)
+config.subscribe("client_id", on_change=on_keycloak_config_changed)
+
+_keycloak_openid: KeycloakOpenID = _connect_keycloak()
 
 
 class User(NamedTuple):
@@ -43,11 +47,8 @@ def login(username: str, password: str) -> None:
             "Username and/or password missing! Please provide your credentials and try again."
         )
 
-    if config.auth_server_url != keycloak_openid.server_url:
-        keycloak_openid.reset_connection(server_url=config.auth_server_url)
-
     try:
-        token = keycloak_openid.token(username, password)
+        token = _keycloak_openid.token(username, password)
     except KeycloakAuthenticationError as e:
         raise FailedAuthenticationError(
             "Authentication failed! Please verify your credentials."
@@ -56,9 +57,20 @@ def login(username: str, password: str) -> None:
     config.refresh_token = token["refresh_token"]
 
 
-def logout() -> None:
-    """Logs out the current user."""
-    keycloak_openid.logout(config.refresh_token)
+def logout(ignore_post_error: bool = False) -> None:
+    """ Logs out the current user.
+
+    Args:
+        ignore_post_error:
+            If true, do not raise an error if the logout attempt failed.
+
+    """
+    try:
+        _keycloak_openid.logout(config.refresh_token)
+    except KeycloakPostError as e:
+        if not ignore_post_error:
+            raise
+
     config.access_token = None
     config.refresh_token = None
 
