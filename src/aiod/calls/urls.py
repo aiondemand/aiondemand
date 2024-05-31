@@ -25,8 +25,8 @@ def url_to_get_list(
 
 
 def url_to_post_asset(asset_type: str, version: str | None = None) -> str:
-    version = version if version is not None else latest_version
-    return f"{api_base_url}{asset_type}/{version}"
+    version = version or config.version
+    return f"{config.api_base_url}{asset_type}/{version}"
 
 
 def url_to_put_asset(

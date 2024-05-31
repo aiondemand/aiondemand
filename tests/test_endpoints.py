@@ -62,6 +62,9 @@ def test_common_endpoints_are_created(asset_name: str):
     assert isinstance(getattr(asset, "get_asset"), Callable)
     assert isinstance(getattr(asset, "get_asset_from_platform"), Callable)
     assert isinstance(getattr(asset, "get_content"), Callable)
+    assert isinstance(getattr(asset, "post_asset"), Callable)
+    assert isinstance(getattr(asset, "put_asset"), Callable)
+    assert isinstance(getattr(asset, "delete_asset"), Callable)
     assert isinstance(getattr(asset, "get_list_async"), Callable)
     assert isinstance(getattr(asset, "get_assets_async"), Callable)
 

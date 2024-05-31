@@ -3,10 +3,10 @@ import asyncio
 import requests
 
 import pandas as pd
-from typing import Literal
+from typing import Literal, Callable
 from functools import partial
 
-from aiod.authorisation.authorisation import get_access_token
+from aiod import config
 from aiod.calls.urls import (
     url_to_get_asset,
     url_to_put_asset,
@@ -71,7 +71,7 @@ def delete_asset(
             For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
     """
     url = url_to_delete_asset(asset_type, identifier, version)
-    headers = {"Authorization": f"Bearer {get_access_token()}"}
+    headers = {"Authorization": f"Bearer {config.access_token}"}
     res = requests.delete(url, headers=headers)
 
     return res
@@ -94,7 +94,7 @@ def put_asset(
             For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
     """
     url = url_to_put_asset(asset_type, identifier, version)
-    headers = {"Authorization": f"Bearer {get_access_token()}"}
+    headers = {"Authorization": f"Bearer {config.access_token}"}
     res = requests.put(url, headers=headers, data=metadata)
 
     return res
@@ -116,7 +116,7 @@ def post_asset(
             For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
     """
     url = url_to_post_asset(asset_type, version)
-    headers = {"Authorization": f"Bearer {get_access_token()}"}
+    headers = {"Authorization": f"Bearer {config.access_token}"}
     res = requests.post(url, headers=headers, data=metadata)
 
     return res
@@ -353,7 +353,7 @@ async def _fetch_resources(urls) -> dict:
     return response_data
 
 
-wrap_common_calls = partial(
+wrap_common_calls: Callable = partial(
     wrap_calls,
     calls=[
         get_list,
@@ -368,4 +368,4 @@ wrap_common_calls = partial(
         get_list_async,
     ],
 )
-wrap_search_call = partial(wrap_calls, calls=[search])
+wrap_search_call: Callable = partial(wrap_calls, calls=[search])
