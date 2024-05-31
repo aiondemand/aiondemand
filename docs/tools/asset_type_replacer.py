@@ -15,5 +15,7 @@ class AssetTypeReplacer(BasePlugin):
             log.debug(f"Replacing ASSET_TYPE on {page.url}")
             html = html.replace(
                 "ASSET_TYPE", page.title.lower()
+            ).replace(
+                '<span class="n">asset_type</span><span class="p">,</span>', ""
             )
         return html
