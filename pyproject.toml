@@ -6,7 +6,7 @@ authors = [
     { name="Jean Matias", email= "smatias.jean@gmail.com"},
     { name="Pieter Gijsbers", email="p.gijsbers@tue.nl"},
 ]
-license = "MIT"
+
 readme = "docs/README.md"
 
 requires-python = ">=3.11"

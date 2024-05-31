@@ -2,7 +2,7 @@ import http.client
 import requests
 from typing import Sequence, NamedTuple
 
-from aiod.config.settings import api_base_url
+from aiod.configuration import config
 
 
 class User(NamedTuple):
@@ -23,7 +23,7 @@ def get_current_user() -> User:
     Returns:
         User: The user information for the currently authenticated user.
     """
-    response = requests.get(f"{api_base_url}authorization_test")
+    response = requests.get(f"{config.api_base_url}authorization_test")
     content = response.json()
     if response.status_code == http.client.UNAUTHORIZED:
         raise NotAuthenticatedError(content)
