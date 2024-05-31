@@ -19,7 +19,6 @@ nav:
   - Introduction: 'README.md'
   - notebook: 'example.ipynb'
   - API Reference:
-      - 'api/index.md'
       - 'api/case_studies.md'
       - 'api/computational_assets.md'
       - 'api/contacts.md'
