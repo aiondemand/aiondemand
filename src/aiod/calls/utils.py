@@ -48,7 +48,6 @@ def wrap_calls(asset_type: str, calls: list[Callable], module: str) -> Tuple[Cal
             else ""
         )
         wrapper.__module__ = module
-        #        wrapper.__wrapped__ = None
         wrapper_list.append(wrapper)
 
     return tuple(wrapper_list)
