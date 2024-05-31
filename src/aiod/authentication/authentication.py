@@ -14,17 +14,24 @@ def _connect_keycloak() -> KeycloakOpenID:
     )
 
 
+def keycloak_openid() -> KeycloakOpenID:
+    global _keycloak_openid
+    if _keycloak_openid is None:
+        _keycloak_openid = _connect_keycloak()
+    return _keycloak_openid
+
+
 def on_keycloak_config_changed(_: str, __: str, ___: str) -> None:
     global _keycloak_openid
     logout(ignore_post_error=True)
-    _keycloak_openid = _connect_keycloak()
+    _keycloak_openid = None
 
 
 config.subscribe("auth_server_url", on_change=on_keycloak_config_changed)
 config.subscribe("realm", on_change=on_keycloak_config_changed)
 config.subscribe("client_id", on_change=on_keycloak_config_changed)
 
-_keycloak_openid: KeycloakOpenID = _connect_keycloak()
+_keycloak_openid: KeycloakOpenID | None = None
 
 
 class User(NamedTuple):
@@ -48,7 +55,7 @@ def login(username: str, password: str) -> None:
         )
 
     try:
-        token = _keycloak_openid.token(username, password)
+        token = keycloak_openid().token(username, password)
     except KeycloakAuthenticationError as e:
         raise FailedAuthenticationError(
             "Authentication failed! Please verify your credentials."
@@ -66,7 +73,7 @@ def logout(ignore_post_error: bool = False) -> None:
 
     """
     try:
-        _keycloak_openid.logout(config.refresh_token)
+        keycloak_openid().logout(config.refresh_token)
     except KeycloakPostError as e:
         if not ignore_post_error:
             raise
