@@ -2,7 +2,8 @@ import urllib
 
 from typing import Literal
 
-from aiod.config import config
+from aiod.configuration import config
+
 
 def url_to_get_asset(
     asset_type: str, identifier: int, version: str | None = None

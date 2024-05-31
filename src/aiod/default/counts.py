@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 from typing import Literal
 
-from aiod.config import config
+from aiod.configuration import config
 
 
 def asset_counts(

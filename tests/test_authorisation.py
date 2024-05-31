@@ -4,7 +4,7 @@ import responses
 from unittest.mock import Mock
 
 import aiod
-from aiod.config import config
+from aiod.configuration import config
 from aiod.authentication.authentication import keycloak_openid
 
 

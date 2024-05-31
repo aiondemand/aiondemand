@@ -3,7 +3,7 @@ import requests
 from keycloak import KeycloakOpenID, KeycloakAuthenticationError, ConnectionManager
 from typing import Sequence, NamedTuple
 
-from aiod.config import config
+from aiod.configuration import config
 
 
 class KeycloakOpenID_(KeycloakOpenID):
