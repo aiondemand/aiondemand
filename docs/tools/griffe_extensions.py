@@ -30,6 +30,7 @@ class DynamicAnalysisExtension(Extension):
             filepath=mod.filepath,
             parent=mod.parent,
             import_paths=list(sys.path),
+            docstring_parser="google",
         )
 
         # Discard all previous existing members obtained through static analysis,

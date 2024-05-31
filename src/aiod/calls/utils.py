@@ -41,7 +41,7 @@ def wrap_calls(asset_type: str, calls: list[Callable], module: str) -> Tuple[Cal
     wrapper_list = []
     for wrapped in calls:
         wrapper: Callable = partial(wrapped, asset_type=asset_type)
-        # wrapper = update_wrapper(wrapper, wrapped)
+        wrapper = update_wrapper(wrapper, wrapped)
         wrapper.__doc__ = (
             wrapped.__doc__.replace("ASSET_TYPE", asset_type)
             if wrapped.__doc__ is not None
