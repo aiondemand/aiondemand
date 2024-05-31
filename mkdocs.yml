@@ -18,7 +18,9 @@ extra_css:
 nav:
   - Introduction: 'README.md'
   - notebook: 'example.ipynb'
-  - api: 'api.md'
+  - API Reference:
+      - 'api/index.md'
+      - 'api/case_studies.md'
   - 'changelog.md'
   - 'contributing.md'
   - 'conduct.md'
