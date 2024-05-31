@@ -8,6 +8,6 @@ class Config:
 
 
 config = Config(
-  api_base_url="https://api.aiod.eu/",
-  version="v1",
+    api_base_url="https://api.aiod.eu/",
+    version="v1",
 )

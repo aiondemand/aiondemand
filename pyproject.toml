@@ -6,7 +6,7 @@ authors = [
     "Jean Matias <smatias.jean@gmail.com>",
     "Pieter Gijsbers <p.gijsbers@tue.nl>",
 ]
-license = "MIT"
+
 readme = "docs/README.md"
 
 [tool.poetry.dependencies]

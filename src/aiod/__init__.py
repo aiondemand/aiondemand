@@ -1,3 +1,4 @@
+from aiod.configuration import config
 from aiod.default.authorization_test import test as authorization_test
 from aiod.resources import case_studies
 from aiod.resources import computational_assets

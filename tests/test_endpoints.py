@@ -8,7 +8,7 @@ from typing import Callable
 
 import aiod
 
-from aiod.config import config
+from aiod.configuration import config
 
 resources_path = Path(__file__).parent / "resources"
 

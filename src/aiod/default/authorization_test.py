@@ -1,6 +1,7 @@
 import requests
 
-from aiod.config import config
+from aiod.configuration import config
+
 
 def test() -> requests.Response:
     """
