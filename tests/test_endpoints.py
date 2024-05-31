@@ -8,7 +8,7 @@ from typing import Callable
 
 import aiod
 
-from aiod.config.settings import API_BASE_URL, LATEST_VERSION
+from aiod.configuration import config
 
 resources_path = Path(__file__).parent / "resources"
 
@@ -75,7 +75,7 @@ def test_endpoint_get_list(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}?offset=0&limit=10",
+            f"{config.api_base_url}{asset_name}/{config.version}?offset=0&limit=10",
             body=b'[{"resource_1": "info"},{"resource_2": "info"}]',
             status=200,
         )
@@ -89,7 +89,7 @@ def test_endpoint_counts(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{API_BASE_URL}counts/{asset_name}/{LATEST_VERSION}?detailed=false",
+            f"{config.api_base_url}counts/{asset_name}/{config.version}?detailed=false",
             body=b"2",
             status=200,
         )
@@ -103,7 +103,7 @@ def test_endpoint_get_asset(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}/1",
+            f"{config.api_base_url}{asset_name}/{config.version}/1",
             body=b'{"resource":"fake_details"}',
             status=200,
         )
@@ -118,7 +118,7 @@ def test_endpoint_get_list_from_platform(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{API_BASE_URL}platforms/{platform_name}/{asset_name}/{LATEST_VERSION}?offset=0&limit=10",
+            f"{config.api_base_url}platforms/{platform_name}/{asset_name}/{config.version}?offset=0&limit=10",
             body=b'[{"resource_1": "info"},{"resource_2": "info"}]',
             status=200,
         )
@@ -134,7 +134,7 @@ def test_endpoint_get_asset_from_platform(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{API_BASE_URL}platforms/{platform_name}/{asset_name}/{LATEST_VERSION}/{platform_identifier}",
+            f"{config.api_base_url}platforms/{platform_name}/{asset_name}/{config.version}/{platform_identifier}",
             body=b'{"resource":"fake_details"}',
             status=200,
         )
@@ -154,7 +154,7 @@ def test_get_content(asset_name):
             res_body = f.read()
         mocked_requests.add(
             responses.GET,
-            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}/1/content",
+            f"{config.api_base_url}{asset_name}/{config.version}/1/content",
             body=res_body,
             status=200,
         )
@@ -170,7 +170,7 @@ def test_get_content_with_distribution_idx(asset_name):
             res_body = f.read()
         mocked_requests.add(
             responses.GET,
-            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}/1/content/2",
+            f"{config.api_base_url}{asset_name}/{config.version}/1/content/2",
             body=res_body,
             status=200,
         )
@@ -193,7 +193,7 @@ def test_search(asset_with_search):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{API_BASE_URL}search/{asset_with_search}/{LATEST_VERSION}{query}",
+            f"{config.api_base_url}search/{asset_with_search}/{config.version}{query}",
             body=b'{"total_hits": 2,"resources": [{"resource_1": "info"},{"resource_2": "info"}],"limit": 10,"offset": 0}',
             status=200,
         )
@@ -214,12 +214,12 @@ def test_endpoint_get_asset_async(asset_name):
     loop = asyncio.get_event_loop()
     with aioresponses() as mocked_responses:
         mocked_responses.get(
-            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}/1",
+            f"{config.api_base_url}{asset_name}/{config.version}/1",
             payload={"resource": "fake_details"},
             status=200,
         )
         mocked_responses.get(
-            API_BASE_URL + f"{asset_name}/" + LATEST_VERSION + "/" + "3",
+            config.api_base_url + f"{asset_name}/" + config.version + "/" + "3",
             payload={"resource": "fake_details_2"},
             status=200,
         )
@@ -238,12 +238,12 @@ def test_endpoint_get_list_async(asset_name):
     loop = asyncio.get_event_loop()
     with aioresponses() as mocked_responses:
         mocked_responses.get(
-            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}?offset=0&limit=2",
+            f"{config.api_base_url}{asset_name}/{config.version}?offset=0&limit=2",
             payload=[{"resource_1": "info"}, {"resource_2": "info"}],
             status=200,
         )
         mocked_responses.get(
-            f"{API_BASE_URL}{asset_name}/{LATEST_VERSION}?offset=2&limit=1",
+            f"{config.api_base_url}{asset_name}/{config.version}?offset=2&limit=1",
             payload=[{"resource_3": "info"}],
             status=200,
         )

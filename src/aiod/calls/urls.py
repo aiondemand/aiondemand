@@ -3,15 +3,14 @@ import urllib
 from typing import Literal
 import urllib.parse
 
-from aiod.config.settings import api_base_url, latest_version
+from aiod.configuration import config
 
 
 def url_to_get_asset(
     asset_type: str, identifier: int, version: str | None = None
 ) -> str:
-
-    version = version if version is not None else latest_version
-    url = f"{api_base_url}{asset_type}/{version}/{identifier}"
+    version = version or config.version
+    url = f"{config.api_base_url}{asset_type}/{version}/{identifier}"
     return url
 
 
@@ -20,8 +19,8 @@ def url_to_get_list(
 ) -> str:
 
     query = urllib.parse.urlencode({"offset": offset, "limit": limit})
-    version = version if version is not None else latest_version
-    url = f"{api_base_url}{asset_type}/{version}?{query}"
+    version = version or config.version
+    url = f"{config.api_base_url}{asset_type}/{version}?{query}"
     return url
 
 
@@ -60,8 +59,8 @@ def url_to_search(
         if value is not None and value != "" and key not in ["version", "asset_type"]
     }
     query = urllib.parse.urlencode(query_params, doseq=True).lower()
-    version = version if version is not None else latest_version
-    url = f"{api_base_url}search/{asset_type}/{version}?{query}"
+    version = version or config.version
+    url = f"{config.api_base_url}search/{asset_type}/{version}?{query}"
     return url
 
 
@@ -71,8 +70,8 @@ def url_to_resource_counts(
     asset_type: str | None = None,
 ) -> str:
     query = urllib.parse.urlencode({"detailed": per_platform}).lower()
-    version = version if version is not None else latest_version
-    url = f"{api_base_url}counts/{asset_type}/{version}?{query}"
+    version = version or config.version
+    url = f"{config.api_base_url}counts/{asset_type}/{version}?{query}"
     return url
 
 
@@ -82,8 +81,8 @@ def url_to_get_content(
     distribution_idx: int,
     version: str | None = None,
 ) -> str:
-    version = version if version is not None else latest_version
-    url = f"{api_base_url}{asset_type}/{version}/{identifier}/content"
+    version = version or config.version
+    url = f"{config.api_base_url}{asset_type}/{version}/{identifier}/content"
     url += f"/{distribution_idx}" if distribution_idx else ""
     return url
 
@@ -97,9 +96,9 @@ def url_to_get_list_from_platform(
 ) -> str:
 
     query = urllib.parse.urlencode({"offset": offset, "limit": limit})
-    version = version if version is not None else latest_version
+    version = version or config.version
 
-    url = f"{api_base_url}platforms/{platform}/{asset_type}/{version}?{query}"
+    url = f"{config.api_base_url}platforms/{platform}/{asset_type}/{version}?{query}"
     return url
 
 
@@ -109,8 +108,6 @@ def url_to_get_asset_from_platform(
     platform_identifier: str,
     version: str | None = None,
 ) -> str:
-
-    version = version if version is not None else latest_version
-
-    url = f"{api_base_url}platforms/{platform}/{asset_type}/{version}/{platform_identifier}"
+    version = version or config.version
+    url = f"{config.api_base_url}platforms/{platform}/{asset_type}/{version}/{platform_identifier}"
     return url
