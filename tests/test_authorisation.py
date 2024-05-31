@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 import aiod
 from aiod.configuration import config
-from aiod.authentication.authentication import keycloak_openid
+from aiod.authentication import keycloak_openid
 
 
 @pytest.fixture
