@@ -1,4 +1,9 @@
-from dataclasses import dataclass
+from collections import defaultdict
+from dataclasses import dataclass, field
+from typing import Any, Callable, TypeAlias
+
+
+AttributeObserver: TypeAlias = Callable[[str, Any, Any], None]
 
 
 @dataclass
@@ -10,6 +15,20 @@ class Config:
     client_id: str
     access_token: str | None = None
     refresh_token: str | None = None
+
+    _observers: dict[str, set[AttributeObserver]] = field(default_factory=lambda: defaultdict(set))
+
+    def subscribe(self, attribute: str, on_change: AttributeObserver):
+        if on_change not in self._observers[attribute]:
+            self._observers[attribute].add(on_change)
+
+    def __setattr__(self, key, value):
+        old_value = getattr(self, key, None)
+        super().__setattr__(key, value)
+
+        if hasattr(self, "_observers"):
+            for observer in self._observers[key]:
+                observer(key, old_value, value)
 
 
 config = Config(
