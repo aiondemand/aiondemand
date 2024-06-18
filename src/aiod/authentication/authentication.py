@@ -1,6 +1,6 @@
 import http.client
 import requests
-from keycloak import KeycloakOpenID, KeycloakAuthenticationError, ConnectionManager, KeycloakPostError
+from keycloak import KeycloakOpenID, KeycloakAuthenticationError, KeycloakPostError
 from typing import Sequence, NamedTuple
 
 from aiod.configuration import config
@@ -65,7 +65,7 @@ def login(username: str, password: str) -> None:
 
 
 def logout(ignore_post_error: bool = False) -> None:
-    """ Logs out the current user.
+    """Logs out the current user.
 
     Args:
         ignore_post_error:
@@ -76,7 +76,7 @@ def logout(ignore_post_error: bool = False) -> None:
         keycloak_openid().logout(config.refresh_token)
     except KeycloakPostError as e:
         if not ignore_post_error:
-            raise
+            raise e
 
     config.access_token = None
     config.refresh_token = None
