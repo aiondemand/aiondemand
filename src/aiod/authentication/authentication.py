@@ -85,11 +85,11 @@ def logout(ignore_post_error: bool = False) -> None:
 def get_current_user() -> User:
     """Return name and roles of the user that is currently authenticated.
 
-    Raises:
-        NotAuthenticatedError: When the user is not authenticated.
-
     Returns:
         User: The user information for the currently authenticated user.
+    
+    Raises:
+        NotAuthenticatedError: When the user is not authenticated.
     """
     response = requests.get(
         f"{config.api_base_url}authorization_test",
