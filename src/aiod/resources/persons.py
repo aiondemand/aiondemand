@@ -8,4 +8,4 @@ from aiod.calls import calls
     get_content,
     get_assets_async,
     get_list_async,
-) = calls.wrap_common_calls(asset_type="persons")
+) = calls.wrap_common_calls(asset_type="persons", module=__name__)
