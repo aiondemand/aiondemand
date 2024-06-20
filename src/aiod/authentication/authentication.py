@@ -47,12 +47,13 @@ def login(username: str, password: str) -> None:
         password (str): The password of the user.
 
     Raises:
-        FailedAuthenticationError: If the username or password is missing or wrong.
+        ValueError: When username or password is empty.
+        FailedAuthenticationError: When the username or password is wrong.
     """
-    if username is None or password is None:
-        raise FailedAuthenticationError(
-            "Username and/or password missing! Please provide your credentials and try again."
-        )
+    if not username:
+        raise ValueError(f"{username!r} is not a valid username, must be a non-empty string.')
+    if not password:
+        raise ValueError(f"{password!r} is not a valid password, must be a non-empty string.')
 
     try:
         token = keycloak_openid().token(username, password)
