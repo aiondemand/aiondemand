@@ -5,9 +5,11 @@ import responses
 from aioresponses import aioresponses
 from pathlib import Path
 from typing import Callable
+from unittest.mock import Mock
 
 import aiod
 
+from aiod.authentication.authentication import keycloak_openid
 from aiod.configuration import config
 
 resources_path = Path(__file__).parent / "resources"
@@ -181,6 +183,30 @@ def test_get_content_with_distribution_idx(asset_name):
         content = endpoint.get_content(identifier=1, distribution_idx=2)
 
         assert content == b"a,b,c\n1,2,3"
+
+
+@pytest.fixture
+def mocked_token() -> Mock:
+    token = {"access_token": "fake_token", "refresh_token": "fake_refresh_token"}
+    return Mock(return_value=token)
+
+
+def test_post_asset(asset_name, mocked_token):
+    keycloak_openid().token = mocked_token
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.POST,
+            f"{config.api_base_url}{asset_name}/{config.version}",
+            body='{"identifier": "1"}',
+            status=200,
+        )
+        aiod.login(username="fake_username", password="fakeP4ss")
+        endpoint = getattr(aiod, asset_name)
+        content = endpoint.post_asset(metadata={"key": "value"})
+        actual_call = mocked_requests.calls[0]
+        assert actual_call.request.headers["Authorization"] == "Bearer fake_token"
+
+        assert content == {"identifier": "1"}, content
 
 
 def test_search(asset_with_search):

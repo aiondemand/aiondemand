@@ -105,7 +105,7 @@ def post_asset(
     asset_type: str,
     metadata: dict,
     version: str | None = None,
-) -> requests.Response:
+) -> dict[str, str]:
     """
     Delete ASSET_TYPE from the catalogue.
 
@@ -119,7 +119,7 @@ def post_asset(
     headers = {"Authorization": f"Bearer {config.access_token}"}
     res = requests.post(url, headers=headers, data=metadata)
 
-    return res
+    return res.json()
 
 
 def counts(
@@ -133,7 +133,9 @@ def counts(
         per_platform: Whether to list counts per platform (default is False).
 
     Returns:
-        The number ASSET_TYPE assets in the metadata catalogue. If the parameter per_platform is True, it returns a dictionary with platform names as keys and the number of ASSET_TYPE assets from that platform as values.
+        The number ASSET_TYPE assets in the metadata catalogue.
+        If the parameter per_platform is True, it returns a dictionary with platform names as keys and the number of ASSET_TYPE
+        assets from that platform as values.
     """
 
     url = url_to_resource_counts(version, per_platform, asset_type)
