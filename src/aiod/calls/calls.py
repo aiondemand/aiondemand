@@ -7,6 +7,7 @@ from typing import Literal, Callable
 from functools import partial
 
 from aiod import config
+from aiod.authentication import NotAuthenticatedError
 from aiod.calls.urls import (
     url_to_get_asset,
     url_to_put_asset,
@@ -75,7 +76,7 @@ def delete_asset(
     headers = {"Authorization": f"Bearer {config.access_token}"}
     res = requests.delete(url, headers=headers)
     if res.status_code == 401:
-        raise Exception("Authenticate")
+        raise NotAuthenticatedError("You must be authenticated to delete an asset.")
 
 
 def put_asset(
@@ -97,7 +98,7 @@ def put_asset(
     headers = {"Authorization": f"Bearer {config.access_token}"}
     res = requests.put(url, headers=headers, data=metadata)
     if res.status_code == 401:
-        raise Exception("Authenticate")
+        raise NotAuthenticatedError("You must be authenticated to edit an asset.")
 
 
 def post_asset(
@@ -119,6 +120,8 @@ def post_asset(
     url = url_to_post_asset(asset_type, version)
     headers = {"Authorization": f"Bearer {config.access_token}"}
     res = requests.post(url, headers=headers, data=metadata)
+    if res.status_code == 401:
+        raise NotAuthenticatedError("You must be authenticated to upload an asset.")
 
     return res.json()
 
