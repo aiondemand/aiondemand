@@ -60,7 +60,7 @@ def delete_asset(
     asset_type: str,
     identifier: int,
     version: str | None = None,
-) -> requests.Response:
+) -> None:
     """
     Delete ASSET_TYPE from the catalogue.
 
@@ -73,8 +73,8 @@ def delete_asset(
     url = url_to_delete_asset(asset_type, identifier, version)
     headers = {"Authorization": f"Bearer {config.access_token}"}
     res = requests.delete(url, headers=headers)
-
-    return res
+    if res.status_code == 401:
+        raise Exception("Authenticate")
 
 
 def put_asset(

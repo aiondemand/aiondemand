@@ -226,6 +226,23 @@ def test_post_asset(asset_name, mocked_token):
         assert content == {"identifier": "1"}, content
 
 
+def test_delete_asset(asset_name, mocked_token):
+    keycloak_openid().token = mocked_token
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.DELETE,
+            f"{config.api_base_url}{asset_name}/{config.version}/1",
+            body=None,
+            status=200,
+        )
+        aiod.login(username="fake_username", password="fakeP4ss")
+        endpoint = getattr(aiod, asset_name)
+        content = endpoint.delete_asset(identifier=1)
+        actual_call = mocked_requests.calls[0]
+        assert actual_call.request.headers["Authorization"] == "Bearer fake_token"
+        assert content is None, content
+
+
 def test_search(asset_with_search):
     search_query = "my query"
     search_field = "name"
