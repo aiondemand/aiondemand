@@ -96,7 +96,7 @@ def put_asset(
     """
     url = url_to_put_asset(asset_type, identifier, version)
     headers = {"Authorization": f"Bearer {config.access_token}"}
-    res = requests.put(url, headers=headers, data=metadata)
+    res = requests.put(url, headers=headers, json=metadata)
     if res.status_code == 401:
         raise NotAuthenticatedError("You must be authenticated to edit an asset.")
 
@@ -119,7 +119,7 @@ def post_asset(
     """
     url = url_to_post_asset(asset_type, version)
     headers = {"Authorization": f"Bearer {config.access_token}"}
-    res = requests.post(url, headers=headers, data=metadata)
+    res = requests.post(url, headers=headers, json=metadata)
     if res.status_code == 401:
         raise NotAuthenticatedError("You must be authenticated to upload an asset.")
 
