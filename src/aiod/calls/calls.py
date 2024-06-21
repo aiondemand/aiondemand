@@ -83,7 +83,7 @@ def put_asset(
     identifier: int,
     metadata: dict,
     version: str | None = None,
-) -> requests.Response:
+) -> None:
     """
     Delete ASSET_TYPE from the catalogue.
 
@@ -96,8 +96,8 @@ def put_asset(
     url = url_to_put_asset(asset_type, identifier, version)
     headers = {"Authorization": f"Bearer {config.access_token}"}
     res = requests.put(url, headers=headers, data=metadata)
-
-    return res
+    if res.status_code == 401:
+        raise Exception("Authenticate")
 
 
 def post_asset(

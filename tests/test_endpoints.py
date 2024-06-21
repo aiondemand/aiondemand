@@ -191,6 +191,23 @@ def mocked_token() -> Mock:
     return Mock(return_value=token)
 
 
+def test_put_asset(asset_name, mocked_token):
+    keycloak_openid().token = mocked_token
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.PUT,
+            f"{config.api_base_url}{asset_name}/{config.version}/1",
+            body=None,
+            status=200,
+        )
+        aiod.login(username="fake_username", password="fakeP4ss")
+        endpoint = getattr(aiod, asset_name)
+        content = endpoint.put_asset(identifier=1, metadata={"key": "value"})
+        actual_call = mocked_requests.calls[0]
+        assert actual_call.request.headers["Authorization"] == "Bearer fake_token"
+        assert content is None, content
+
+
 def test_post_asset(asset_name, mocked_token):
     keycloak_openid().token = mocked_token
     with responses.RequestsMock() as mocked_requests:
