@@ -64,11 +64,12 @@ def delete_asset(
     """
     Delete ASSET_TYPE from the catalogue.
 
-    Parameters (keywords required):
+    Parameters:
+        identifier: The identifier of the ASSET_TYPE to retrieve.
+        version: The version of the endpoint (default is None).
 
-        version (str | None): The version of the endpoint (default is None).
-        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
+    Returns:
+        The retrieved metadata in the specified format.
     """
     url = url_to_delete_asset(asset_type, identifier, version)
     headers = {"Authorization": f"Bearer {config.access_token}"}
@@ -85,13 +86,12 @@ def put_asset(
     version: str | None = None,
 ) -> None:
     """
-    Delete ASSET_TYPE from the catalogue.
+    Send a PUT request to edit a ASSET_TYPE.
 
-    Parameters (keywords required):
-
-        version (str | None): The version of the endpoint (default is None).
-        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
+    Parameters:
+        identifier: The identifier of the ASSET_TYPE to retrieve.
+        metadata: A dictionary with updated metadata of the ASSET_TYPE.
+        version: The version of the endpoint (default is None).
     """
     url = url_to_put_asset(asset_type, identifier, version)
     headers = {"Authorization": f"Bearer {config.access_token}"}
@@ -109,11 +109,12 @@ def post_asset(
     """
     Delete ASSET_TYPE from the catalogue.
 
-    Parameters (keywords required):
+    Parameters:
+        metadata: A dictionary with updated metadata of the ASSET_TYPE.
+        version: The version of the endpoint (default is None).
 
-        version (str | None): The version of the endpoint (default is None).
-        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
+    Returns:
+        The identifier of the new ASSET_TYPE.
     """
     url = url_to_post_asset(asset_type, version)
     headers = {"Authorization": f"Bearer {config.access_token}"}
