@@ -37,7 +37,7 @@ def format_response(
     )
 
 
-def wrap_calls(asset_type: str, calls: list[Callable]) -> Tuple[Callable, ...]:
+def wrap_calls(asset_type: str, calls: list[Callable], module: str) -> Tuple[Callable, ...]:
     wrapper_list = []
     for wrapped in calls:
         wrapper: Callable = partial(wrapped, asset_type=asset_type)
@@ -47,6 +47,7 @@ def wrap_calls(asset_type: str, calls: list[Callable]) -> Tuple[Callable, ...]:
             if wrapped.__doc__ is not None
             else ""
         )
+        wrapper.__module__ = module
         wrapper_list.append(wrapper)
 
     return tuple(wrapper_list)

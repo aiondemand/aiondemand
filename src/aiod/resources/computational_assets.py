@@ -11,4 +11,4 @@ from aiod.calls import calls
     get_content,
     get_assets_async,
     get_list_async,
-) = calls.wrap_common_calls(asset_type="computational_assets")
+) = calls.wrap_common_calls(asset_type="computational_assets", module=__name__)

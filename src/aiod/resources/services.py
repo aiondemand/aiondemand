@@ -11,6 +11,6 @@ from aiod.calls import calls
     get_content,
     get_assets_async,
     get_list_async,
-) = calls.wrap_common_calls(asset_type="services")
+) = calls.wrap_common_calls(asset_type="services", module=__name__)
 
-(search,) = calls.wrap_search_call(asset_type="services")
+(search,) = calls.wrap_search_call(asset_type="services", module=__name__)

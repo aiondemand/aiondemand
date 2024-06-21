@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 import aiod
 from aiod.configuration import config
-from aiod.authentication import keycloak_openid
+from aiod.authentication.authentication import keycloak_openid
 
 
 @pytest.fixture
@@ -20,8 +20,8 @@ def mocked_logout() -> Mock:
 
 
 def test_authentication(mocked_token: Mock, mocked_logout: Mock):
-    keycloak_openid.token = mocked_token
-    keycloak_openid.logout = mocked_logout
+    keycloak_openid().token = mocked_token
+    keycloak_openid().logout = mocked_logout
 
     access_token = config.access_token
     refresh_token = config.refresh_token
@@ -42,7 +42,7 @@ def test_authentication(mocked_token: Mock, mocked_logout: Mock):
 
 
 def test_get_user_endpoint(mocked_token: Mock):
-    keycloak_openid.token = mocked_token
+    keycloak_openid().token = mocked_token
 
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
