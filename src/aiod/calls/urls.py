@@ -17,7 +17,6 @@ def url_to_get_asset(
 def url_to_get_list(
     asset_type: str, offset: int = 0, limit: int = 10, version: str | None = None
 ) -> str:
-
     query = urllib.parse.urlencode({"offset": offset, "limit": limit})
     version = version or config.version
     url = f"{config.api_base_url}{asset_type}/{version}?{query}"

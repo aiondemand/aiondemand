@@ -74,7 +74,7 @@ def test_search_endpoints_are_created(asset_with_search: str):
     assert isinstance(getattr(asset, "search"), Callable)
 
 
-def test_endpoint_get_list(asset_name):
+def test_get_list(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
@@ -88,7 +88,7 @@ def test_endpoint_get_list(asset_name):
         assert len(metadata_list) == 2
 
 
-def test_endpoint_counts(asset_name):
+def test_counts(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
@@ -102,7 +102,7 @@ def test_endpoint_counts(asset_name):
         assert counts == 2
 
 
-def test_endpoint_get_asset(asset_name):
+def test_get_asset(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
@@ -116,7 +116,7 @@ def test_endpoint_get_asset(asset_name):
         assert metadata == {"resource": "fake_details"}
 
 
-def test_endpoint_get_list_from_platform(asset_name):
+def test_get_list_from_platform(asset_name):
     platform_name = "zenodo"
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
@@ -131,7 +131,7 @@ def test_endpoint_get_list_from_platform(asset_name):
         assert len(metadata_list) == 2
 
 
-def test_endpoint_get_asset_from_platform(asset_name):
+def test_get_asset_from_platform(asset_name):
     platform_name = "zenodo"
     platform_identifier = "zenodo.org:1000"
     with responses.RequestsMock() as mocked_requests:
@@ -213,7 +213,7 @@ def test_search(asset_with_search):
         assert metadata_list == [{"resource_1": "info"}, {"resource_2": "info"}]
 
 
-def test_endpoint_get_asset_async(asset_name):
+def test_get_asset_async(asset_name):
     loop = asyncio.get_event_loop()
     with aioresponses() as mocked_responses:
         mocked_responses.get(
@@ -237,7 +237,7 @@ def test_endpoint_get_asset_async(asset_name):
         ]
 
 
-def test_endpoint_get_list_async(asset_name):
+def test_get_list_async(asset_name):
     loop = asyncio.get_event_loop()
     with aioresponses() as mocked_responses:
         mocked_responses.get(
