@@ -51,9 +51,13 @@ def login(username: str, password: str) -> None:
         FailedAuthenticationError: When the username or password is wrong.
     """
     if not username:
-        raise ValueError(f"{username!r} is not a valid username, must be a non-empty string.')
+        raise ValueError(
+            f"{username!r} is not a valid username, must be a non-empty string."
+        )
     if not password:
-        raise ValueError(f"{password!r} is not a valid password, must be a non-empty string.')
+        raise ValueError(
+            f"{password!r} is not a valid password, must be a non-empty string."
+        )
 
     try:
         token = keycloak_openid().token(username, password)
@@ -88,7 +92,7 @@ def get_current_user() -> User:
 
     Returns:
         User: The user information for the currently authenticated user.
-    
+
     Raises:
         NotAuthenticatedError: When the user is not authenticated.
     """
