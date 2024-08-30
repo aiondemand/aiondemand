@@ -14,6 +14,15 @@ on:
           - minor
           - patch
         default: patch
+      prerelease:
+        description: "Pre-lease segment to apply, c.f. https://packaging.python.org/en/latest/specifications/version-specifiers/"
+        type: choice
+        options:
+          - ''
+          - alpha
+          - beta
+          - rc
+        default: ''
 
 permissions:
   contents: write
@@ -46,6 +55,7 @@ jobs:
           debug: true
           changelog: false
           increment: ${{ inputs.increment }}
+          prerelease: ${{ inputs.prerelease }}
 
   build:
     needs: [bump]
