@@ -55,7 +55,7 @@ jobs:
           debug: true
           changelog: false
           increment: ${{ inputs.increment }}
-          prerelease: ${{ inputs.prelease }}
+          prerelease: ${{ inputs.prerelease }}
 
   build:
     needs: [bump]
