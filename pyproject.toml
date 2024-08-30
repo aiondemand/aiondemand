@@ -1,6 +1,6 @@
 [project]
 name = "aiondemand"
-version = "0.0.2"
+version = "0.0.1"
 description = "Python SDK for the AIoD metadata catalogue"
 authors = [
   { name = "Jean Matias", email = "smatias.jean@gmail.com" },
@@ -29,7 +29,7 @@ doc = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.0.2"
+version = "0.0.1"
 version_files = ["pyproject.toml:version", "src/aiod/__version__.py"]
 
 [project.entry-points."mkdocs.plugins"]
