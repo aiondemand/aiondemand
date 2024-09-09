@@ -3,11 +3,16 @@ import asyncio
 import requests
 
 import pandas as pd
-from typing import Literal
+from typing import Literal, Callable
 from functools import partial
 
+from aiod import config
+from aiod.authentication import NotAuthenticatedError
 from aiod.calls.urls import (
     url_to_get_asset,
+    url_to_put_asset,
+    url_to_post_asset,
+    url_to_delete_asset,
     url_to_get_content,
     url_to_get_list,
     url_to_get_list_from_platform,
@@ -15,7 +20,6 @@ from aiod.calls.urls import (
     url_to_resource_counts,
     url_to_search,
 )
-
 from aiod.calls.utils import format_response, wrap_calls
 
 
@@ -52,6 +56,76 @@ def get_list(
     return resources
 
 
+def delete_asset(
+    *,
+    asset_type: str,
+    identifier: int,
+    version: str | None = None,
+) -> None:
+    """
+    Delete ASSET_TYPE from the catalogue.
+
+    Parameters:
+        identifier: The identifier of the ASSET_TYPE to retrieve.
+        version: The version of the endpoint (default is None).
+
+    Returns:
+        The retrieved metadata in the specified format.
+    """
+    url = url_to_delete_asset(asset_type, identifier, version)
+    headers = {"Authorization": f"Bearer {config.access_token}"}
+    res = requests.delete(url, headers=headers)
+    if res.status_code == 401:
+        raise NotAuthenticatedError("You must be authenticated to delete an asset.")
+
+
+def put_asset(
+    *,
+    asset_type: str,
+    identifier: int,
+    metadata: dict,
+    version: str | None = None,
+) -> None:
+    """
+    Send a PUT request to edit a ASSET_TYPE.
+
+    Parameters:
+        identifier: The identifier of the ASSET_TYPE to retrieve.
+        metadata: A dictionary with updated metadata of the ASSET_TYPE.
+        version: The version of the endpoint (default is None).
+    """
+    url = url_to_put_asset(asset_type, identifier, version)
+    headers = {"Authorization": f"Bearer {config.access_token}"}
+    res = requests.put(url, headers=headers, json=metadata)
+    if res.status_code == 401:
+        raise NotAuthenticatedError("You must be authenticated to edit an asset.")
+
+
+def post_asset(
+    *,
+    asset_type: str,
+    metadata: dict,
+    version: str | None = None,
+) -> dict[str, str]:
+    """
+    Delete ASSET_TYPE from the catalogue.
+
+    Parameters:
+        metadata: A dictionary with updated metadata of the ASSET_TYPE.
+        version: The version of the endpoint (default is None).
+
+    Returns:
+        The identifier of the new ASSET_TYPE.
+    """
+    url = url_to_post_asset(asset_type, version)
+    headers = {"Authorization": f"Bearer {config.access_token}"}
+    res = requests.post(url, headers=headers, json=metadata)
+    if res.status_code == 401:
+        raise NotAuthenticatedError("You must be authenticated to upload an asset.")
+
+    return res.json()
+
+
 def counts(
     *, asset_type: str, version: str | None = None, per_platform: bool = False
 ) -> int | dict[str, int]:
@@ -63,7 +137,9 @@ def counts(
         per_platform: Whether to list counts per platform (default is False).
 
     Returns:
-        The number ASSET_TYPE assets in the metadata catalogue. If the parameter per_platform is True, it returns a dictionary with platform names as keys and the number of ASSET_TYPE assets from that platform as values.
+        The number ASSET_TYPE assets in the metadata catalogue.
+        If the parameter per_platform is True, it returns a dictionary with platform names as keys and the number of ASSET_TYPE
+        assets from that platform as values.
     """
 
     url = url_to_resource_counts(version, per_platform, asset_type)
@@ -284,16 +360,19 @@ async def _fetch_resources(urls) -> dict:
     return response_data
 
 
-wrap_common_calls = partial(
+wrap_common_calls: Callable = partial(
     wrap_calls,
     calls=[
         get_list,
         counts,
         get_asset,
+        post_asset,
+        put_asset,
+        delete_asset,
         get_asset_from_platform,
         get_content,
         get_assets_async,
         get_list_async,
     ],
 )
-wrap_search_call = partial(wrap_calls, calls=[search])
+wrap_search_call: Callable = partial(wrap_calls, calls=[search])

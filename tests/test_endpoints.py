@@ -5,9 +5,11 @@ import responses
 from aioresponses import aioresponses
 from pathlib import Path
 from typing import Callable
+from unittest.mock import Mock
 
 import aiod
 
+from aiod.authentication.authentication import keycloak_openid
 from aiod.configuration import config
 
 resources_path = Path(__file__).parent / "resources"
@@ -62,6 +64,9 @@ def test_common_endpoints_are_created(asset_name: str):
     assert isinstance(getattr(asset, "get_asset"), Callable)
     assert isinstance(getattr(asset, "get_asset_from_platform"), Callable)
     assert isinstance(getattr(asset, "get_content"), Callable)
+    assert isinstance(getattr(asset, "post_asset"), Callable)
+    assert isinstance(getattr(asset, "put_asset"), Callable)
+    assert isinstance(getattr(asset, "delete_asset"), Callable)
     assert isinstance(getattr(asset, "get_list_async"), Callable)
     assert isinstance(getattr(asset, "get_assets_async"), Callable)
 
@@ -71,7 +76,7 @@ def test_search_endpoints_are_created(asset_with_search: str):
     assert isinstance(getattr(asset, "search"), Callable)
 
 
-def test_endpoint_get_list(asset_name):
+def test_get_list(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
@@ -85,7 +90,7 @@ def test_endpoint_get_list(asset_name):
         assert len(metadata_list) == 2
 
 
-def test_endpoint_counts(asset_name):
+def test_counts(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
@@ -99,7 +104,7 @@ def test_endpoint_counts(asset_name):
         assert counts == 2
 
 
-def test_endpoint_get_asset(asset_name):
+def test_get_asset(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
@@ -113,7 +118,7 @@ def test_endpoint_get_asset(asset_name):
         assert metadata == {"resource": "fake_details"}
 
 
-def test_endpoint_get_list_from_platform(asset_name):
+def test_get_list_from_platform(asset_name):
     platform_name = "zenodo"
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
@@ -128,7 +133,7 @@ def test_endpoint_get_list_from_platform(asset_name):
         assert len(metadata_list) == 2
 
 
-def test_endpoint_get_asset_from_platform(asset_name):
+def test_get_asset_from_platform(asset_name):
     platform_name = "zenodo"
     platform_identifier = "zenodo.org:1000"
     with responses.RequestsMock() as mocked_requests:
@@ -180,6 +185,64 @@ def test_get_content_with_distribution_idx(asset_name):
         assert content == b"a,b,c\n1,2,3"
 
 
+@pytest.fixture
+def mocked_token() -> Mock:
+    token = {"access_token": "fake_token", "refresh_token": "fake_refresh_token"}
+    return Mock(return_value=token)
+
+
+def test_put_asset(asset_name, mocked_token):
+    keycloak_openid().token = mocked_token
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.PUT,
+            f"{config.api_base_url}{asset_name}/{config.version}/1",
+            body=None,
+            status=200,
+        )
+        aiod.login(username="fake_username", password="fakeP4ss")
+        endpoint = getattr(aiod, asset_name)
+        content = endpoint.put_asset(identifier=1, metadata={"key": "value"})
+        actual_call = mocked_requests.calls[0]
+        assert actual_call.request.headers["Authorization"] == "Bearer fake_token"
+        assert content is None, content
+
+
+def test_post_asset(asset_name, mocked_token):
+    keycloak_openid().token = mocked_token
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.POST,
+            f"{config.api_base_url}{asset_name}/{config.version}",
+            body='{"identifier": "1"}',
+            status=200,
+        )
+        aiod.login(username="fake_username", password="fakeP4ss")
+        endpoint = getattr(aiod, asset_name)
+        content = endpoint.post_asset(metadata={"key": "value"})
+        actual_call = mocked_requests.calls[0]
+        assert actual_call.request.headers["Authorization"] == "Bearer fake_token"
+
+        assert content == {"identifier": "1"}, content
+
+
+def test_delete_asset(asset_name, mocked_token):
+    keycloak_openid().token = mocked_token
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.DELETE,
+            f"{config.api_base_url}{asset_name}/{config.version}/1",
+            body=None,
+            status=200,
+        )
+        aiod.login(username="fake_username", password="fakeP4ss")
+        endpoint = getattr(aiod, asset_name)
+        content = endpoint.delete_asset(identifier=1)
+        actual_call = mocked_requests.calls[0]
+        assert actual_call.request.headers["Authorization"] == "Bearer fake_token"
+        assert content is None, content
+
+
 def test_search(asset_with_search):
     search_query = "my query"
     search_field = "name"
@@ -210,7 +273,7 @@ def test_search(asset_with_search):
         assert metadata_list == [{"resource_1": "info"}, {"resource_2": "info"}]
 
 
-def test_endpoint_get_asset_async(asset_name):
+def test_get_asset_async(asset_name):
     loop = asyncio.get_event_loop()
     with aioresponses() as mocked_responses:
         mocked_responses.get(
@@ -234,7 +297,7 @@ def test_endpoint_get_asset_async(asset_name):
         ]
 
 
-def test_endpoint_get_list_async(asset_name):
+def test_get_list_async(asset_name):
     loop = asyncio.get_event_loop()
     with aioresponses() as mocked_responses:
         mocked_responses.get(

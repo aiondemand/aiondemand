@@ -1,1 +1,1 @@
-from .authentication import login, logout, get_current_user
+from .authentication import login, logout, get_current_user, NotAuthenticatedError
