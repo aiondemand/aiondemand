@@ -72,9 +72,9 @@ def counts(
 
 
 def get_asset(
+    identifier: int,
     *,
     asset_type: str,
-    identifier: int,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
 ) -> pd.Series | dict:
@@ -98,9 +98,9 @@ def get_asset(
 
 def get_asset_from_platform(
     *,
-    asset_type: str,
     platform: str,
     platform_identifier: str,
+    asset_type: str,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
 ) -> pd.Series | dict:
@@ -127,8 +127,8 @@ def get_asset_from_platform(
 
 def get_content(
     *,
-    asset_type: str,
     identifier: int,
+    asset_type: str,
     distribution_idx: int = 0,
     version: str | None = None,
 ) -> bytes:
@@ -150,9 +150,8 @@ def get_content(
 
 
 def search(
+    query: str,
     *,
-    asset_type: str,
-    search_query: str,
     platforms: list[str] | None = None,
     offset: int = 0,
     limit: int = 10,
@@ -162,12 +161,13 @@ def search(
     get_all: bool = True,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
+    asset_type: str,
 ) -> pd.DataFrame | list[dict]:
     """
     Search metadata for ASSET_TYPE type using the Elasticsearch endpoint of the AIoD metadata catalogue.
 
     Parameters:
-        search_query: The string to be matched against the search fields.
+        search: The string to be matched against the search fields.
         platforms: The platforms to filter the search results.
             If None, results from all platforms will be returned (default is None).
         offset: The offset for pagination (default is 0).
@@ -185,7 +185,7 @@ def search(
     """
     url = url_to_search(
         asset_type,
-        search_query,
+        query,
         platforms,
         offset,
         limit,
@@ -199,9 +199,9 @@ def search(
 
 
 async def get_assets_async(
+    identifiers: list[int],
     *,
     asset_type: str,
-    identifiers: list[int],
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
 ) -> pd.DataFrame | list[dict]:
