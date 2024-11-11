@@ -199,7 +199,7 @@ def test_search(asset_with_search):
         )
         endpoint = getattr(aiod, asset_with_search)
         metadata_list = endpoint.search(
-            search_query=search_query,
+            query=search_query,
             search_field=search_field,
             platforms=platforms,
             get_all=get_all,
