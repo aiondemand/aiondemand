@@ -37,6 +37,7 @@ jobs:
           cache: pip
       - run: python -m pip install ".[dev]"
       - run: python -m pytest tests
+      - run: python -m pytest -m server tests
   bump:
     needs: [test-code]
     runs-on: ubuntu-latest
