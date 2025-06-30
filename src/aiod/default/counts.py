@@ -24,7 +24,7 @@ def asset_counts(
     version = version or config.version
     url = f"{config.api_base_url}counts"
     if version:
-        url += "/" + version
+        url = f"{config.api_base_url}{version}/counts"
 
     res = requests.get(url)
 

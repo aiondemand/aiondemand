@@ -14,7 +14,7 @@ def test_counts():
             res_body = f.read()
         mocked_requests.add(
             responses.GET,
-            url=f"{config.api_base_url}counts/{config.version}",
+            url=f"{config.api_base_url}{config.version}/counts",
             body=res_body,
             status=200,
         )
