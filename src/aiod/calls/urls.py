@@ -6,7 +6,7 @@ from aiod.configuration import config
 
 
 def url_to_get_asset(
-    asset_type: str, identifier: int, version: str | None = None
+    asset_type: str, identifier: str, version: str | None = None
 ) -> str:
     version = version or config.version
     url = f"{config.api_base_url}{version}/{asset_type}/{identifier}"
@@ -59,7 +59,7 @@ def url_to_resource_counts(
 
 def url_to_get_content(
     asset_type: str,
-    identifier: int,
+    identifier: str,
     distribution_idx: int,
     version: str | None = None,
 ) -> str:

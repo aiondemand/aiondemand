@@ -63,7 +63,9 @@ def counts(
         per_platform: Whether to list counts per platform (default is False).
 
     Returns:
-        The number ASSET_TYPE assets in the metadata catalogue. If the parameter per_platform is True, it returns a dictionary with platform names as keys and the number of ASSET_TYPE assets from that platform as values.
+        The number ASSET_TYPE assets in the metadata catalogue.
+        If the parameter per_platform is True, it returns a dictionary with platform names
+        as keys and the number of ASSET_TYPE assets from that platform as values.
     """
 
     url = url_to_resource_counts(version, per_platform, asset_type)
@@ -72,7 +74,7 @@ def counts(
 
 
 def get_asset(
-    identifier: int,
+    identifier: str,
     *,
     asset_type: str,
     version: str | None = None,
@@ -127,7 +129,7 @@ def get_asset_from_platform(
 
 def get_content(
     *,
-    identifier: int,
+    identifier: str,
     asset_type: str,
     distribution_idx: int = 0,
     version: str | None = None,
@@ -199,7 +201,7 @@ def search(
 
 
 async def get_assets_async(
-    identifiers: list[int],
+    identifiers: list[str],
     *,
     asset_type: str,
     version: str | None = None,
