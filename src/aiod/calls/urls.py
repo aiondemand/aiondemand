@@ -79,7 +79,6 @@ def url_to_get_list_from_platform(
 
     query = urllib.parse.urlencode({"offset": offset, "limit": limit})
     version = version or config.version
-
     url = f"{config.api_base_url}{version}/platforms/{platform}/{asset_type}?{query}"
     return url
 
