@@ -16,7 +16,9 @@ class Config:
     access_token: str | None = None
     refresh_token: str | None = None
 
-    _observers: dict[str, set[AttributeObserver]] = field(default_factory=lambda: defaultdict(set))
+    _observers: dict[str, set[AttributeObserver]] = field(
+        default_factory=lambda: defaultdict(set)
+    )
 
     def subscribe(self, attribute: str, on_change: AttributeObserver):
         if on_change not in self._observers[attribute]:

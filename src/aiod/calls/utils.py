@@ -37,7 +37,9 @@ def format_response(
     )
 
 
-def wrap_calls(asset_type: str, calls: list[Callable], module: str) -> Tuple[Callable, ...]:
+def wrap_calls(
+    asset_type: str, calls: list[Callable], module: str
+) -> Tuple[Callable, ...]:
     wrapper_list = []
     for wrapped in calls:
         wrapper: Callable = partial(wrapped, asset_type=asset_type)
