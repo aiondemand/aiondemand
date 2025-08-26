@@ -46,11 +46,23 @@ class User(NamedTuple):
 
 
 def login(username: str, password: str) -> None:
-    """Logs in the user with username/password (classic flow)."""
+    """Logs in the user with the provided username and password.
+
+    Args:
+        username (str): The username of the user.
+        password (str): The password of the user.
+    Raises:
+        ValueError: When username or password is empty.
+        FailedAuthenticationError: When the username or password is wrong.
+    """
     if not username:
-        raise ValueError("Username must be non-empty.")
+        raise ValueError(
+            f"{username!r} is not a valid username, must be a non-empty string."
+        )
     if not password:
-        raise ValueError("Password must be non-empty.")
+        raise ValueError(
+            f"{password!r} is not a valid password, must be a non-empty string."
+        )
 
     try:
         token = keycloak_openid().token(username, password)
@@ -126,7 +138,14 @@ def logout(ignore_post_error: bool = False) -> None:
 
 
 def get_current_user() -> User:
-    """Return name and roles of the user that is currently authenticated."""
+    """Return name and roles of the user that is currently authenticated.
+
+    Returns:
+        User: The user information for the currently authenticated user.
+
+    Raises:
+        NotAuthenticatedError: When the user is not authenticated.
+    """
     response = requests.get(
         f"{config.api_base_url}authorization_test",
         headers={"Authorization": f"Bearer {config.access_token}"},
@@ -135,7 +154,10 @@ def get_current_user() -> User:
     content = response.json()
     if response.status_code == http.client.UNAUTHORIZED:
         raise NotAuthenticatedError(content)
-    return User(name=content["name"], roles=tuple(content["roles"]))
+    return User(
+        name=content["name"],
+        roles=tuple(content["roles"]),
+    )
 
 
 def _validate_token(access_token: str, jwks_endpoint: str) -> dict:
