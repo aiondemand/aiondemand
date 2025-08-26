@@ -1,13 +1,15 @@
+import time
 import http.client
 import requests
-import time
-from keycloak import KeycloakOpenID, KeycloakAuthenticationError, KeycloakPostError
+import jwt
+from jwt import PyJWKClient
 from typing import Sequence, NamedTuple
+from keycloak import KeycloakOpenID, KeycloakAuthenticationError, KeycloakPostError
 
 from aiod.configuration import config
+import logging
 
-
-_keycloak_openid: KeycloakOpenID | None = None
+logger = logging.getLogger(__name__)
 
 
 def _connect_keycloak() -> KeycloakOpenID:
@@ -35,6 +37,8 @@ config.subscribe("auth_server_url", on_change=on_keycloak_config_changed)
 config.subscribe("realm", on_change=on_keycloak_config_changed)
 config.subscribe("client_id", on_change=on_keycloak_config_changed)
 
+_keycloak_openid: KeycloakOpenID | None = None
+
 
 class User(NamedTuple):
     name: str
@@ -42,13 +46,11 @@ class User(NamedTuple):
 
 
 def login(username: str, password: str) -> None:
-    """
-    Logs in the user with the provided username and password (legacy flow).
-    """
+    """Logs in the user with username/password (classic flow)."""
     if not username:
-        raise ValueError("Username must be a non-empty string.")
+        raise ValueError("Username must be non-empty.")
     if not password:
-        raise ValueError("Password must be a non-empty string.")
+        raise ValueError("Password must be non-empty.")
 
     try:
         token = keycloak_openid().token(username, password)
@@ -56,74 +58,75 @@ def login(username: str, password: str) -> None:
         raise FailedAuthenticationError(
             "Authentication failed! Please verify your credentials."
         ) from e
+
     config.access_token = token["access_token"]
     config.refresh_token = token["refresh_token"]
 
 
-def login_device_flow(poll_interval: int = 5, timeout: int = 300) -> None:
-    """
-    Logs in the user using OAuth2 Device Authorization Grant (device flow).
-    Shows the user a verification URL + code, then polls until login is complete.
-    """
-    try:
-        device = keycloak_openid().device()
+def login_device_flow(poll_interval: int = 0) -> None:
+    """Logs in the user via device flow (for long-term tokens)."""
+    kc = keycloak_openid()
+    response = kc.device()
+    device_code = response["device_code"]
+    user_code = response["user_code"]
+    verification_uri = response["verification_uri"]
+    verification_uri_complete = response["verification_uri_complete"]
+    interval = poll_interval or response["interval"]
 
-        print(f"To authenticate, please visit {device['verification_uri']} "
-              f"and enter the code: {device['user_code']}")
+    logger.info(
+        "Device code: %s, verification URL: %s",
+        "verification URL complete: %s",
+        user_code,
+        verification_uri,
+        verification_uri_complete,
+    )
 
-        token_endpoint = keycloak_openid().well_known()["token_endpoint"]
+    # Poll token endpoint until approved
+    token_endpoint = kc.well_known()["token_endpoint"]
+    jwks_endpoint = kc.well_known()["jwks_uri"]
 
-        start_time = time.time()
-        while time.time() - start_time < timeout:
-            response = requests.post(
-                token_endpoint,
-                data={
-                    "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
-                    "device_code": device["device_code"],
-                    "client_id": config.client_id,
-                },
-            )
-            if response.status_code == 200:
-                token = response.json()
-                config.access_token = token["access_token"]
-                config.refresh_token = token["refresh_token"]
-                return
-            elif response.status_code == 400 and response.json().get("error") == "authorization_pending":
-                time.sleep(poll_interval)
+    while True:
+        time.sleep(interval)
+        token_data = {
+            "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+            "client_id": config.client_id,
+            "device_code": device_code,
+        }
+        token_response = requests.post(token_endpoint, data=token_data)
+        token_response_data = token_response.json()
+
+        if token_response.status_code == 200:
+            config.access_token = token_response_data["access_token"]
+            config.refresh_token = token_response_data.get("refresh_token")
+
+            _validate_token(config.access_token, jwks_endpoint)  # type: ignore[arg-type]
+            # print("Device flow login successful.")
+            break
+        elif token_response.status_code == 400:
+            error = token_response_data.get("error")
+            if error == "authorization_pending":
                 continue
+            elif error == "slow_down":
+                interval += 5
             else:
-                raise FailedAuthenticationError(f"Unexpected error: {response.json()}")
-
-        raise FailedAuthenticationError("Authentication timed out.")
-
-    except KeycloakAuthenticationError as e:
-        raise FailedAuthenticationError(
-            "Device flow authentication failed!"
-        ) from e
+                raise FailedAuthenticationError(f"Device flow error: {error}")
+        else:
+            raise FailedAuthenticationError("Unexpected device flow error.")
 
 
 def logout(ignore_post_error: bool = False) -> None:
-    """
-    Logs out the current user by revoking the refresh token (if any).
-    """
+    """Logs out the current user."""
     try:
-        if config.refresh_token:
-            keycloak_openid().logout(config.refresh_token)
+        keycloak_openid().logout(config.refresh_token)
     except KeycloakPostError as e:
         if not ignore_post_error:
             raise e
-
     config.access_token = None
     config.refresh_token = None
 
 
 def get_current_user() -> User:
-    """
-    Return name and roles of the currently authenticated user.
-    """
-    if not config.access_token:
-        raise NotAuthenticatedError("No active access token")
-
+    """Return name and roles of the user that is currently authenticated."""
     response = requests.get(
         f"{config.api_base_url}authorization_test",
         headers={"Authorization": f"Bearer {config.access_token}"},
@@ -132,10 +135,19 @@ def get_current_user() -> User:
     content = response.json()
     if response.status_code == http.client.UNAUTHORIZED:
         raise NotAuthenticatedError(content)
-    return User(
-        name=content["name"],
-        roles=tuple(content["roles"]),
-    )
+    return User(name=content["name"], roles=tuple(content["roles"]))
+
+
+def _validate_token(access_token: str, jwks_endpoint: str) -> dict:
+    """Validate JWT signature and audience using JWKS."""
+    if access_token is None:
+        raise FailedAuthenticationError("No access token to validate")
+    decoded_token = jwt.decode(access_token, options={"verify_signature": False})
+    aud = decoded_token["aud"]
+
+    jwks_client = PyJWKClient(jwks_endpoint)
+    signing_key = jwks_client.get_signing_key_from_jwt(access_token).key
+    return jwt.decode(access_token, signing_key, algorithms=["RS256"], audience=aud)
 
 
 class FailedAuthenticationError(Exception):

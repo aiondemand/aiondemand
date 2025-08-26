@@ -1,11 +1,18 @@
 import pytest
 import responses
 
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
+import requests
+import jwt
 
 import aiod
 from aiod.configuration import config
-from aiod.authentication.authentication import keycloak_openid
+from aiod.authentication import authentication
+from aiod.authentication.authentication import (
+    keycloak_openid,
+    FailedAuthenticationError,
+    login_device_flow,
+)
 
 
 @pytest.fixture
@@ -58,3 +65,99 @@ def test_get_user_endpoint(mocked_token: Mock):
         assert header == "Bearer fake_token", header
         assert user.name == "user", user
         assert user.roles == ("a_role",), user
+
+
+def test_device_flow_success(monkeypatch):
+    kc = keycloak_openid()
+    kc.device = Mock(
+        return_value={
+            "device_code": "dev123",
+            "user_code": "user123",
+            "verification_uri": "http://verify",
+            "verification_uri_complete": "http://verify?user=user123",
+            "interval": 1,
+        }
+    )
+    kc.well_known = Mock(
+        return_value={"token_endpoint": "http://token", "jwks_uri": "http://jwks"}
+    )
+
+    success_response = Mock()
+    success_response.status_code = 200
+    success_response.json.return_value = {
+        "access_token": "new_token",
+        "refresh_token": "new_refresh",
+    }
+    monkeypatch.setattr(requests, "post", lambda *a, **kw: success_response)
+
+    # Mock JWT validation
+    monkeypatch.setattr(
+        authentication, "_validate_token", lambda token, jwks: {"sub": "123"}
+    )
+
+    login_device_flow(poll_interval=0)  # no sleep
+    assert config.access_token == "new_token"
+    assert config.refresh_token == "new_refresh"
+
+
+def test_device_flow_authorization_pending(monkeypatch):
+    kc = keycloak_openid()
+    kc.device = Mock(
+        return_value={
+            "device_code": "dev123",
+            "user_code": "user123",
+            "verification_uri": "http://verify",
+            "verification_uri_complete": "http://verify?user=user123",
+            "interval": 1,
+        }
+    )
+    kc.well_known = Mock(
+        return_value={"token_endpoint": "http://token", "jwks_uri": "http://jwks"}
+    )
+
+    # first response pending, second response success
+    pending_response = Mock()
+    pending_response.status_code = 400
+    pending_response.json.return_value = {"error": "authorization_pending"}
+
+    success_response = Mock()
+    success_response.status_code = 200
+    success_response.json.return_value = {
+        "access_token": "token_ok",
+        "refresh_token": "refresh_ok",
+    }
+
+    calls = iter([pending_response, success_response])
+    monkeypatch.setattr(requests, "post", lambda *a, **kw: next(calls))
+
+    monkeypatch.setattr(
+        authentication, "_validate_token", lambda token, jwks: {"sub": "123"}
+    )
+
+    login_device_flow(poll_interval=0)
+    assert config.access_token == "token_ok"
+    assert config.refresh_token == "refresh_ok"
+
+
+def test_device_flow_failure(monkeypatch):
+    kc = keycloak_openid()
+    kc.device = Mock(
+        return_value={
+            "device_code": "dev123",
+            "user_code": "user123",
+            "verification_uri": "http://verify",
+            "verification_uri_complete": "http://verify?user=user123",
+            "interval": 1,
+        }
+    )
+    kc.well_known = Mock(
+        return_value={"token_endpoint": "http://token", "jwks_uri": "http://jwks"}
+    )
+
+    error_response = Mock()
+    error_response.status_code = 400
+    error_response.json.return_value = {"error": "expired_token"}
+    monkeypatch.setattr(requests, "post", lambda *a, **kw: error_response)
+
+    with pytest.raises(FailedAuthenticationError):
+        login_device_flow(poll_interval=0)
