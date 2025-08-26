@@ -127,7 +127,12 @@ def login_device_flow(poll_interval: int = 0) -> None:
 
 
 def logout(ignore_post_error: bool = False) -> None:
-    """Logs out the current user."""
+    """Logs out the current user.
+
+    Args:
+        ignore_post_error:
+            If true, do not raise an error if the logout attempt failed.
+    """
     try:
         keycloak_openid().logout(config.refresh_token)
     except KeycloakPostError as e:
