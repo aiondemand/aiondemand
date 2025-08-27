@@ -53,7 +53,7 @@ def login(username: str, password: str) -> None:
         password (str): The password of the user.
     Raises:
         ValueError: When username or password is empty.
-        FailedAuthenticationError: When the username or password is wrong.
+        AuthenticationError: When the username or password is wrong.
     """
     if not username:
         raise ValueError(
@@ -67,7 +67,7 @@ def login(username: str, password: str) -> None:
     try:
         token = keycloak_openid().token(username, password)
     except KeycloakAuthenticationError as e:
-        raise FailedAuthenticationError(
+        raise AuthenticationError(
             "Authentication failed! Please verify your credentials."
         ) from e
 
@@ -121,9 +121,9 @@ def login_device_flow(poll_interval: int = 0) -> None:
             elif error == "slow_down":
                 interval += 5
             else:
-                raise FailedAuthenticationError(f"Device flow error: {error}")
+                raise AuthenticationError(f"Device flow error: {error}")
         else:
-            raise FailedAuthenticationError("Unexpected device flow error.")
+            raise AuthenticationError("Unexpected device flow error.")
 
 
 def logout(ignore_post_error: bool = False) -> None:
@@ -168,7 +168,7 @@ def get_current_user() -> User:
 def _validate_token(access_token: str, jwks_endpoint: str) -> dict:
     """Validate JWT signature and audience using JWKS."""
     if access_token is None:
-        raise FailedAuthenticationError("No access token to validate")
+        raise AuthenticationError("No access token to validate")
     decoded_token = jwt.decode(access_token, options={"verify_signature": False})
     aud = decoded_token["aud"]
 
@@ -177,7 +177,7 @@ def _validate_token(access_token: str, jwks_endpoint: str) -> dict:
     return jwt.decode(access_token, signing_key, algorithms=["RS256"], audience=aud)
 
 
-class FailedAuthenticationError(Exception):
+class AuthenticationError(Exception):
     """Raised when an authentication error occurred."""
 
 

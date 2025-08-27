@@ -10,7 +10,7 @@ from aiod.configuration import config
 from aiod.authentication import authentication
 from aiod.authentication.authentication import (
     keycloak_openid,
-    FailedAuthenticationError,
+    AuthenticationError,
     login_device_flow,
 )
 
@@ -159,5 +159,5 @@ def test_device_flow_failure(monkeypatch):
     error_response.json.return_value = {"error": "expired_token"}
     monkeypatch.setattr(requests, "post", lambda *a, **kw: error_response)
 
-    with pytest.raises(FailedAuthenticationError):
+    with pytest.raises(AuthenticationError):
         login_device_flow(poll_interval=0)
