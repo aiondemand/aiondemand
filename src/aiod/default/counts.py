@@ -5,6 +5,12 @@ from typing import Literal
 from aiod.configuration import config
 
 
+def get_user_info():
+    url = f"{config.api_base_url}authorization_test"
+    res = requests.get(url, headers={"Authorization": f"Bearer {config.access_token}"})
+    return res.json()
+
+
 def asset_counts(
     version: str | None = None, data_format: Literal["pandas", "json"] = "pandas"
 ) -> pd.DataFrame | dict:

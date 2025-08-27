@@ -1,5 +1,7 @@
 import time
 import http.client
+import webbrowser
+
 import requests
 import jwt
 from jwt import PyJWKClient
@@ -96,6 +98,8 @@ def login_device_flow(poll_interval: int = 0) -> None:
     # Poll token endpoint until approved
     token_endpoint = kc.well_known()["token_endpoint"]
     jwks_endpoint = kc.well_known()["jwks_uri"]
+
+    webbrowser.open(verification_uri_complete)
 
     while True:
         time.sleep(interval)
