@@ -1,18 +1,23 @@
+import textwrap
 from collections import defaultdict
 from dataclasses import dataclass, field
+from pathlib import Path
+import re
+import tomllib
 from typing import Any, Callable, TypeAlias
+import logging
 
-
+logger = logging.getLogger(__file__)
 AttributeObserver: TypeAlias = Callable[[str, Any, Any], None]
 
 
 @dataclass
 class Config:
-    api_base_url: str
-    version: str
-    auth_server_url: str
-    realm: str
-    client_id: str
+    api_base_url: str = "https://api.aiod.eu/"
+    version: str = ""
+    auth_server_url: str = "https://auth.aiod.eu/aiod-auth"
+    realm: str = "aiod"
+    client_id: str = "aiod-sdk"
     access_token: str | None = None
     refresh_token: str | None = None
 
@@ -33,10 +38,42 @@ class Config:
                 observer(key, old_value, value)
 
 
-config = Config(
-    api_base_url="https://api.aiod.eu/",
-    version="v1",
-    auth_server_url="https://auth.aiod.eu/aiod-auth/",
-    realm="aiod",
-    client_id="aiod-sdk",
-)
+def load_configuration(file: Path) -> Config:
+    try:
+        _user_config = tomllib.loads(file.read_text())
+    except tomllib.TOMLDecodeError as e:
+        _add_decode_error_note(file, e)
+        raise
+
+    global config
+    key_map = {"api_server": "api_base_url", "auth_server": "auth_server_url"}
+    for key, value in _user_config.items():
+        setattr(config, key_map.get(key, key), value)
+    return config
+
+
+def _add_decode_error_note(file: Path, e: tomllib.TOMLDecodeError) -> None:
+    error_format = r"[\w\s]+ \(at line (\d+), column (\d+)\)"
+    if not (match := re.match(error_format, e.args[0])):
+        return
+
+    raw_line_no, raw_column_no = match.groups()
+    line_no, column_no = int(raw_line_no) - 1, int(raw_column_no) - 1
+    e.add_note(
+        textwrap.dedent(
+            f"""
+                Error reading configuration at {str(file)!r}: {e}
+                File {str(file)!r}, line {raw_line_no}:
+                {file.read_text().splitlines()[line_no]}
+                {'^'.rjust(column_no)}
+                """
+        )
+    )
+
+
+config = Config()  # Modified through `load_configuration`
+_user_config_file = Path("~/.aiod/config").expanduser()
+if _user_config_file.exists() and _user_config_file.is_file():
+    load_configuration(_user_config_file)
+else:
+    logger.info("No configuration file detected, using defaults.")
