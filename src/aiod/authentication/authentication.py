@@ -30,7 +30,7 @@ def keycloak_openid() -> KeycloakOpenID:
 
 def on_keycloak_config_changed(_: str, __: str, ___: str) -> None:
     global _keycloak_openid
-    logout(ignore_post_error=True)
+    invalidate_api_key(ignore_post_error=True)
     _keycloak_openid = None
 
 
@@ -59,7 +59,7 @@ def _refresh_tokens(refresh_token: str) -> str:
     token_info = keycloak_openid().refresh_token(refresh_token)
     config._access_token = token_info["access_token"]
     config.refresh_token = token_info["refresh_token"]
-    expiration_span = datetime.timedelta(seconds=token_info["refresh_token"])
+    expiration_span = datetime.timedelta(seconds=token_info["expires_in"])
     logger.info(f"New token expires in {expiration_span}.")
     return config.refresh_token
 
@@ -154,7 +154,7 @@ def get_new_api_key(
     )
 
 
-def logout(ignore_post_error: bool = False) -> None:
+def invalidate_api_key(ignore_post_error: bool = False) -> None:
     """Logs out the current user.
 
     Args:
