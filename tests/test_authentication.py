@@ -1,7 +1,7 @@
 import pytest
 import responses
 
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 import requests
 import jwt
 
@@ -32,8 +32,8 @@ def test_authentication(mocked_token: Mock, mocked_logout: Mock):
 
     access_token = config.access_token
     refresh_token = config.refresh_token
-    assert access_token is None, access_token
-    assert refresh_token is None, refresh_token
+    assert not access_token, access_token
+    assert not refresh_token, refresh_token
 
     aiod.login("fake_username", "fake_p455w0rd")
     access_token = config.access_token
@@ -44,8 +44,8 @@ def test_authentication(mocked_token: Mock, mocked_logout: Mock):
     aiod.logout()
     access_token = config.access_token
     refresh_token = config.refresh_token
-    assert access_token is None, access_token
-    assert refresh_token is None, refresh_token
+    assert not access_token, access_token
+    assert not refresh_token, refresh_token
 
 
 def test_get_user_endpoint(mocked_token: Mock):
@@ -87,6 +87,7 @@ def test_device_flow_success(monkeypatch):
     success_response.json.return_value = {
         "access_token": "new_token",
         "refresh_token": "new_refresh",
+        "expires_in": 300,
     }
     monkeypatch.setattr(requests, "post", lambda *a, **kw: success_response)
 
@@ -125,6 +126,7 @@ def test_device_flow_authorization_pending(monkeypatch):
     success_response.json.return_value = {
         "access_token": "token_ok",
         "refresh_token": "refresh_ok",
+        "expires_in": 300,
     }
 
     calls = iter([pending_response, success_response])

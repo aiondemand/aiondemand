@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 import re
 import tomllib
+import tomlkit
 from typing import Any, Callable, TypeAlias
 import logging
 
@@ -18,8 +19,8 @@ class Config:
     auth_server_url: str = "https://auth.aiod.eu/aiod-auth"
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
-    access_token: str | None = None
-    refresh_token: str | None = None
+    access_token: str = ""
+    refresh_token: str = ""
 
     _observers: dict[str, set[AttributeObserver]] = field(
         default_factory=lambda: defaultdict(set)
@@ -28,6 +29,17 @@ class Config:
     def subscribe(self, attribute: str, on_change: AttributeObserver):
         if on_change not in self._observers[attribute]:
             self._observers[attribute].add(on_change)
+
+    def store_to_file(self, attribute: str):
+        if attribute not in dir(self):
+            raise AttributeError("Cannot store ")
+        user_config = tomlkit.loads(_user_config_file.read_text())
+        if value := getattr(self, attribute):
+            user_config[attribute] = value
+        else:
+            del user_config[attribute]
+
+        _user_config_file.write_text(tomlkit.dumps(user_config))
 
     def __setattr__(self, key, value):
         old_value = getattr(self, key, None)
@@ -46,7 +58,11 @@ def load_configuration(file: Path) -> Config:
         raise
 
     global config
-    key_map = {"api_server": "api_base_url", "auth_server": "auth_server_url"}
+    key_map = {
+        "api_server": "api_base_url",
+        "auth_server": "auth_server_url",
+        "api_key": "refresh_token",
+    }
     for key, value in _user_config.items():
         setattr(config, key_map.get(key, key), value)
     return config

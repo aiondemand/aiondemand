@@ -3,7 +3,7 @@ from aiod.configuration import config
 from aiod.resources import case_studies
 from aiod.resources import computational_assets
 from aiod.resources import contacts
-from aiod.default.counts import asset_counts as counts, get_user_info
+from aiod.default.counts import asset_counts as counts
 from aiod.resources import datasets
 from aiod.resources import educational_resources
 from aiod.resources import events

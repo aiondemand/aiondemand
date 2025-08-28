@@ -77,7 +77,7 @@ def login(username: str, password: str) -> None:
     config.refresh_token = token["refresh_token"]
 
 
-def login_device_flow(poll_interval: int = 0) -> None:
+def login_device_flow(poll_interval: int = 0, store_to_file: bool = False) -> None:
     """Logs in the user via device flow (for long-term tokens)."""
     kc = keycloak_openid()
     response = kc.device()
@@ -99,7 +99,16 @@ def login_device_flow(poll_interval: int = 0) -> None:
     token_endpoint = kc.well_known()["token_endpoint"]
     jwks_endpoint = kc.well_known()["jwks_uri"]
 
-    webbrowser.open(verification_uri_complete)
+    if config.refresh_token:
+        token_info = kc.refresh_token(config.refresh_token)
+        config.access_token = token_info["access_token"]
+        config.refresh_token = token_info[
+            "refresh_token"
+        ]  # You get a new refresh token too
+        expires_in = token_info["expires_in"]
+        logger.info("Token expires in", expires_in)
+    else:
+        webbrowser.open(verification_uri_complete)
 
     while True:
         time.sleep(interval)
@@ -114,6 +123,10 @@ def login_device_flow(poll_interval: int = 0) -> None:
         if token_response.status_code == 200:
             config.access_token = token_response_data["access_token"]
             config.refresh_token = token_response_data.get("refresh_token")
+            expires_in = token_response_data["expires_in"]
+            logger.info("New refresh token:", config.refresh_token)
+            logger.info("Token expires in", expires_in)
+            config.store_to_file("refresh_token")
 
             _validate_token(config.access_token, jwks_endpoint)  # type: ignore[arg-type]
             # print("Device flow login successful.")
@@ -142,8 +155,8 @@ def logout(ignore_post_error: bool = False) -> None:
     except KeycloakPostError as e:
         if not ignore_post_error:
             raise e
-    config.access_token = None
-    config.refresh_token = None
+    config.access_token = ""
+    config.refresh_token = ""
 
 
 def get_current_user() -> User:
