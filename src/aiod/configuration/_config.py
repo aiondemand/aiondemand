@@ -19,7 +19,7 @@ class Config:
     auth_server_url: str = "https://auth.aiod.eu/aiod-auth"
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
-    access_token: str = ""
+    _access_token: str = ""
     refresh_token: str = ""
 
     _observers: dict[str, set[AttributeObserver]] = field(

@@ -1,12 +1,11 @@
+import datetime
 import time
 import http.client
-import webbrowser
+from http import HTTPStatus
 
 import requests
-import jwt
-from jwt import PyJWKClient
 from typing import Sequence, NamedTuple
-from keycloak import KeycloakOpenID, KeycloakAuthenticationError, KeycloakPostError
+from keycloak import KeycloakOpenID, KeycloakPostError
 
 from aiod.configuration import config
 import logging
@@ -47,100 +46,112 @@ class User(NamedTuple):
     roles: Sequence[str]
 
 
-def login(username: str, password: str) -> None:
-    """Logs in the user with the provided username and password.
+def renew_api_key(api_key: str | None = None) -> str:
+    """Tries to renew the current API key."""
+    if not api_key and not config.refresh_token:
+        raise ValueError(
+            "Either `api_key` or `config.refresh_token` must be a non-empy string."
+        )
+    return _refresh_tokens(api_key or config.refresh_token)
+
+
+def _refresh_tokens(refresh_token: str) -> str:
+    token_info = keycloak_openid().refresh_token(refresh_token)
+    config._access_token = token_info["access_token"]
+    config.refresh_token = token_info["refresh_token"]
+    expiration_span = datetime.timedelta(seconds=token_info["refresh_token"])
+    logger.info(f"New token expires in {expiration_span}.")
+    return config.refresh_token
+
+
+def get_new_api_key(
+    max_wait_time_seconds: int = 300,
+    *,
+    store_to_file: bool = False,
+) -> str:
+    """Get an API Key by prompting the user to log in through a browser.
 
     Args:
-        username (str): The username of the user.
-        password (str): The password of the user.
+        max_wait_time_seconds: int (default = 300)
+            The maximum time this function blocks waiting for the authentication workflow
+            to complete. If `max_wait_time_seconds` seconds have elapsed without successful
+            authentication, this function raises an AuthenticationError.
+            This must be set to a positive integer.
+        store_to_file: bool (default = False)
+            If set to true, the new api key (refresh token) will automatically be saved to
+            the user configuration file (~/.aiod/config.toml).
+
+    Returns:
+        str: The new API key (the refresh token).
+
     Raises:
-        ValueError: When username or password is empty.
-        AuthenticationError: When the username or password is wrong.
+        AuthenticationError: if authentication is unsuccessful in any way.
+
     """
-    if not username:
-        raise ValueError(
-            f"{username!r} is not a valid username, must be a non-empty string."
-        )
-    if not password:
-        raise ValueError(
-            f"{password!r} is not a valid password, must be a non-empty string."
-        )
-
-    try:
-        token = keycloak_openid().token(username, password)
-    except KeycloakAuthenticationError as e:
-        raise AuthenticationError(
-            "Authentication failed! Please verify your credentials."
-        ) from e
-
-    config.access_token = token["access_token"]
-    config.refresh_token = token["refresh_token"]
-
-
-def login_device_flow(poll_interval: int = 0, store_to_file: bool = False) -> None:
-    """Logs in the user via device flow (for long-term tokens)."""
+    if max_wait_time_seconds <= 0 or not isinstance(max_wait_time_seconds, int):
+        raise ValueError("`max_wait_time` must be a positive integer.")
     kc = keycloak_openid()
+
     response = kc.device()
     device_code = response["device_code"]
     user_code = response["user_code"]
     verification_uri = response["verification_uri"]
     verification_uri_complete = response["verification_uri_complete"]
-    interval = poll_interval or response["interval"]
 
-    logger.info(
-        "Device code: %s, verification URL: %s",
-        "verification URL complete: %s",
-        user_code,
-        verification_uri,
-        verification_uri_complete,
+    # We print instead of log because this information *needs* to get to the user,
+    # and relying on user logging configurations is too finnicky for that.
+    print("Please authenticate using one of two methods:")  # noqa: T201
+    print()  # noqa: T201
+    print(f"  1. Navigate to {verification_uri_complete}")  # noqa: T201
+    print(  # noqa: T201
+        f"  2. Navigate to {verification_uri} and enter code {user_code}"
+    )
+    print()  # noqa: T201
+    print(  # noqa: T201
+        f"This workflow will automatically abort after {max_wait_time_seconds} seconds."
     )
 
-    # Poll token endpoint until approved
+    poll_interval = response["interval"]
+    start_time = time.time()
+
     token_endpoint = kc.well_known()["token_endpoint"]
-    jwks_endpoint = kc.well_known()["jwks_uri"]
-
-    if config.refresh_token:
-        token_info = kc.refresh_token(config.refresh_token)
-        config.access_token = token_info["access_token"]
-        config.refresh_token = token_info[
-            "refresh_token"
-        ]  # You get a new refresh token too
-        expires_in = token_info["expires_in"]
-        logger.info("Token expires in", expires_in)
-    else:
-        webbrowser.open(verification_uri_complete)
-
-    while True:
-        time.sleep(interval)
-        token_data = {
-            "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
-            "client_id": config.client_id,
-            "device_code": device_code,
-        }
+    token_data = {
+        "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+        "client_id": config.client_id,
+        "device_code": device_code,
+    }
+    # We do not know when the user finishes their authentication, so we poll the server
+    while time.time() - start_time < max_wait_time_seconds:
+        time.sleep(poll_interval)
         token_response = requests.post(token_endpoint, data=token_data)
         token_response_data = token_response.json()
 
-        if token_response.status_code == 200:
-            config.access_token = token_response_data["access_token"]
-            config.refresh_token = token_response_data.get("refresh_token")
-            expires_in = token_response_data["expires_in"]
-            logger.info("New refresh token:", config.refresh_token)
-            logger.info("Token expires in", expires_in)
-            config.store_to_file("refresh_token")
-
-            _validate_token(config.access_token, jwks_endpoint)  # type: ignore[arg-type]
-            # print("Device flow login successful.")
-            break
-        elif token_response.status_code == 400:
-            error = token_response_data.get("error")
-            if error == "authorization_pending":
+        response = (token_response.status_code, token_response_data.get("error"))
+        match response:
+            case (HTTPStatus.OK, _):
+                access_token = token_response_data["access_token"]
+                kc.decode_token(access_token, validate=True)
+                config._access_token = access_token
+                config.refresh_token = token_response_data.get("refresh_token")
+                if store_to_file:
+                    config.store_to_file("refresh_token")
+                return config.refresh_token
+            case (HTTPStatus.BAD_REQUEST, "authorization_pending"):
                 continue
-            elif error == "slow_down":
-                interval += 5
-            else:
-                raise AuthenticationError(f"Device flow error: {error}")
-        else:
-            raise AuthenticationError("Unexpected device flow error.")
+            case (HTTPStatus.BAD_REQUEST, "slow_down"):
+                poll_interval *= 1.5
+                continue
+            case (HTTPStatus.BAD_REQUEST, "access_denied"):
+                raise AuthenticationError("Access denied by Keycloak server.")
+            case (HTTPStatus.BAD_REQUEST, "expired_token"):
+                raise AuthenticationError("Device code has expired, please try again.")
+            case (status, error):
+                raise AuthenticationError(
+                    f"Unexpected error, please contact the developers ({status}, {error})."
+                )
+    raise AuthenticationError(
+        f"No successful authentication within {max_wait_time_seconds=} seconds."
+    )
 
 
 def logout(ignore_post_error: bool = False) -> None:
@@ -155,7 +166,7 @@ def logout(ignore_post_error: bool = False) -> None:
     except KeycloakPostError as e:
         if not ignore_post_error:
             raise e
-    config.access_token = ""
+    config._access_token = ""
     config.refresh_token = ""
 
 
@@ -170,7 +181,7 @@ def get_current_user() -> User:
     """
     response = requests.get(
         f"{config.api_base_url}authorization_test",
-        headers={"Authorization": f"Bearer {config.access_token}"},
+        headers={"Authorization": f"Bearer {config._access_token}"},
     )
 
     content = response.json()
@@ -180,18 +191,6 @@ def get_current_user() -> User:
         name=content["name"],
         roles=tuple(content["roles"]),
     )
-
-
-def _validate_token(access_token: str, jwks_endpoint: str) -> dict:
-    """Validate JWT signature and audience using JWKS."""
-    if access_token is None:
-        raise AuthenticationError("No access token to validate")
-    decoded_token = jwt.decode(access_token, options={"verify_signature": False})
-    aud = decoded_token["aud"]
-
-    jwks_client = PyJWKClient(jwks_endpoint)
-    signing_key = jwks_client.get_signing_key_from_jwt(access_token).key
-    return jwt.decode(access_token, signing_key, algorithms=["RS256"], audience=aud)
 
 
 class AuthenticationError(Exception):

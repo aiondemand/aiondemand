@@ -11,7 +11,7 @@ from aiod.authentication import authentication
 from aiod.authentication.authentication import (
     keycloak_openid,
     AuthenticationError,
-    login_device_flow,
+    get_new_api_key,
 )
 
 
@@ -26,28 +26,6 @@ def mocked_logout() -> Mock:
     return Mock()
 
 
-def test_authentication(mocked_token: Mock, mocked_logout: Mock):
-    keycloak_openid().token = mocked_token
-    keycloak_openid().logout = mocked_logout
-
-    access_token = config.access_token
-    refresh_token = config.refresh_token
-    assert not access_token, access_token
-    assert not refresh_token, refresh_token
-
-    aiod.login("fake_username", "fake_p455w0rd")
-    access_token = config.access_token
-    refresh_token = config.refresh_token
-    assert access_token == "fake_token", access_token
-    assert refresh_token == "fake_refresh_token", refresh_token
-
-    aiod.logout()
-    access_token = config.access_token
-    refresh_token = config.refresh_token
-    assert not access_token, access_token
-    assert not refresh_token, refresh_token
-
-
 def test_get_user_endpoint(mocked_token: Mock):
     keycloak_openid().token = mocked_token
 
@@ -58,7 +36,7 @@ def test_get_user_endpoint(mocked_token: Mock):
             json={"name": "user", "roles": ["a_role"]},
             status=200,
         )
-        aiod.login("fake_username", "fakeP455w0rd")
+        aiod.config._access_token = "fake_token"
         user = aiod.get_current_user()
 
         header = mocked_requests.calls[0].request.headers["Authorization"]
@@ -90,14 +68,10 @@ def test_device_flow_success(monkeypatch):
         "expires_in": 300,
     }
     monkeypatch.setattr(requests, "post", lambda *a, **kw: success_response)
+    kc.decode_token = Mock(return_value={"sub": "123"})
 
-    # Mock JWT validation
-    monkeypatch.setattr(
-        authentication, "_validate_token", lambda token, jwks: {"sub": "123"}
-    )
-
-    login_device_flow(poll_interval=0)  # no sleep
-    assert config.access_token == "new_token"
+    get_new_api_key()
+    assert config._access_token == "new_token"
     assert config.refresh_token == "new_refresh"
 
 
@@ -109,7 +83,7 @@ def test_device_flow_authorization_pending(monkeypatch):
             "user_code": "user123",
             "verification_uri": "http://verify",
             "verification_uri_complete": "http://verify?user=user123",
-            "interval": 1,
+            "interval": 0,
         }
     )
     kc.well_known = Mock(
@@ -131,13 +105,10 @@ def test_device_flow_authorization_pending(monkeypatch):
 
     calls = iter([pending_response, success_response])
     monkeypatch.setattr(requests, "post", lambda *a, **kw: next(calls))
+    kc.decode_token = Mock(return_value={"sub": "123"})
 
-    monkeypatch.setattr(
-        authentication, "_validate_token", lambda token, jwks: {"sub": "123"}
-    )
-
-    login_device_flow(poll_interval=0)
-    assert config.access_token == "token_ok"
+    get_new_api_key()
+    assert config._access_token == "token_ok"
     assert config.refresh_token == "refresh_ok"
 
 
@@ -162,4 +133,4 @@ def test_device_flow_failure(monkeypatch):
     monkeypatch.setattr(requests, "post", lambda *a, **kw: error_response)
 
     with pytest.raises(AuthenticationError):
-        login_device_flow(poll_interval=0)
+        get_new_api_key()

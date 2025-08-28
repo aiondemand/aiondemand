@@ -1,4 +1,4 @@
-from aiod.authentication import login, logout, get_current_user, login_device_flow
+from aiod.authentication import logout, get_current_user, get_new_api_key
 from aiod.configuration import config
 from aiod.resources import case_studies
 from aiod.resources import computational_assets
