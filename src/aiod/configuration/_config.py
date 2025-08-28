@@ -14,23 +14,24 @@ AttributeObserver: TypeAlias = Callable[[str, Any, Any], None]
 
 @dataclass
 class Config:
-    api_base_url: str = "https://api.aiod.eu/"
+    api_server: str = "https://api.aiod.eu/"
     version: str = ""
-    auth_server_url: str = "https://auth.aiod.eu/aiod-auth"
+    auth_server: str = "https://auth.aiod.eu/aiod-auth"
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
-    _access_token: str = ""
-    refresh_token: str = ""
+    token: str = ""  # The long-lived refresh token from Keycloak
+    _access_token: str = field(default="", repr=False)
 
     _observers: dict[str, set[AttributeObserver]] = field(
-        default_factory=lambda: defaultdict(set)
+        default_factory=lambda: defaultdict(set),
+        repr=False,
     )
 
-    def subscribe(self, attribute: str, on_change: AttributeObserver):
+    def subscribe(self, attribute: str, on_change: AttributeObserver) -> None:
         if on_change not in self._observers[attribute]:
             self._observers[attribute].add(on_change)
 
-    def store_to_file(self, attribute: str):
+    def store_to_file(self, attribute: str) -> None:
         if attribute not in dir(self):
             raise AttributeError("Cannot store ")
         user_config = tomlkit.loads(_user_config_file.read_text())
@@ -41,7 +42,7 @@ class Config:
 
         _user_config_file.write_text(tomlkit.dumps(user_config))
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key, value) -> None:
         old_value = getattr(self, key, None)
         super().__setattr__(key, value)
 
@@ -58,13 +59,8 @@ def load_configuration(file: Path) -> Config:
         raise
 
     global config
-    key_map = {
-        "api_server": "api_base_url",
-        "auth_server": "auth_server_url",
-        "api_key": "refresh_token",
-    }
     for key, value in _user_config.items():
-        setattr(config, key_map.get(key, key), value)
+        setattr(config, key, value)
     return config
 
 

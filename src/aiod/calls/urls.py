@@ -9,7 +9,7 @@ def url_to_get_asset(
     asset_type: str, identifier: int, version: str | None = None
 ) -> str:
     version = version or config.version
-    url = f"{config.api_base_url}{asset_type}/{version}/{identifier}"
+    url = f"{config.api_server}{asset_type}/{version}/{identifier}"
     return url
 
 
@@ -19,7 +19,7 @@ def url_to_get_list(
 
     query = urllib.parse.urlencode({"offset": offset, "limit": limit})
     version = version or config.version
-    url = f"{config.api_base_url}{asset_type}/{version}?{query}"
+    url = f"{config.api_server}{asset_type}/{version}?{query}"
     return url
 
 
@@ -42,7 +42,7 @@ def url_to_search(
     }
     query = urllib.parse.urlencode(query_params, doseq=True).lower()
     version = version or config.version
-    url = f"{config.api_base_url}search/{asset_type}/{version}?{query}"
+    url = f"{config.api_server}search/{asset_type}/{version}?{query}"
     return url
 
 
@@ -53,7 +53,7 @@ def url_to_resource_counts(
 ) -> str:
     query = urllib.parse.urlencode({"detailed": per_platform}).lower()
     version = version or config.version
-    url = f"{config.api_base_url}counts/{asset_type}/{version}?{query}"
+    url = f"{config.api_server}counts/{asset_type}/{version}?{query}"
     return url
 
 
@@ -64,7 +64,7 @@ def url_to_get_content(
     version: str | None = None,
 ) -> str:
     version = version or config.version
-    url = f"{config.api_base_url}{asset_type}/{version}/{identifier}/content"
+    url = f"{config.api_server}{asset_type}/{version}/{identifier}/content"
     url += f"/{distribution_idx}" if distribution_idx else ""
     return url
 
@@ -80,7 +80,7 @@ def url_to_get_list_from_platform(
     query = urllib.parse.urlencode({"offset": offset, "limit": limit})
     version = version or config.version
 
-    url = f"{config.api_base_url}platforms/{platform}/{asset_type}/{version}?{query}"
+    url = f"{config.api_server}platforms/{platform}/{asset_type}/{version}?{query}"
     return url
 
 
@@ -91,5 +91,5 @@ def url_to_get_asset_from_platform(
     version: str | None = None,
 ) -> str:
     version = version or config.version
-    url = f"{config.api_base_url}platforms/{platform}/{asset_type}/{version}/{platform_identifier}"
+    url = f"{config.api_server}platforms/{platform}/{asset_type}/{version}/{platform_identifier}"
     return url

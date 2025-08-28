@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def _connect_keycloak() -> KeycloakOpenID:
     return KeycloakOpenID(
-        server_url=config.auth_server_url,
+        server_url=config.auth_server,
         client_id=config.client_id,
         realm_name=config.realm,
     )
@@ -28,15 +28,15 @@ def keycloak_openid() -> KeycloakOpenID:
     return _keycloak_openid
 
 
-def on_keycloak_config_changed(_: str, __: str, ___: str) -> None:
+def _on_keycloak_config_changed(_: str, __: str, ___: str) -> None:
     global _keycloak_openid
     invalidate_api_key(ignore_post_error=True)
     _keycloak_openid = None
 
 
-config.subscribe("auth_server_url", on_change=on_keycloak_config_changed)
-config.subscribe("realm", on_change=on_keycloak_config_changed)
-config.subscribe("client_id", on_change=on_keycloak_config_changed)
+config.subscribe("auth_server", on_change=_on_keycloak_config_changed)
+config.subscribe("realm", on_change=_on_keycloak_config_changed)
+config.subscribe("client_id", on_change=_on_keycloak_config_changed)
 
 _keycloak_openid: KeycloakOpenID | None = None
 
@@ -48,20 +48,17 @@ class User(NamedTuple):
 
 def renew_api_key(api_key: str | None = None) -> str:
     """Tries to renew the current API key."""
-    if not api_key and not config.refresh_token:
+    if not api_key and not config.token:
         raise ValueError(
             "Either `api_key` or `config.refresh_token` must be a non-empy string."
         )
-    return _refresh_tokens(api_key or config.refresh_token)
-
-
-def _refresh_tokens(refresh_token: str) -> str:
-    token_info = keycloak_openid().refresh_token(refresh_token)
+    refresh_token = api_key or config.token
+    token_info = keycloak_openid().token(refresh_token)
     config._access_token = token_info["access_token"]
-    config.refresh_token = token_info["refresh_token"]
+    config.token = token_info["refresh_token"]
     expiration_span = datetime.timedelta(seconds=token_info["expires_in"])
     logger.info(f"New token expires in {expiration_span}.")
-    return config.refresh_token
+    return config.token
 
 
 def get_new_api_key(
@@ -132,10 +129,10 @@ def get_new_api_key(
                 access_token = token_response_data["access_token"]
                 kc.decode_token(access_token, validate=True)
                 config._access_token = access_token
-                config.refresh_token = token_response_data.get("refresh_token")
+                config.token = token_response_data.get("refresh_token")
                 if store_to_file:
                     config.store_to_file("refresh_token")
-                return config.refresh_token
+                return config.token
             case (HTTPStatus.BAD_REQUEST, "authorization_pending"):
                 continue
             case (HTTPStatus.BAD_REQUEST, "slow_down"):
@@ -154,20 +151,24 @@ def get_new_api_key(
     )
 
 
-def invalidate_api_key(ignore_post_error: bool = False) -> None:
-    """Logs out the current user.
+def invalidate_api_key(
+    api_key: str | None = None, ignore_post_error: bool = False
+) -> None:
+    """Invalidates the current (or provided) API key.
 
+    Ends the current keycloak session, invalidating all keys issued.
     Args:
         ignore_post_error:
             If true, do not raise an error if the logout attempt failed.
     """
+    token = api_key or config.token
     try:
-        keycloak_openid().logout(config.refresh_token)
+        keycloak_openid().logout(token)
     except KeycloakPostError as e:
         if not ignore_post_error:
             raise e
     config._access_token = ""
-    config.refresh_token = ""
+    config.token = ""
 
 
 def get_current_user() -> User:
@@ -180,7 +181,7 @@ def get_current_user() -> User:
         NotAuthenticatedError: When the user is not authenticated.
     """
     response = requests.get(
-        f"{config.api_base_url}authorization_test",
+        f"{config.api_server}authorization_test",
         headers={"Authorization": f"Bearer {config._access_token}"},
     )
 

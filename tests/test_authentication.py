@@ -32,7 +32,7 @@ def test_get_user_endpoint(mocked_token: Mock):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{config.api_base_url}authorization_test",
+            f"{config.api_server}authorization_test",
             json={"name": "user", "roles": ["a_role"]},
             status=200,
         )
@@ -72,7 +72,7 @@ def test_device_flow_success(monkeypatch):
 
     get_new_api_key()
     assert config._access_token == "new_token"
-    assert config.refresh_token == "new_refresh"
+    assert config.token == "new_refresh"
 
 
 def test_device_flow_authorization_pending(monkeypatch):
@@ -109,7 +109,7 @@ def test_device_flow_authorization_pending(monkeypatch):
 
     get_new_api_key()
     assert config._access_token == "token_ok"
-    assert config.refresh_token == "refresh_ok"
+    assert config.token == "refresh_ok"
 
 
 def test_device_flow_failure(monkeypatch):
