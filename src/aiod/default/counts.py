@@ -22,9 +22,7 @@ def asset_counts(
         pd.DataFrame | dict: Counts as a Pandas data frame or a dictionary.
     """
     version = version or config.version
-    url = f"{config.api_server}counts"
-    if version:
-        url += "/" + version
+    url = f"{config.api_base_url}{version}/counts"
 
     res = requests.get(url)
 

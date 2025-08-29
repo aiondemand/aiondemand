@@ -15,7 +15,7 @@ AttributeObserver: TypeAlias = Callable[[str, Any, Any], None]
 @dataclass
 class Config:
     api_server: str = "https://api.aiod.eu/"
-    version: str = ""
+    version: str = "v2"
     auth_server: str = "https://auth.aiod.eu/aiod-auth"
     realm: str = "aiod"
     client_id: str = "aiod-sdk"

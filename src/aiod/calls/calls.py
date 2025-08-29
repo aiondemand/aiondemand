@@ -75,7 +75,7 @@ def counts(
 
 
 def get_asset(
-    identifier: int,
+    identifier: str,
     *,
     asset_type: str,
     version: str | None = None,
@@ -130,7 +130,7 @@ def get_asset_from_platform(
 
 def get_content(
     *,
-    identifier: int,
+    identifier: str,
     asset_type: str,
     distribution_idx: int = 0,
     version: str | None = None,
@@ -202,7 +202,7 @@ def search(
 
 
 async def get_assets_async(
-    identifiers: list[int],
+    identifiers: list[str],
     *,
     asset_type: str,
     version: str | None = None,
