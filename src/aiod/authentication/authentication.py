@@ -82,7 +82,8 @@ class Token:
     def __str__(self):
         return self._refresh_token
 
-    def refresh(self):
+    def refresh(self) -> None:
+        """Use the `refresh token` to request a new `access token`."""
         token_info = keycloak_openid().refresh_token(self._refresh_token)
         self._access_token = token_info["access_token"]
         # self._refresh_token = token_info["refresh_token"]  # Only with auto-rotating
@@ -91,10 +92,9 @@ class Token:
         # when calculating expiration time.
         SAFETY_PERIOD_SECONDS = 2
         self._expiration_date = _datetime_utc_in(
-            token_info["expires_in"] - SAFETY_PERIOD_SECONDS
+            seconds=token_info["expires_in"] - SAFETY_PERIOD_SECONDS
         )
         logger.info(f"Renewed access token, it expires {self._expiration_date}.")
-        return self.access_token
 
     def to_file(self, file: Path | None = None):
         file = file or _user_token_file
