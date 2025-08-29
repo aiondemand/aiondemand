@@ -11,6 +11,9 @@ from aiod.authentication.authentication import (
     keycloak_openid,
     AuthenticationError,
     create_token,
+    get_token,
+    set_token,
+    Token,
 )
 
 
@@ -35,7 +38,9 @@ def test_get_user_endpoint(mocked_token: Mock):
             json={"name": "user", "roles": ["a_role"]},
             status=200,
         )
-        aiod.config._access_token = "fake_token"
+        set_token(
+            Token(refresh_token="", access_token="fake_token", expires_in_seconds=300)
+        )
         user = aiod.get_current_user()
 
         header = mocked_requests.calls[0].request.headers["Authorization"]
@@ -70,8 +75,8 @@ def test_device_flow_success(monkeypatch):
     kc.decode_token = Mock(return_value={"sub": "123"})
 
     create_token()
-    assert config._access_token == "new_token"
-    assert config.token == "new_refresh"
+    assert get_token()._access_token == "new_token"
+    assert get_token()._refresh_token == "new_refresh"
 
 
 def test_device_flow_authorization_pending(monkeypatch):
@@ -107,8 +112,8 @@ def test_device_flow_authorization_pending(monkeypatch):
     kc.decode_token = Mock(return_value={"sub": "123"})
 
     create_token()
-    assert config._access_token == "token_ok"
-    assert config.token == "refresh_ok"
+    assert get_token()._access_token == "token_ok"
+    assert get_token()._refresh_token == "refresh_ok"
 
 
 def test_device_flow_failure(monkeypatch):

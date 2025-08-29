@@ -219,10 +219,10 @@ def create_token(
                     access_token=access_token,
                     expires_in_seconds=token_response_data["expires_in"],
                 )
-                config._access_token = token._access_token
-                config._refresh_token = token._refresh_token
                 if write_to_file:
                     token.to_file(_user_token_file)
+                if use_in_requests:
+                    set_token(token)
                 return token
             case (HTTPStatus.BAD_REQUEST, "authorization_pending"):
                 continue
@@ -256,14 +256,15 @@ def invalidate_token(
         ignore_post_error:
             If true, do not raise an error if the logout attempt failed.
     """
-    token = token or config.token
+    global _token
+    token = token or _token
     try:
         keycloak_openid().logout(token)
     except KeycloakPostError as e:
         if not ignore_post_error:
             raise e
-    config._access_token = ""
-    config.token = ""
+    finally:
+        _token = None
 
 
 class User(NamedTuple):
@@ -282,7 +283,7 @@ def get_current_user() -> User:
     """
     response = requests.get(
         f"{config.api_server}authorization_test",
-        headers={"Authorization": f"Bearer {config._access_token}"},
+        headers=get_token().headers,
     )
 
     content = response.json()

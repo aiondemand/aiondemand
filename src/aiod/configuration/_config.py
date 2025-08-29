@@ -19,21 +19,11 @@ class Config:
     auth_server: str = "https://auth.aiod.eu/aiod-auth"
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
-    _refresh_token: str = field(default="", repr=False)
-    _access_token: str = field(default="", repr=False)
 
     _observers: dict[str, set[AttributeObserver]] = field(
         default_factory=lambda: defaultdict(set),
         repr=False,
     )
-
-    @property
-    def token(self) -> str:
-        return self._refresh_token
-
-    @token.setter
-    def token(self, value: str):
-        self._refresh_token = value
 
     def subscribe(self, attribute: str, on_change: AttributeObserver) -> None:
         if on_change not in self._observers[attribute]:
