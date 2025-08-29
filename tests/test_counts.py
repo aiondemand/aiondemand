@@ -2,6 +2,7 @@ import responses
 from pathlib import Path
 
 import aiod
+from aiod.calls.urls import server_url
 from aiod.configuration import config
 
 
@@ -15,7 +16,7 @@ def test_counts():
         config.version = "v1"
         mocked_requests.add(
             responses.GET,
-            url=f"{config.api_base_url}{config.version}/counts",
+            url=f"{server_url()}counts",
             body=res_body,
             status=200,
         )

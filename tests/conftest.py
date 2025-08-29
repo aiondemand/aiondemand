@@ -7,10 +7,10 @@ import aiod.authentication.authentication as authentication
 @pytest.fixture(autouse=True)
 def setup_test_configuration():
     # User defaults are autoloaded, so we override them.
-    config.auth_server = "http://not.set"
-    config.api_server = "http://not.set"
-    config.realm = "not_set"
+    config.api_server = "http://not.set/"
     config.version = "not_set"
+    config.auth_server = "http://not.set/"
+    config.realm = "not_set"
     config.client_id = "not_set"
 
 
