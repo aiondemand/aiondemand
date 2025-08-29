@@ -6,7 +6,7 @@ import pandas as pd
 from typing import Literal
 from functools import partial
 
-from aiod.authorisation.authorisation import get_access_token
+from aiod.authentication.authentication import get_token
 from aiod.calls.urls import (
     url_to_get_asset,
     url_to_put_asset,
@@ -58,7 +58,7 @@ def get_list(
 def delete_asset(
     *,
     asset_type: str,
-    identifier: int,
+    identifier: str,
     version: str | None = None,
 ) -> requests.Response:
     """
@@ -71,8 +71,7 @@ def delete_asset(
             For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
     """
     url = url_to_delete_asset(asset_type, identifier, version)
-    headers = {"Authorization": f"Bearer {get_access_token()}"}
-    res = requests.delete(url, headers=headers)
+    res = requests.delete(url, headers=get_token().headers)
 
     return res
 
@@ -80,7 +79,7 @@ def delete_asset(
 def put_asset(
     *,
     asset_type: str,
-    identifier: int,
+    identifier: str,
     metadata: dict,
     version: str | None = None,
 ) -> requests.Response:
@@ -94,8 +93,7 @@ def put_asset(
             For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
     """
     url = url_to_put_asset(asset_type, identifier, version)
-    headers = {"Authorization": f"Bearer {get_access_token()}"}
-    res = requests.put(url, headers=headers, data=metadata)
+    res = requests.put(url, headers=get_token().headers, json=metadata)
 
     return res
 
@@ -116,9 +114,7 @@ def post_asset(
             For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
     """
     url = url_to_post_asset(asset_type, version)
-    headers = {"Authorization": f"Bearer {get_access_token()}"}
-    res = requests.post(url, headers=headers, data=metadata)
-
+    res = requests.post(url, headers=get_token().headers, json=metadata)
     return res
 
 
