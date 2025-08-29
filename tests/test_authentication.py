@@ -7,11 +7,10 @@ import jwt
 
 import aiod
 from aiod.configuration import config
-from aiod.authentication import authentication
 from aiod.authentication.authentication import (
     keycloak_openid,
     AuthenticationError,
-    get_new_api_key,
+    get_token,
 )
 
 
@@ -70,7 +69,7 @@ def test_device_flow_success(monkeypatch):
     monkeypatch.setattr(requests, "post", lambda *a, **kw: success_response)
     kc.decode_token = Mock(return_value={"sub": "123"})
 
-    get_new_api_key()
+    get_token()
     assert config._access_token == "new_token"
     assert config.token == "new_refresh"
 
@@ -107,7 +106,7 @@ def test_device_flow_authorization_pending(monkeypatch):
     monkeypatch.setattr(requests, "post", lambda *a, **kw: next(calls))
     kc.decode_token = Mock(return_value={"sub": "123"})
 
-    get_new_api_key()
+    get_token()
     assert config._access_token == "token_ok"
     assert config.token == "refresh_ok"
 
@@ -133,4 +132,4 @@ def test_device_flow_failure(monkeypatch):
     monkeypatch.setattr(requests, "post", lambda *a, **kw: error_response)
 
     with pytest.raises(AuthenticationError):
-        get_new_api_key()
+        get_token()

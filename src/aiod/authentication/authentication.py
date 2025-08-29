@@ -2,8 +2,10 @@ import datetime
 import time
 import http.client
 from http import HTTPStatus
+from pathlib import Path
 
 import requests
+import tomlkit
 from typing import Sequence, NamedTuple
 from keycloak import KeycloakOpenID, KeycloakPostError
 
@@ -11,6 +13,81 @@ from aiod.configuration import config
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def _datetime_utc_in(*, seconds: int) -> datetime.datetime:
+    span = datetime.timedelta(seconds=seconds)
+    return datetime.datetime.now(datetime.UTC) + span
+
+
+class Token:
+    def __init__(
+        self,
+        refresh_token: str,
+        access_token: str | None = None,
+        expires_in_seconds: int = -1,
+    ):
+        if expires_in_seconds > 0 and access_token is None:
+            raise ValueError(
+                "If `expires_in_seconds` is set, `access_token` must be set to a valid access_token"
+            )
+        self._refresh_token = refresh_token
+        self._access_token = access_token or ""
+        self._expiration_date = _datetime_utc_in(seconds=expires_in_seconds)
+
+    @property
+    def has_expired(self) -> bool:
+        return datetime.datetime.now(datetime.UTC) >= self._expiration_date
+
+    @property
+    def bearer_token(self) -> str:
+        if not self.has_expired:
+            return self._access_token
+        self.refresh()
+        return self._access_token
+
+    def refresh(self):
+        token_info = keycloak_openid().refresh_token(self._refresh_token)
+        self._access_token = token_info["access_token"]
+        # self._refresh_token = token_info["refresh_token"]  # Only with auto-rotating
+        # Because of the minuscule time difference between the server sending the
+        # response and us processing it, the `expires_in` may not be used directly
+        # when calculating expiration time.
+        SAFETY_PERIOD_SECONDS = 2
+        self._expiration_date = _datetime_utc_in(
+            token_info["expires_in"] - SAFETY_PERIOD_SECONDS
+        )
+        logger.info(f"Renewed access token, it expires {self._expiration_date}.")
+        return self.access_token
+
+    def __str__(self):
+        return self._refresh_token
+
+    def to_file(self, file: Path | None = None):
+        file = file or _user_token_file
+        doc = tomlkit.document()
+        doc.add("refresh_token", self._refresh_token)
+        if not self.has_expired:
+            doc.add("access_token", self._access_token)
+            doc.add("expiration_date", self._expiration_date.isoformat())
+        file.write_text(tomlkit.dumps(doc))
+
+    @classmethod
+    def from_file(cls, file: Path | None = None) -> "Token":
+        file = file or _user_token_file
+        doc = tomlkit.parse(file.read_text())
+        kwargs = {"refresh_token": doc["refresh_token"]}
+        if "expiration_date" in doc:
+            expiration_date = datetime.datetime.fromisoformat(doc["expiration_date"])
+            expires_in = expiration_date - _datetime_utc_in(seconds=0)
+            if expires_in.total_seconds() > 0:
+                kwargs.update(
+                    {
+                        "access_token": doc["access_token"],
+                        "expires_in_seconds": expires_in.seconds,
+                    }
+                )
+        return Token(**kwargs)
 
 
 def _connect_keycloak() -> KeycloakOpenID:
@@ -46,14 +123,14 @@ class User(NamedTuple):
     roles: Sequence[str]
 
 
-def renew_api_key(api_key: str | None = None) -> str:
+def renew_token(api_key: str | None = None) -> str:
     """Tries to renew the current API key."""
     if not api_key and not config.token:
         raise ValueError(
             "Either `api_key` or `config.refresh_token` must be a non-empy string."
         )
     refresh_token = api_key or config.token
-    token_info = keycloak_openid().token(refresh_token)
+    token_info = keycloak_openid().refresh_token(refresh_token)
     config._access_token = token_info["access_token"]
     config.token = token_info["refresh_token"]
     expiration_span = datetime.timedelta(seconds=token_info["expires_in"])
@@ -61,11 +138,11 @@ def renew_api_key(api_key: str | None = None) -> str:
     return config.token
 
 
-def get_new_api_key(
+def get_token(
     max_wait_time_seconds: int = 300,
     *,
-    store_to_file: bool = False,
-) -> str:
+    write_to_file: bool = False,
+) -> Token:
     """Get an API Key by prompting the user to log in through a browser.
 
     Args:
@@ -74,12 +151,12 @@ def get_new_api_key(
             to complete. If `max_wait_time_seconds` seconds have elapsed without successful
             authentication, this function raises an AuthenticationError.
             This must be set to a positive integer.
-        store_to_file: bool (default = False)
+        write_to_file: bool (default = False)
             If set to true, the new api key (refresh token) will automatically be saved to
             the user configuration file (~/.aiod/config.toml).
 
     Returns:
-        str: The new API key (the refresh token).
+        Token: The new token for use in authenticated requests.
 
     Raises:
         AuthenticationError: if authentication is unsuccessful in any way.
@@ -128,11 +205,16 @@ def get_new_api_key(
             case (HTTPStatus.OK, _):
                 access_token = token_response_data["access_token"]
                 kc.decode_token(access_token, validate=True)
-                config._access_token = access_token
-                config.token = token_response_data.get("refresh_token")
-                if store_to_file:
-                    config.store_to_file("refresh_token")
-                return config.token
+                token = Token(
+                    refresh_token=token_response_data["refresh_token"],
+                    access_token=access_token,
+                    expires_in_seconds=token_response_data["expires_in"],
+                )
+                config._access_token = token._access_token
+                config._refresh_token = token._refresh_token
+                if write_to_file:
+                    token.to_file(_user_token_file)
+                return token
             case (HTTPStatus.BAD_REQUEST, "authorization_pending"):
                 continue
             case (HTTPStatus.BAD_REQUEST, "slow_down"):
@@ -200,3 +282,6 @@ class AuthenticationError(Exception):
 
 class NotAuthenticatedError(Exception):
     """Raised when an endpoint that requires authentication is called without authentication."""
+
+
+_user_token_file = Path("~/.aiod/token.toml").expanduser()
