@@ -82,7 +82,7 @@ def _add_decode_error_note(file: Path, e: tomllib.TOMLDecodeError) -> None:
 
 
 config = Config()  # Modified through `load_configuration`
-_user_config_file = Path("~/.aiod/config").expanduser()
+_user_config_file = Path("~/.aiod/config.toml").expanduser()
 if _user_config_file.exists() and _user_config_file.is_file():
     load_configuration(_user_config_file)
 else:

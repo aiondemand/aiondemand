@@ -7,7 +7,7 @@ from pathlib import Path
 import requests
 import tomlkit
 from typing import Sequence, NamedTuple
-from keycloak import KeycloakOpenID, KeycloakPostError
+from keycloak import KeycloakOpenID, KeycloakPostError, KeycloakConnectionError
 
 from aiod.configuration import config
 import logging
@@ -36,8 +36,8 @@ def keycloak_openid() -> KeycloakOpenID:
 
 
 def _on_keycloak_config_changed(_: str, __: str, ___: str) -> None:
-    global _keycloak_openid
-    invalidate_token(ignore_post_error=True)
+    global _keycloak_openid, _token
+    _token = None
     _keycloak_openid = None
 
 
@@ -144,15 +144,18 @@ def get_token() -> Token:
 
 
 def create_token(
-    max_wait_time_seconds: int = 300,
+    timeout_seconds: int = 300,
     *,
     write_to_file: bool = False,
     use_in_requests: bool = True,
 ) -> Token:
     """Get an API Key by prompting the user to log in through a browser.
 
+    IMPORTANT: This is a blocking function, and will poll the authentication server until
+    authentication is completed or `timeout_seconds` have passed.
+
     Args:
-        max_wait_time_seconds: int (default = 300)
+        timeout_seconds: int (default = 300)
             The maximum time this function blocks waiting for the authentication workflow
             to complete. If `max_wait_time_seconds` seconds have elapsed without successful
             authentication, this function raises an AuthenticationError.
@@ -171,7 +174,7 @@ def create_token(
         AuthenticationError: if authentication is unsuccessful in any way.
 
     """
-    if max_wait_time_seconds <= 0 or not isinstance(max_wait_time_seconds, int):
+    if timeout_seconds <= 0 or not isinstance(timeout_seconds, int):
         raise ValueError("`max_wait_time` must be a positive integer.")
     kc = keycloak_openid()
 
@@ -191,7 +194,7 @@ def create_token(
     )
     print()  # noqa: T201
     print(  # noqa: T201
-        f"This workflow will automatically abort after {max_wait_time_seconds} seconds."
+        f"This workflow will automatically abort after {timeout_seconds} seconds."
     )
 
     poll_interval = response["interval"]
@@ -204,7 +207,7 @@ def create_token(
         "device_code": device_code,
     }
     # We do not know when the user finishes their authentication, so we poll the server
-    while time.time() - start_time < max_wait_time_seconds:
+    while time.time() - start_time < timeout_seconds:
         time.sleep(poll_interval)
         token_response = requests.post(token_endpoint, data=token_data)
         token_response_data = token_response.json()
@@ -238,12 +241,12 @@ def create_token(
                     f"Unexpected error, please contact the developers ({status}, {error})."
                 )
     raise AuthenticationError(
-        f"No successful authentication within {max_wait_time_seconds=} seconds."
+        f"No successful authentication within {timeout_seconds=} seconds."
     )
 
 
 def invalidate_token(
-    token: str | Token | None = None, ignore_post_error: bool = False
+    token: str | Token | None = None, ignore_errors: bool = False
 ) -> None:
     """Invalidates the current (or provided) API key.
 
@@ -253,15 +256,15 @@ def invalidate_token(
             The token to invalidate.
             If str, it should be a refresh token.
             If None, it will default to the currently configured token.
-        ignore_post_error:
+        ignore_errors:
             If true, do not raise an error if the logout attempt failed.
     """
     global _token
     token = token or _token
     try:
         keycloak_openid().logout(token)
-    except KeycloakPostError as e:
-        if not ignore_post_error:
+    except (KeycloakPostError, KeycloakConnectionError) as e:
+        if not ignore_errors:
             raise e
     finally:
         _token = None
@@ -301,3 +304,7 @@ class AuthenticationError(Exception):
 
 class NotAuthenticatedError(Exception):
     """Raised when an endpoint that requires authentication is called without authentication."""
+
+
+if _user_token_file.exists() and _user_token_file.is_file():
+    _token = Token.from_file(_user_token_file)
