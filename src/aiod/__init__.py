@@ -1,4 +1,4 @@
-from aiod.authentication import invalidate_api_key, get_current_user, get_token
+from aiod.authentication import invalidate_token, get_current_user, create_token
 from aiod.configuration import config
 from aiod.resources import case_studies
 from aiod.resources import computational_assets

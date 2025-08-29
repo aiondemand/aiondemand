@@ -14,6 +14,37 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+_keycloak_openid: KeycloakOpenID | None = None
+
+_token: "Token | None" = None
+_user_token_file = Path("~/.aiod/token.toml").expanduser()
+
+
+def _connect_keycloak() -> KeycloakOpenID:
+    return KeycloakOpenID(
+        server_url=config.auth_server,
+        client_id=config.client_id,
+        realm_name=config.realm,
+    )
+
+
+def keycloak_openid() -> KeycloakOpenID:
+    global _keycloak_openid
+    if _keycloak_openid is None:
+        _keycloak_openid = _connect_keycloak()
+    return _keycloak_openid
+
+
+def _on_keycloak_config_changed(_: str, __: str, ___: str) -> None:
+    global _keycloak_openid
+    invalidate_token(ignore_post_error=True)
+    _keycloak_openid = None
+
+
+config.subscribe("auth_server", on_change=_on_keycloak_config_changed)
+config.subscribe("realm", on_change=_on_keycloak_config_changed)
+config.subscribe("client_id", on_change=_on_keycloak_config_changed)
+
 
 def _datetime_utc_in(*, seconds: int) -> datetime.datetime:
     span = datetime.timedelta(seconds=seconds)
@@ -21,6 +52,8 @@ def _datetime_utc_in(*, seconds: int) -> datetime.datetime:
 
 
 class Token:
+    """Ensures active access tokens provided through one dedicated refresh token."""
+
     def __init__(
         self,
         refresh_token: str,
@@ -40,11 +73,14 @@ class Token:
         return datetime.datetime.now(datetime.UTC) >= self._expiration_date
 
     @property
-    def bearer_token(self) -> str:
-        if not self.has_expired:
-            return self._access_token
-        self.refresh()
-        return self._access_token
+    def headers(self) -> dict[str, str]:
+        """HTTP header data for the token"""
+        if self.has_expired:
+            self.refresh()
+        return {"Authorization": f"Bearer {self._access_token}"}
+
+    def __str__(self):
+        return self._refresh_token
 
     def refresh(self):
         token_info = keycloak_openid().refresh_token(self._refresh_token)
@@ -59,9 +95,6 @@ class Token:
         )
         logger.info(f"Renewed access token, it expires {self._expiration_date}.")
         return self.access_token
-
-    def __str__(self):
-        return self._refresh_token
 
     def to_file(self, file: Path | None = None):
         file = file or _user_token_file
@@ -90,58 +123,31 @@ class Token:
         return Token(**kwargs)
 
 
-def _connect_keycloak() -> KeycloakOpenID:
-    return KeycloakOpenID(
-        server_url=config.auth_server,
-        client_id=config.client_id,
-        realm_name=config.realm,
-    )
+def set_token(token: Token | str) -> None:
+    """Set the token directly or provide a refresh token."""
+    global _token
+    if isinstance(token, str):
+        _token = Token(refresh_token=token)
+    else:
+        _token = token
 
 
-def keycloak_openid() -> KeycloakOpenID:
-    global _keycloak_openid
-    if _keycloak_openid is None:
-        _keycloak_openid = _connect_keycloak()
-    return _keycloak_openid
+def get_token() -> Token:
+    """Gets the currently configured token that is used for authenticated requests."""
+    if _token is None:
+        msg = """
+        No token set. Please create a new token with `aiod.create_token()`,
+         or set one with `aiod.set_token("...")`.
+        """
+        raise AuthenticationError(msg)
+    return _token
 
 
-def _on_keycloak_config_changed(_: str, __: str, ___: str) -> None:
-    global _keycloak_openid
-    invalidate_api_key(ignore_post_error=True)
-    _keycloak_openid = None
-
-
-config.subscribe("auth_server", on_change=_on_keycloak_config_changed)
-config.subscribe("realm", on_change=_on_keycloak_config_changed)
-config.subscribe("client_id", on_change=_on_keycloak_config_changed)
-
-_keycloak_openid: KeycloakOpenID | None = None
-
-
-class User(NamedTuple):
-    name: str
-    roles: Sequence[str]
-
-
-def renew_token(api_key: str | None = None) -> str:
-    """Tries to renew the current API key."""
-    if not api_key and not config.token:
-        raise ValueError(
-            "Either `api_key` or `config.refresh_token` must be a non-empy string."
-        )
-    refresh_token = api_key or config.token
-    token_info = keycloak_openid().refresh_token(refresh_token)
-    config._access_token = token_info["access_token"]
-    config.token = token_info["refresh_token"]
-    expiration_span = datetime.timedelta(seconds=token_info["expires_in"])
-    logger.info(f"New token expires in {expiration_span}.")
-    return config.token
-
-
-def get_token(
+def create_token(
     max_wait_time_seconds: int = 300,
     *,
     write_to_file: bool = False,
+    use_in_requests: bool = True,
 ) -> Token:
     """Get an API Key by prompting the user to log in through a browser.
 
@@ -154,6 +160,9 @@ def get_token(
         write_to_file: bool (default = False)
             If set to true, the new api key (refresh token) will automatically be saved to
             the user configuration file (~/.aiod/config.toml).
+        use_in_requests: bool (default = True)
+            If set to true, the new token will automatically be used for future authenticated
+            requests.
 
     Returns:
         Token: The new token for use in authenticated requests.
@@ -233,17 +242,21 @@ def get_token(
     )
 
 
-def invalidate_api_key(
-    api_key: str | None = None, ignore_post_error: bool = False
+def invalidate_token(
+    token: str | Token | None = None, ignore_post_error: bool = False
 ) -> None:
     """Invalidates the current (or provided) API key.
 
     Ends the current keycloak session, invalidating all keys issued.
     Args:
+        token: str | Token | None (default = None)
+            The token to invalidate.
+            If str, it should be a refresh token.
+            If None, it will default to the currently configured token.
         ignore_post_error:
             If true, do not raise an error if the logout attempt failed.
     """
-    token = api_key or config.token
+    token = token or config.token
     try:
         keycloak_openid().logout(token)
     except KeycloakPostError as e:
@@ -251,6 +264,11 @@ def invalidate_api_key(
             raise e
     config._access_token = ""
     config.token = ""
+
+
+class User(NamedTuple):
+    name: str
+    roles: Sequence[str]
 
 
 def get_current_user() -> User:
@@ -282,6 +300,3 @@ class AuthenticationError(Exception):
 
 class NotAuthenticatedError(Exception):
     """Raised when an endpoint that requires authentication is called without authentication."""
-
-
-_user_token_file = Path("~/.aiod/token.toml").expanduser()

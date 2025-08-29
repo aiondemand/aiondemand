@@ -1,1 +1,1 @@
-from .authentication import invalidate_api_key, get_current_user, get_token
+from .authentication import invalidate_token, get_current_user, create_token
