@@ -84,7 +84,18 @@ class Token:
 
     def refresh(self) -> None:
         """Use the `refresh token` to request a new `access token`."""
-        token_info = keycloak_openid().refresh_token(self._refresh_token)
+        try:
+            token_info = keycloak_openid().refresh_token(self._refresh_token)
+        except KeycloakPostError as e:
+            if "Offline user session not found" in e.error_message.decode():
+                raise AuthenticationError(
+                    "Refresh token no longer valid. Use `aiod.create_token` to get a new one."
+                ) from e
+            raise
+        except KeycloakConnectionError as e:
+            e.add_note(f"Could not connect {config.auth_server!r}, try again later.")
+            raise
+
         self._access_token = token_info["access_token"]
         # self._refresh_token = token_info["refresh_token"]  # Only with auto-rotating
         # Because of the minuscule time difference between the server sending the
@@ -109,18 +120,18 @@ class Token:
     def from_file(cls, file: Path | None = None) -> "Token":
         file = file or _user_token_file
         doc = tomlkit.parse(file.read_text())
-        kwargs = {"refresh_token": doc["refresh_token"]}
+        kwargs: dict[str, str | int] = {"refresh_token": str(doc["refresh_token"])}
         if "expiration_date" in doc:
             expiration_date = datetime.datetime.fromisoformat(doc["expiration_date"])
             expires_in = expiration_date - _datetime_utc_in(seconds=0)
             if expires_in.total_seconds() > 0:
                 kwargs.update(
                     {
-                        "access_token": doc["access_token"],
+                        "access_token": str(doc["access_token"]),
                         "expires_in_seconds": expires_in.seconds,
                     }
                 )
-        return Token(**kwargs)
+        return Token(**kwargs)  # type: ignore[arg-type]
 
 
 def set_token(token: Token | str) -> None:
