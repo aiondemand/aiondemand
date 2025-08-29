@@ -16,7 +16,9 @@ class Config:
     access_token: str | None = None
     refresh_token: str | None = None
 
-    _observers: dict[str, set[AttributeObserver]] = field(default_factory=lambda: defaultdict(set))
+    _observers: dict[str, set[AttributeObserver]] = field(
+        default_factory=lambda: defaultdict(set)
+    )
 
     def subscribe(self, attribute: str, on_change: AttributeObserver):
         if on_change not in self._observers[attribute]:
@@ -33,7 +35,7 @@ class Config:
 
 config = Config(
     api_base_url="https://api.aiod.eu/",
-    version="v1",
+    version="v2",
     auth_server_url="https://auth.aiod.eu/aiod-auth/",
     realm="aiod",
     client_id="aiod-sdk",

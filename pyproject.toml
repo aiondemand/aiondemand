@@ -34,3 +34,9 @@ version_files = ["pyproject.toml:version", "src/aiod/__version__.py"]
 
 [project.entry-points."mkdocs.plugins"]
 asset-type-replacer = "docs.tools.asset_type_replacer:AssetTypeReplacer"
+
+[tool.pytest.ini_options]
+markers = [
+    "server: connects to an AIoD server",
+]
+addopts = "-m 'not server'"

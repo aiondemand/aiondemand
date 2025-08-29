@@ -1,0 +1,22 @@
+name: tests.yml
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install ".[dev]"
+        name: Install Dependencies
+      - run: python -m pytest tests
+        name: Run local tests
+      - run: python -m pytest -m server tests
+        name: Run integration tests
