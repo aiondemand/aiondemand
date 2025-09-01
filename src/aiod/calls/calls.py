@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import aiohttp
 import asyncio
 import requests
@@ -65,10 +67,7 @@ def delete_asset(
     Delete ASSET_TYPE from the catalogue.
 
     Parameters (keywords required):
-
         version (str | None): The version of the endpoint (default is None).
-        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
     """
     url = url_to_delete_asset(asset_type, identifier, version)
     res = requests.delete(url, headers=get_token().headers)
@@ -103,18 +102,24 @@ def post_asset(
     asset_type: str,
     metadata: dict,
     version: str | None = None,
-) -> requests.Response:
+) -> str | requests.Response:
     """
-    Delete ASSET_TYPE from the catalogue.
+    Register ASSET_TYPE in catalogue.
 
     Parameters (keywords required):
 
         version (str | None): The version of the endpoint (default is None).
         data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
             For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
+
+    Returns:
+        str: identifier, if the asset is registered successfully
+        requests.Response: error response, if it failed to register successfully
     """
     url = url_to_post_asset(asset_type, version)
     res = requests.post(url, headers=get_token().headers, json=metadata)
+    if res.status_code == HTTPStatus.OK:
+        return res.json()["identifier"]
     return res
 
 
