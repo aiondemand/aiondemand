@@ -1,6 +1,10 @@
 import asyncio
+import json
+from http import HTTPStatus
+
 import pytest
 import responses
+from responses import matchers
 
 from aioresponses import aioresponses
 from pathlib import Path
@@ -256,3 +260,29 @@ def test_endpoint_get_list_async(asset_name):
             {"resource_2": "info"},
             {"resource_3": "info"},
         ]
+
+
+@responses.activate
+def test_register_asset(asset_name, valid_refresh_token):
+    identifier = "data_123412341234123412341234"
+    responses.post(
+        f"http://not.set/not_set/{asset_name}",
+        match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
+        json={"identifier": identifier},
+    )
+    module = getattr(aiod, asset_name)
+    identifier_ = module.register(metadata=dict(name="Foo"))
+    assert identifier_ == identifier
+
+
+@responses.activate
+def test_update_asset(asset_name, valid_refresh_token):
+    identifier = "data_123412341234123412341234"
+    responses.put(
+        f"http://not.set/not_set/{asset_name}/{identifier}",
+        match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
+        json={"identifier": identifier},
+    )
+    module = getattr(aiod, asset_name)
+    res = module.update(identifier=identifier, metadata=dict(description="Foo"))
+    assert res.status_code == HTTPStatus.OK
