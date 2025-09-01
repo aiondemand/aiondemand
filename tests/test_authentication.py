@@ -166,14 +166,9 @@ def test_register_resource_expired_token(expired_refresh_token):
 
 @responses.activate
 def test_register_resource_valid_token(valid_refresh_token):
-    def callback(request):
-        data = {"identifier": "data_123412341234123412341234"}
-        return HTTPStatus.OK, {}, json.dumps(data)
-
-    responses.add_callback(
-        responses.POST,
+    responses.post(
         "http://not.set/not_set/datasets",
-        callback=callback,
+        json={"identifier": "data_123412341234123412341234"},
         match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
     )
     identifier = aiod.datasets.register(metadata=dict(name="Foo"))
