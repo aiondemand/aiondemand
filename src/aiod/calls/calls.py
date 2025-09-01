@@ -90,9 +90,16 @@ def put_asset(
         version (str | None): The version of the endpoint (default is None).
         data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
             For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
+
+    Raises:
+        KeyError if the identifier is not known by the server.
     """
     url = url_to_put_asset(asset_type, identifier, version)
     res = requests.put(url, headers=get_token().headers, json=metadata)
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
+        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     return res
 
 
