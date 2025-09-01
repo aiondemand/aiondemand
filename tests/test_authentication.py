@@ -1,5 +1,9 @@
+import json
+from http import HTTPStatus
+
 import pytest
 import responses
+from responses import matchers
 
 from unittest.mock import Mock
 import requests
@@ -14,6 +18,7 @@ from aiod.authentication.authentication import (
     get_token,
     set_token,
     Token,
+    NotAuthenticatedError,
 )
 
 
@@ -138,3 +143,38 @@ def test_device_flow_failure(monkeypatch):
 
     with pytest.raises(AuthenticationError):
         create_token()
+
+
+def test_register_resource_no_token():
+    with pytest.raises(NotAuthenticatedError):
+        aiod.datasets.register(metadata=dict(name="Foo"))
+
+
+@responses.activate
+def test_register_resource_invalid_token(invalid_refresh_token):
+    with pytest.raises(AuthenticationError) as e:
+        aiod.datasets.register(metadata=dict(name="Foo"))
+    assert "is not valid" in str(e.value)
+
+
+@responses.activate
+def test_register_resource_expired_token(expired_refresh_token):
+    with pytest.raises(AuthenticationError) as e:
+        aiod.datasets.register(metadata=dict(name="Foo"))
+    assert "is not valid" in str(e.value)
+
+
+@responses.activate
+def test_register_resource_valid_token(valid_refresh_token):
+    def callback(request):
+        data = {"identifier": "data_123412341234123412341234"}
+        return HTTPStatus.OK, {}, json.dumps(data)
+
+    responses.add_callback(
+        responses.POST,
+        "http://not.set/not_set/datasets",
+        callback=callback,
+        match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
+    )
+    identifier = aiod.datasets.register(metadata=dict(name="Foo"))
+    assert identifier == "data_123412341234123412341234"

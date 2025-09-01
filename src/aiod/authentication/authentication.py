@@ -76,22 +76,20 @@ class Token:
     def headers(self) -> dict[str, str]:
         """HTTP header data for the token"""
         if self.has_expired:
-            self.refresh()
+            self._refresh()
         return {"Authorization": f"Bearer {self._access_token}"}
 
     def __str__(self):
         return self._refresh_token
 
-    def refresh(self) -> None:
+    def _refresh(self) -> None:
         """Use the `refresh token` to request a new `access token`."""
         try:
             token_info = keycloak_openid().refresh_token(self._refresh_token)
         except KeycloakPostError as e:
-            if "Offline user session not found" in e.error_message.decode():
-                raise AuthenticationError(
-                    "Refresh token no longer valid. Use `aiod.create_token` to get a new one."
-                ) from e
-            raise
+            raise AuthenticationError(
+                "Refresh token is not valid. Use `aiod.create_token` to get a new one."
+            ) from e
         except KeycloakConnectionError as e:
             e.add_note(f"Could not connect {config.auth_server!r}, try again later.")
             raise
@@ -150,7 +148,7 @@ def get_token() -> Token:
         No token set. Please create a new token with `aiod.create_token()`,
          or set one with `aiod.set_token("...")`.
         """
-        raise AuthenticationError(msg)
+        raise NotAuthenticatedError(msg)
     return _token
 
 
