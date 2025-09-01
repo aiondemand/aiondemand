@@ -93,7 +93,6 @@ def put_asset(
     """
     url = url_to_put_asset(asset_type, identifier, version)
     res = requests.put(url, headers=get_token().headers, json=metadata)
-
     return res
 
 
