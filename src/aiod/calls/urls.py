@@ -24,22 +24,6 @@ def url_to_get_list(
     return url
 
 
-def url_to_post_asset(asset_type: str, version: str | None = None) -> str:
-    return f"{server_url(version)}{asset_type}"
-
-
-def url_to_put_asset(
-    asset_type: str, identifier: str, version: str | None = None
-) -> str:
-    return url_to_get_asset(asset_type, identifier, version)
-
-
-def url_to_delete_asset(
-    asset_type: str, identifier: str, version: str | None = None
-) -> str:
-    return url_to_get_asset(asset_type, identifier, version)
-
-
 def url_to_search(
     asset_type: str,
     search_query: str,

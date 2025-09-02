@@ -1,13 +1,9 @@
-import json
-from http import HTTPStatus
-
 import pytest
 import responses
 from responses import matchers
 
 from unittest.mock import Mock
 import requests
-import jwt
 
 import aiod
 from aiod.configuration import config

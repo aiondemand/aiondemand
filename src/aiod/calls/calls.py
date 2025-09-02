@@ -11,15 +11,13 @@ from functools import partial
 from aiod.authentication.authentication import get_token, _get_auth_headers
 from aiod.calls.urls import (
     url_to_get_asset,
-    url_to_put_asset,
-    url_to_post_asset,
-    url_to_delete_asset,
     url_to_get_content,
     url_to_get_list,
     url_to_get_list_from_platform,
     url_to_get_asset_from_platform,
     url_to_resource_counts,
     url_to_search,
+    server_url,
 )
 from aiod.calls.utils import format_response, wrap_calls
 
@@ -69,7 +67,7 @@ def delete_asset(
     Parameters (keywords required):
         version (str | None): The version of the endpoint (default is None).
     """
-    url = url_to_delete_asset(asset_type, identifier, version)
+    url = url_to_get_asset(asset_type, identifier, version)
     res = requests.delete(url, headers=get_token().headers)
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
         "detail"
@@ -97,7 +95,7 @@ def put_asset(
     Raises:
         KeyError if the identifier is not known by the server.
     """
-    url = url_to_put_asset(asset_type, identifier, version)
+    url = url_to_get_asset(asset_type, identifier, version)
     res = requests.put(url, headers=get_token().headers, json=metadata)
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
         "detail"
@@ -125,7 +123,7 @@ def post_asset(
         str: identifier, if the asset is registered successfully
         requests.Response: error response, if it failed to register successfully
     """
-    url = url_to_post_asset(asset_type, version)
+    url = f"{server_url(version)}{asset_type}"
     res = requests.post(url, headers=get_token().headers, json=metadata)
     if res.status_code == HTTPStatus.OK:
         return res.json()["identifier"]
