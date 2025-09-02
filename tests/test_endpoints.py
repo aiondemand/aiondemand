@@ -281,7 +281,6 @@ def test_update_asset(asset_name, valid_refresh_token):
     responses.put(
         f"http://not.set/not_set/{asset_name}/{identifier}",
         match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
-        json={"identifier": identifier},
     )
     module = getattr(aiod, asset_name)
     res = module.update(identifier=identifier, metadata=dict(description="Foo"))
@@ -304,5 +303,37 @@ def test_update_asset_incorrect_identifier(asset_name, valid_refresh_token):
     module = getattr(aiod, asset_name)
     with pytest.raises(KeyError) as e:
         module.update(identifier=identifier, metadata=dict(description="Foo"))
+    msg = e.value.args[0]
+    assert msg.startswith("No") and msg.endswith("found.")
+
+
+@responses.activate
+def test_delete_asset(asset_name, valid_refresh_token):
+    identifier = "data_123412341234123412341234"
+    responses.delete(
+        f"http://not.set/not_set/{asset_name}/{identifier}",
+        match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
+    )
+    module = getattr(aiod, asset_name)
+    res = module.delete(identifier=identifier)
+    assert res.status_code == HTTPStatus.OK
+
+
+@responses.activate
+def test_delete_asset_incorrect_identifier(asset_name, valid_refresh_token):
+    identifier = "data_123412341234123412341234"
+    responses.delete(
+        f"http://not.set/not_set/{asset_name}/{identifier}",
+        match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
+        json={
+            # Server has singular instead, e.g., 'Case_study' and not 'case_studies'.
+            "detail": f"{asset_name} '{identifier}' not found in the database.",
+            "reference": "8471b0ba3d74436ca645a6c49d0c7d65",
+        },
+        status=HTTPStatus.NOT_FOUND,
+    )
+    module = getattr(aiod, asset_name)
+    with pytest.raises(KeyError) as e:
+        module.delete(identifier=identifier)
     msg = e.value.args[0]
     assert msg.startswith("No") and msg.endswith("found.")

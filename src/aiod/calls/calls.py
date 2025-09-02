@@ -71,7 +71,10 @@ def delete_asset(
     """
     url = url_to_delete_asset(asset_type, identifier, version)
     res = requests.delete(url, headers=get_token().headers)
-
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
+        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     return res
 
 
