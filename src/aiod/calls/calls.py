@@ -8,7 +8,7 @@ import pandas as pd
 from typing import Literal
 from functools import partial
 
-from aiod.authentication.authentication import get_token
+from aiod.authentication.authentication import get_token, _get_auth_headers
 from aiod.calls.urls import (
     url_to_get_asset,
     url_to_put_asset,
@@ -174,7 +174,7 @@ def get_asset(
         The retrieved metadata for the specified ASSET_TYPE.
     """
     url = url_to_get_asset(asset_type, identifier, version)
-    res = requests.get(url)
+    res = requests.get(url, headers=_get_auth_headers(required=False))
     resources = format_response(res.json(), data_format)
     return resources
 

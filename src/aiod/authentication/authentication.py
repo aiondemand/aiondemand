@@ -152,6 +152,15 @@ def get_token() -> Token:
     return _token
 
 
+def _get_auth_headers(*, required: bool = True) -> dict:
+    try:
+        return get_token().headers
+    except (AuthenticationError, NotAuthenticatedError):
+        if required:
+            raise
+    return {}
+
+
 def create_token(
     timeout_seconds: int = 300,
     *,
