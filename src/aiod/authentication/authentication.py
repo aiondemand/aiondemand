@@ -86,10 +86,10 @@ class Token:
         """Use the `refresh token` to request a new `access token`."""
         try:
             token_info = keycloak_openid().refresh_token(self._refresh_token)
-        except KeycloakPostError as e:
+        except KeycloakPostError:
             raise AuthenticationError(
                 "Refresh token is not valid. Use `aiod.create_token` to get a new one."
-            ) from e
+            ) from None
         except KeycloakConnectionError as e:
             e.add_note(f"Could not connect {config.auth_server!r}, try again later.")
             raise
@@ -144,10 +144,10 @@ def set_token(token: Token | str) -> None:
 def get_token() -> Token:
     """Gets the currently configured token that is used for authenticated requests."""
     if _token is None:
-        msg = """
-        No token set. Please create a new token with `aiod.create_token()`,
-         or set one with `aiod.set_token("...")`.
-        """
+        msg = (
+            "No token set. Please create a new token with `aiod.create_token()`,"
+            " or set one with `aiod.set_token('...')`."
+        )
         raise NotAuthenticatedError(msg)
     return _token
 
