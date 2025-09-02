@@ -85,5 +85,8 @@ config = Config()  # Modified through `load_configuration`
 _user_config_file = Path("~/.aiod/config.toml").expanduser()
 if _user_config_file.exists() and _user_config_file.is_file():
     load_configuration(_user_config_file)
+    logger.info(f"Loaded configuration from {_user_config_file}: {config}.")
 else:
-    logger.info("No configuration file detected, using defaults.")
+    logger.info(
+        f"No configuration file detected, using default configuration: {config}."
+    )
