@@ -37,7 +37,9 @@ class Term:
     """Describes a specific term in a hierarchical taxonomy.
 
     Properties:
-     term: str
+    taxonomy: str
+        Name of the taxonomy from which the term originates.
+    term: str
         A unique name for the term, e.g., 'Clinical Medicine'.
     definition: str
         A description further clarifying the meaning of the term, e.g.,
@@ -47,9 +49,13 @@ class Term:
         This list may be empty.
     """
 
+    taxonomy: str
     term: str
     definition: str
     subterms: list[Term]
+
+    def __eq__(self, other):
+        return self.taxonomy == other.taxonomy and self.term == other.term
 
 
 class _TermDict(TypedDict):
@@ -58,9 +64,14 @@ class _TermDict(TypedDict):
     subterms: list[_TermDict]
 
 
-def _parse_term(term: _TermDict) -> Term:
-    subterms = [_parse_term(t) for t in term["subterms"]]
-    return Term(term=term["term"], definition=term["definition"], subterms=subterms)
+def _parse_term(term: _TermDict, taxonomy: str) -> Term:
+    subterms = [_parse_term(t, taxonomy) for t in term["subterms"]]
+    return Term(
+        taxonomy=taxonomy,
+        term=term["term"],
+        definition=term["definition"],
+        subterms=subterms,
+    )
 
 
 def _get_taxonomy(name: str):
@@ -73,7 +84,7 @@ def _get_taxonomy(name: str):
             raise RuntimeError(
                 f"Unexpected response from ({response.status_code}, {response.json()})"
             )
-        return [_parse_term(term) for term in response.json()]
+        return [_parse_term(term, name) for term in response.json()]
 
     get_taxonomy.__doc__ = f"""
     Return the hierarchical taxonomy of {name.replace('_', ' ')}.
@@ -90,8 +101,8 @@ def _get_taxonomy(name: str):
     return get_taxonomy
 
 
-for taxonomy in _TAXONOMIES:
-    setattr(_mod, taxonomy, _get_taxonomy(taxonomy))
+for _taxonomy in _TAXONOMIES:
+    setattr(_mod, _taxonomy, _get_taxonomy(_taxonomy))
 
 
 __all__ = _TAXONOMIES + ["Term"]
