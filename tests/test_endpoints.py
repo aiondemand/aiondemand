@@ -337,3 +337,11 @@ def test_delete_asset_incorrect_identifier(asset_name, valid_refresh_token):
         module.delete(identifier=identifier)
     msg = e.value.args[0]
     assert msg.startswith("No") and msg.endswith("found.")
+
+
+def test_industrial_sector_taxonomy():
+    pass
+    # aiod.industrial_sectors()
+    # aiod.datasets.get_list
+    # aiod.taxonomies.industrial_sectors()
+    # aiod.industrial_sectors.get_list()
