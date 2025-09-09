@@ -10,7 +10,9 @@ import aiod.authentication.authentication as authentication
 
 
 @pytest.fixture(autouse=True)
-def setup_test_configuration():
+def setup_test_configuration(request):
+    if "server" in request.keywords:
+        return
     # User defaults are autoloaded, so we override them.
     config.api_server = "http://not.set/"
     config.version = "not_set"
