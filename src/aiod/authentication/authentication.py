@@ -175,7 +175,7 @@ def create_token(
     Args:
         timeout_seconds: int (default = 300)
             The maximum time this function blocks waiting for the authentication workflow
-            to complete. If `max_wait_time_seconds` seconds have elapsed without successful
+            to complete. If `timeout_seconds` seconds have elapsed without successful
             authentication, this function raises an AuthenticationError.
             This must be set to a positive integer.
         write_to_file: bool (default = False)
@@ -193,7 +193,7 @@ def create_token(
 
     """
     if timeout_seconds <= 0 or not isinstance(timeout_seconds, int):
-        raise ValueError("`max_wait_time` must be a positive integer.")
+        raise ValueError("`timeout_seconds` must be a positive integer.")
     kc = keycloak_openid()
 
     response = kc.device()
