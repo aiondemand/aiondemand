@@ -36,17 +36,17 @@ _TAXONOMIES = [
 class Term:
     """Describes a specific term in a hierarchical taxonomy.
 
-    Properties:
-    taxonomy: str
-        Name of the taxonomy from which the term originates.
-    term: str
-        A unique name for the term, e.g., 'Clinical Medicine'.
-    definition: str
-        A description further clarifying the meaning of the term, e.g.,
-        'The branch of medicine that deals with the [...].'.
-    subterms: list[Term]
-        A list of subterms which provide a finer granularity.
-        This list may be empty.
+    Attributes:
+        taxonomy (str):
+            Name of the taxonomy from which the term originates, e.g., 'industrial sectors'.
+        term (str):
+            A unique name for the term, e.g., 'Clinical Medicine'.
+        definition (str):
+            A description further clarifying the meaning of the term, e.g.,
+            'The branch of medicine that deals with the [...].'.
+        subterms (list[Term]):
+            A list of subterms which provide a finer granularity.
+            This list may be empty.
     """
 
     taxonomy: str

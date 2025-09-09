@@ -35,6 +35,7 @@ nav:
       - 'api/publications.md'
       - 'api/services.md'
       - 'api/teams.md'
+      - 'api/taxonomies.md'
   - 'changelog.md'
   - 'contributing.md'
   - 'conduct.md'
@@ -85,4 +86,6 @@ plugins:
               - aiod.resources.publications
               - aiod.resources.services
               - aiod.resources.teams
+              - aiod.taxonomies
+              - aiod.authentication
 
