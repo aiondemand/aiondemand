@@ -12,16 +12,12 @@ import dataclasses
 import functools
 import sys
 from http import HTTPStatus
-from typing import TypedDict, Self
+from typing import TypedDict
 
 import requests
 
 from aiod.calls.urls import server_url
-
-
-class EndpointUndefinedError(Exception):
-    pass
-
+from aiod.calls.utils import EndpointUndefinedError
 
 _mod = sys.modules[__name__]
 _TAXONOMIES = [
