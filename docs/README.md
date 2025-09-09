@@ -1,13 +1,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![python](https://img.shields.io/badge/Python-3.11-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org)
 
-# AI-on-Demand 
+# Connect to [AI-on-Demand](https://aiod.eu) in Python.
 
 The [AI-on-Demand](https://aiod.eu) (AIOD) platform empowers AI research and innovation for industry and academia. 
 At its core if the [metadata catalogue](https://api.aiod.eu) which indexes countless AI resources, such as datasets, papers, and educational material, 
 from many different platforms such as [Zenodo](https://www.zenodo.org), [OpenML](https://www.openml.org), and [AIDA](https://https://www.i-aida.org/ai-educational-resources/).
-This package allows you to explore all resources in the metadata catalogue through Python.
-You can also browse the contents of the AI-on-Demand metadata catalogue through the [MyLibrary](https://mylibrary.aiod.eu) service.
+
+This package is mainly intended for users that want to programmatically access the platform to, e.g., build a service, fetch resources in their scripts, or write a connector that registers metadata of another platform with AI-on-Demand. 
+A web interface for browsing and registering assets is available on AI-on-Demand, through [MyLibrary](https://mylibrary.aiod.eu) and the Metadata Catalogue Editor services (to be deployed), respectively.
 
 ## Installation
 The `aiondemand` package is on [PyPI](https://pypi.org/project/aiondemand/):

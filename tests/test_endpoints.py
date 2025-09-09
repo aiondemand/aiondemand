@@ -1,14 +1,17 @@
 import asyncio
+import json
+from http import HTTPStatus
+
 import pytest
 import responses
+from responses import matchers
 
 from aioresponses import aioresponses
 from pathlib import Path
 from typing import Callable
 
 import aiod
-
-from aiod.configuration import config
+from aiod.calls.urls import server_url
 
 resources_path = Path(__file__).parent / "resources"
 
@@ -75,7 +78,7 @@ def test_endpoint_get_list(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{config.api_base_url}{config.version}/{asset_name}?offset=0&limit=10",
+            f"{server_url()}{asset_name}?offset=0&limit=10",
             body=b'[{"resource_1": "info"},{"resource_2": "info"}]',
             status=200,
         )
@@ -89,7 +92,7 @@ def test_endpoint_counts(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{config.api_base_url}{config.version}/counts/{asset_name}?detailed=false",
+            f"{server_url()}counts/{asset_name}?detailed=false",
             body=b"2",
             status=200,
         )
@@ -103,7 +106,7 @@ def test_endpoint_get_asset(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{config.api_base_url}{config.version}/{asset_name}/1",
+            f"{server_url()}{asset_name}/1",
             body=b'{"resource":"fake_details"}',
             status=200,
         )
@@ -118,7 +121,7 @@ def test_endpoint_get_list_from_platform(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{config.api_base_url}{config.version}/platforms/{platform_name}/{asset_name}?offset=0&limit=10",
+            f"{server_url()}platforms/{platform_name}/{asset_name}?offset=0&limit=10",
             body=b'[{"resource_1": "info"},{"resource_2": "info"}]',
             status=200,
         )
@@ -134,7 +137,7 @@ def test_endpoint_get_asset_from_platform(asset_name):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{config.api_base_url}{config.version}/platforms/{platform_name}/{asset_name}/{platform_identifier}",
+            f"{server_url()}platforms/{platform_name}/{asset_name}/{platform_identifier}",
             body=b'{"resource":"fake_details"}',
             status=200,
         )
@@ -154,7 +157,7 @@ def test_get_content(asset_name):
             res_body = f.read()
         mocked_requests.add(
             responses.GET,
-            f"{config.api_base_url}{config.version}/{asset_name}/1/content",
+            f"{server_url()}{asset_name}/1/content",
             body=res_body,
             status=200,
         )
@@ -170,7 +173,7 @@ def test_get_content_with_distribution_idx(asset_name):
             res_body = f.read()
         mocked_requests.add(
             responses.GET,
-            f"{config.api_base_url}{config.version}/{asset_name}/1/content/2",
+            f"{server_url()}{asset_name}/1/content/2",
             body=res_body,
             status=200,
         )
@@ -193,7 +196,7 @@ def test_search(asset_with_search):
     with responses.RequestsMock() as mocked_requests:
         mocked_requests.add(
             responses.GET,
-            f"{config.api_base_url}{config.version}/search/{asset_with_search}{query}",
+            f"{server_url()}search/{asset_with_search}{query}",
             body=b'{"total_hits": 2,"resources": [{"resource_1": "info"},{"resource_2": "info"}],"limit": 10,"offset": 0}',
             status=200,
         )
@@ -214,12 +217,12 @@ def test_endpoint_get_asset_async(asset_name):
     loop = asyncio.get_event_loop()
     with aioresponses() as mocked_responses:
         mocked_responses.get(
-            f"{config.api_base_url}{config.version}/{asset_name}/1",
+            f"{server_url()}{asset_name}/1",
             payload={"resource": "fake_details"},
             status=200,
         )
         mocked_responses.get(
-            f"{config.api_base_url}{config.version}/{asset_name}/3",
+            f"{server_url()}{asset_name}/3",
             payload={"resource": "fake_details_2"},
             status=200,
         )
@@ -238,12 +241,12 @@ def test_endpoint_get_list_async(asset_name):
     loop = asyncio.get_event_loop()
     with aioresponses() as mocked_responses:
         mocked_responses.get(
-            f"{config.api_base_url}{config.version}/{asset_name}?offset=0&limit=2",
+            f"{server_url()}{asset_name}?offset=0&limit=2",
             payload=[{"resource_1": "info"}, {"resource_2": "info"}],
             status=200,
         )
         mocked_responses.get(
-            f"{config.api_base_url}{config.version}/{asset_name}?offset=2&limit=1",
+            f"{server_url()}{asset_name}?offset=2&limit=1",
             payload=[{"resource_3": "info"}],
             status=200,
         )
@@ -257,3 +260,80 @@ def test_endpoint_get_list_async(asset_name):
             {"resource_2": "info"},
             {"resource_3": "info"},
         ]
+
+
+@responses.activate
+def test_register_asset(asset_name, valid_refresh_token):
+    identifier = "data_123412341234123412341234"
+    responses.post(
+        f"http://not.set/not_set/{asset_name}",
+        match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
+        json={"identifier": identifier},
+    )
+    module = getattr(aiod, asset_name)
+    identifier_ = module.register(metadata=dict(name="Foo"))
+    assert identifier_ == identifier
+
+
+@responses.activate
+def test_update_asset(asset_name, valid_refresh_token):
+    identifier = "data_123412341234123412341234"
+    responses.put(
+        f"http://not.set/not_set/{asset_name}/{identifier}",
+        match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
+    )
+    module = getattr(aiod, asset_name)
+    res = module.update(identifier=identifier, metadata=dict(description="Foo"))
+    assert res.status_code == HTTPStatus.OK
+
+
+@responses.activate
+def test_update_asset_incorrect_identifier(asset_name, valid_refresh_token):
+    identifier = "data_123412341234123412341234"
+    responses.put(
+        f"http://not.set/not_set/{asset_name}/{identifier}",
+        match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
+        json={
+            # Server has singular instead, e.g., 'Case_study' and not 'case_studies'.
+            "detail": f"{asset_name} '{identifier}' not found in the database.",
+            "reference": "8471b0ba3d74436ca645a6c49d0c7d65",
+        },
+        status=HTTPStatus.NOT_FOUND,
+    )
+    module = getattr(aiod, asset_name)
+    with pytest.raises(KeyError) as e:
+        module.update(identifier=identifier, metadata=dict(description="Foo"))
+    msg = e.value.args[0]
+    assert msg.startswith("No") and msg.endswith("found.")
+
+
+@responses.activate
+def test_delete_asset(asset_name, valid_refresh_token):
+    identifier = "data_123412341234123412341234"
+    responses.delete(
+        f"http://not.set/not_set/{asset_name}/{identifier}",
+        match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
+    )
+    module = getattr(aiod, asset_name)
+    res = module.delete(identifier=identifier)
+    assert res.status_code == HTTPStatus.OK
+
+
+@responses.activate
+def test_delete_asset_incorrect_identifier(asset_name, valid_refresh_token):
+    identifier = "data_123412341234123412341234"
+    responses.delete(
+        f"http://not.set/not_set/{asset_name}/{identifier}",
+        match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
+        json={
+            # Server has singular instead, e.g., 'Case_study' and not 'case_studies'.
+            "detail": f"{asset_name} '{identifier}' not found in the database.",
+            "reference": "8471b0ba3d74436ca645a6c49d0c7d65",
+        },
+        status=HTTPStatus.NOT_FOUND,
+    )
+    module = getattr(aiod, asset_name)
+    with pytest.raises(KeyError) as e:
+        module.delete(identifier=identifier)
+    msg = e.value.args[0]
+    assert msg.startswith("No") and msg.endswith("found.")

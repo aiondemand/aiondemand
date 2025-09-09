@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import aiohttp
 import asyncio
 import requests
@@ -6,6 +8,7 @@ import pandas as pd
 from typing import Literal
 from functools import partial
 
+from aiod.authentication.authentication import get_token, _get_auth_headers
 from aiod.calls.urls import (
     url_to_get_asset,
     url_to_get_content,
@@ -14,8 +17,8 @@ from aiod.calls.urls import (
     url_to_get_asset_from_platform,
     url_to_resource_counts,
     url_to_search,
+    server_url,
 )
-
 from aiod.calls.utils import format_response, wrap_calls
 
 
@@ -52,6 +55,81 @@ def get_list(
     return resources
 
 
+def delete_asset(
+    *,
+    asset_type: str,
+    identifier: str,
+    version: str | None = None,
+) -> requests.Response:
+    """
+    Delete ASSET_TYPE from the catalogue.
+
+    Parameters (keywords required):
+        version (str | None): The version of the endpoint (default is None).
+    """
+    url = url_to_get_asset(asset_type, identifier, version)
+    res = requests.delete(url, headers=get_token().headers)
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
+        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+    return res
+
+
+def put_asset(
+    *,
+    asset_type: str,
+    identifier: str,
+    metadata: dict,
+    version: str | None = None,
+) -> requests.Response:
+    """
+    Delete ASSET_TYPE from the catalogue.
+
+    Parameters (keywords required):
+
+        version (str | None): The version of the endpoint (default is None).
+        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
+            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
+
+    Raises:
+        KeyError if the identifier is not known by the server.
+    """
+    url = url_to_get_asset(asset_type, identifier, version)
+    res = requests.put(url, headers=get_token().headers, json=metadata)
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
+        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+    return res
+
+
+def post_asset(
+    *,
+    asset_type: str,
+    metadata: dict,
+    version: str | None = None,
+) -> str | requests.Response:
+    """
+    Register ASSET_TYPE in catalogue.
+
+    Parameters (keywords required):
+
+        version (str | None): The version of the endpoint (default is None).
+        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
+            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
+
+    Returns:
+        str: identifier, if the asset is registered successfully
+        requests.Response: error response, if it failed to register successfully
+    """
+    url = f"{server_url(version)}{asset_type}"
+    res = requests.post(url, headers=get_token().headers, json=metadata)
+    if res.status_code == HTTPStatus.OK:
+        return res.json()["identifier"]
+    return res
+
+
 def counts(
     *, asset_type: str, version: str | None = None, per_platform: bool = False
 ) -> int | dict[str, int]:
@@ -64,8 +142,9 @@ def counts(
 
     Returns:
         The number ASSET_TYPE assets in the metadata catalogue.
-        If the parameter per_platform is True, it returns a dictionary with platform names
-        as keys and the number of ASSET_TYPE assets from that platform as values.
+        If the parameter per_platform is True,
+        it returns a dictionary with platform names as keys
+        and the number of ASSET_TYPE assets from that platform as values.
     """
 
     url = url_to_resource_counts(version, per_platform, asset_type)
@@ -93,7 +172,7 @@ def get_asset(
         The retrieved metadata for the specified ASSET_TYPE.
     """
     url = url_to_get_asset(asset_type, identifier, version)
-    res = requests.get(url)
+    res = requests.get(url, headers=_get_auth_headers(required=False))
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -292,6 +371,9 @@ wrap_common_calls = partial(
         get_list,
         counts,
         get_asset,
+        post_asset,
+        put_asset,
+        delete_asset,
         get_asset_from_platform,
         get_content,
         get_assets_async,

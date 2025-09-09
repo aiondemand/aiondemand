@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 from typing import Literal
 
-from aiod.configuration import config
+from aiod.calls.urls import server_url
 
 
 def asset_counts(
@@ -21,8 +21,8 @@ def asset_counts(
     Returns:
         pd.DataFrame | dict: Counts as a Pandas data frame or a dictionary.
     """
-    version = version or config.version
-    url = f"{config.api_base_url}{version}/counts"
+    base_url = server_url(version)
+    url = f"{base_url}counts"
 
     res = requests.get(url)
 

@@ -1,6 +1,7 @@
 import urllib
 
 from typing import Literal
+import urllib.parse
 
 from aiod.configuration import config
 
@@ -8,8 +9,8 @@ from aiod.configuration import config
 def url_to_get_asset(
     asset_type: str, identifier: str, version: str | None = None
 ) -> str:
-    version = version or config.version
-    url = f"{config.api_base_url}{version}/{asset_type}/{identifier}"
+    base_url = server_url(version)
+    url = f"{base_url}{asset_type}/{identifier}"
     return url
 
 
@@ -18,8 +19,8 @@ def url_to_get_list(
 ) -> str:
 
     query = urllib.parse.urlencode({"offset": offset, "limit": limit})
-    version = version or config.version
-    url = f"{config.api_base_url}{version}/{asset_type}?{query}"
+    base_url = server_url(version)
+    url = f"{base_url}{asset_type}?{query}"
     return url
 
 
@@ -41,8 +42,8 @@ def url_to_search(
         if value is not None and value != "" and key not in ["version", "asset_type"]
     }
     query = urllib.parse.urlencode(query_params, doseq=True).lower()
-    version = version or config.version
-    url = f"{config.api_base_url}{version}/search/{asset_type}?{query}"
+    base_url = server_url(version)
+    url = f"{base_url}search/{asset_type}?{query}"
     return url
 
 
@@ -52,8 +53,8 @@ def url_to_resource_counts(
     asset_type: str | None = None,
 ) -> str:
     query = urllib.parse.urlencode({"detailed": per_platform}).lower()
-    version = version or config.version
-    url = f"{config.api_base_url}{version}/counts/{asset_type}?{query}"
+    base_url = server_url(version)
+    url = f"{base_url}counts/{asset_type}?{query}"
     return url
 
 
@@ -63,8 +64,8 @@ def url_to_get_content(
     distribution_idx: int,
     version: str | None = None,
 ) -> str:
-    version = version or config.version
-    url = f"{config.api_base_url}{version}/{asset_type}/{identifier}/content"
+    base_url = server_url(version)
+    url = f"{base_url}{asset_type}/{identifier}/content"
     url += f"/{distribution_idx}" if distribution_idx else ""
     return url
 
@@ -78,8 +79,8 @@ def url_to_get_list_from_platform(
 ) -> str:
 
     query = urllib.parse.urlencode({"offset": offset, "limit": limit})
-    version = version or config.version
-    url = f"{config.api_base_url}{version}/platforms/{platform}/{asset_type}?{query}"
+    base_url = server_url(version)
+    url = f"{base_url}platforms/{platform}/{asset_type}?{query}"
     return url
 
 
@@ -89,6 +90,13 @@ def url_to_get_asset_from_platform(
     platform_identifier: str,
     version: str | None = None,
 ) -> str:
-    version = version or config.version
-    url = f"{config.api_base_url}{version}/platforms/{platform}/{asset_type}/{platform_identifier}"
+    base_url = server_url(version)
+    url = f"{base_url}platforms/{platform}/{asset_type}/{platform_identifier}"
     return url
+
+
+def server_url(version: str | None = None) -> str:
+    version_str = version if version is not None else config.version
+    if version_str:
+        return f"{config.api_server}{version_str}/"
+    return config.api_server
