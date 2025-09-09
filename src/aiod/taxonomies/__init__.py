@@ -75,6 +75,7 @@ def _parse_term(term: _TermDict, taxonomy: str) -> Term:
 
 
 def _get_taxonomy(name: str):
+    # Since taxonomies rarely change, we cache the result in memory.
     @functools.cache
     def get_taxonomy() -> list[Term]:
         response = requests.get(f"{server_url()}{name}")
@@ -88,6 +89,10 @@ def _get_taxonomy(name: str):
 
     get_taxonomy.__doc__ = f"""
     Return the hierarchical taxonomy of {name.replace('_', ' ')}.
+
+    This function uses caching, and only the first call will result in a call to the server.
+    The cache does not persist between Python sessions. You can clear the cache anytime by calling
+    `aiod.taxonomies.{name}.cache_clear()`.
 
     Returns: list[Term]
         A hierarchical taxonomy, each entry has a 'term', 'definition', and 'subterms'.
