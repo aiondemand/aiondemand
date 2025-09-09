@@ -85,7 +85,7 @@ def _get_taxonomy(name: str):
             raise RuntimeError(
                 f"Unexpected response from ({response.status_code}, {response.json()})"
             )
-        return [_parse_term(term, name) for term in response.json()]
+        return [_parse_term(term, name.replace("_", " ")) for term in response.json()]
 
     get_taxonomy.__doc__ = f"""
     Return the hierarchical taxonomy of {name.replace('_', ' ')}.

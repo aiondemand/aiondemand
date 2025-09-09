@@ -12,6 +12,8 @@ from typing import Callable
 
 import aiod
 from aiod.calls.urls import server_url
+from aiod.calls.utils import EndpointUndefinedError
+from aiod.taxonomies import Term
 
 resources_path = Path(__file__).parent / "resources"
 
@@ -339,9 +341,27 @@ def test_delete_asset_incorrect_identifier(asset_name, valid_refresh_token):
     assert msg.startswith("No") and msg.endswith("found.")
 
 
+@responses.activate
 def test_industrial_sector_taxonomy():
-    pass
-    # aiod.industrial_sectors()
-    # aiod.datasets.get_list
-    # aiod.taxonomies.industrial_sectors()
-    # aiod.industrial_sectors.get_list()
+    taxonomy = json.loads((resources_path / "industrial_sectors.json").read_text())
+    responses.get(f"http://not.set/not_set/industrial_sectors", json=taxonomy)
+
+    industrial_sectors = aiod.taxonomies.industrial_sectors()
+    car_industry = Term(
+        term="Car Industry", taxonomy="industrial sectors", definition="", subterms=[]
+    )
+    assert industrial_sectors[0].term == "Manufacturing"
+    assert car_industry in industrial_sectors[0].subterms
+    assert len(industrial_sectors) == 21
+
+
+@responses.activate
+def test_taxonomy_not_found():
+    responses.get(
+        f"http://not.set/not_set/industrial_sectors",
+        json={"detail": "Not Found"},
+        status=HTTPStatus.NOT_FOUND,
+    )
+    with pytest.raises(EndpointUndefinedError):
+        # Accessing through __wrapped__ to ensure the cache isn't hit.
+        aiod.taxonomies.industrial_sectors.__wrapped__()
