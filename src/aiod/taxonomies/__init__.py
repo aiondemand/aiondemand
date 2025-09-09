@@ -87,7 +87,7 @@ def _get_taxonomy(name: str):
             )
         return [_parse_term(term, name.replace("_", " ")) for term in response.json()]
 
-    get_taxonomy.__doc__ = f"""
+    get_taxonomy.__wrapped__.__doc__ = f"""
     Return the hierarchical taxonomy of {name.replace('_', ' ')}.
 
     This function uses caching, and only the first call will result in a call to the server.

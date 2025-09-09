@@ -17,4 +17,4 @@ from aiod.resources import projects
 from aiod.resources import publications
 from aiod.resources import services
 from aiod.resources import teams
-import aiod.taxonomies as taxonomies
+from aiod import taxonomies
