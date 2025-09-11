@@ -31,8 +31,7 @@ def get_list(
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
 ) -> pd.DataFrame | list[dict]:
-    """
-    Retrieve a list of ASSET_TYPE from the catalogue.
+    """Retrieve a list of ASSET_TYPE from the catalogue.
 
     Parameters:
         platform: Return metadata of ASSET_TYPE assets of this platform (default is None).
@@ -61,8 +60,7 @@ def delete_asset(
     identifier: str,
     version: str | None = None,
 ) -> requests.Response:
-    """
-    Delete ASSET_TYPE from the catalogue.
+    """Delete ASSET_TYPE from the catalogue.
 
     Parameters (keywords required):
         version (str | None): The version of the endpoint (default is None).
@@ -83,8 +81,7 @@ def put_asset(
     metadata: dict,
     version: str | None = None,
 ) -> requests.Response:
-    """
-    Delete ASSET_TYPE from the catalogue.
+    """Delete ASSET_TYPE from the catalogue.
 
     Parameters (keywords required):
 
@@ -110,8 +107,7 @@ def post_asset(
     metadata: dict,
     version: str | None = None,
 ) -> str | requests.Response:
-    """
-    Register ASSET_TYPE in catalogue.
+    """Register ASSET_TYPE in catalogue.
 
     Parameters (keywords required):
 
@@ -133,8 +129,7 @@ def post_asset(
 def counts(
     *, asset_type: str, version: str | None = None, per_platform: bool = False
 ) -> int | dict[str, int]:
-    """
-    Retrieve the number of ASSET_TYPE assets in the metadata catalogue.
+    """Retrieve the number of ASSET_TYPE assets in the metadata catalogue.
 
     Parameters:
         version: The version of the endpoint (default is None).
@@ -146,7 +141,6 @@ def counts(
         it returns a dictionary with platform names as keys
         and the number of ASSET_TYPE assets from that platform as values.
     """
-
     url = url_to_resource_counts(version, per_platform, asset_type)
     res = requests.get(url)
     return res.json()
@@ -159,8 +153,7 @@ def get_asset(
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
 ) -> pd.Series | dict:
-    """
-    Retrieve metadata for a specific ASSET_TYPE.
+    """Retrieve metadata for a specific ASSET_TYPE.
 
     Parameters:
         identifier: The identifier of the ASSET_TYPE to retrieve.
@@ -185,8 +178,7 @@ def get_asset_from_platform(
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
 ) -> pd.Series | dict:
-    """
-    Retrieve metadata for a specific ASSET_TYPE identified by the external platform identifier.
+    """Retrieve metadata for a specific ASSET_TYPE identified by the external platform identifier.
 
     Parameters:
         platform: The platform where the ASSET_TYPE asset is retrieved from.
@@ -213,8 +205,7 @@ def get_content(
     distribution_idx: int = 0,
     version: str | None = None,
 ) -> bytes:
-    """
-    Retrieve the data content of a specific ASSET_TYPE.
+    """Retrieve the data content of a specific ASSET_TYPE.
 
     Parameters:
         identifier: The identifier of the ASSET_TYPE asset.
@@ -244,8 +235,7 @@ def search(
     data_format: Literal["pandas", "json"] = "pandas",
     asset_type: str,
 ) -> pd.DataFrame | list[dict]:
-    """
-    Search metadata for ASSET_TYPE type using the Elasticsearch endpoint of the AIoD metadata catalogue.
+    """Search metadata for ASSET_TYPE type using the Elasticsearch endpoint of the AIoD metadata catalogue.
 
     Parameters:
         search: The string to be matched against the search fields.
@@ -286,8 +276,7 @@ async def get_assets_async(
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
 ) -> pd.DataFrame | list[dict]:
-    """
-    Asynchronously retrieve metadata for a list of ASSET_TYPE identifiers.
+    """Asynchronously retrieve metadata for a list of ASSET_TYPE identifiers.
 
     Parameters:
         identifiers: The list of identifiers of the ASSET_TYPE to retrieve.
@@ -315,8 +304,7 @@ async def get_list_async(
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
 ) -> pd.DataFrame | list[dict]:
-    """
-    Asynchronously retrieve a list of ASSET_TYPE from the catalogue in batches.
+    """Asynchronously retrieve a list of ASSET_TYPE from the catalogue in batches.
 
     Parameters:
         offset: The offset for pagination (default is 0).

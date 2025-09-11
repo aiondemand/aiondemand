@@ -1,4 +1,16 @@
 repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.13.0
+    hooks:
+      # Run the linter.
+#      - id: ruff-check
+#        args: [ --fix ]
+      # Run the formatter.
+#      - id: ruff-format
+      # Docstring checker/formatter
+      - id: ruff-format
+        files: src/.*
   - repo: https://github.com/psf/black
     rev: 22.12.0
     hooks:

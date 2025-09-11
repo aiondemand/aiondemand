@@ -7,8 +7,7 @@ from typing import Callable, Literal, Tuple
 def format_response(
     response: list | dict, data_format: Literal["pandas", "json"]
 ) -> pd.Series | pd.DataFrame | dict | list:
-    """
-    Format the response data based on the specified format.
+    """Format the response data based on the specified format.
 
     Parameters:
         response (list | dict): The response data to format.
@@ -21,7 +20,6 @@ def format_response(
     Raises:
         Exception: If the specified format is invalid or not supported.
     """
-
     if data_format == "pandas":
         if isinstance(response, dict):
             return pd.Series(response)

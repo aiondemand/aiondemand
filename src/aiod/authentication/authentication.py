@@ -269,6 +269,7 @@ def invalidate_token(
     """Invalidates the current (or provided) API key.
 
     Ends the current keycloak session, invalidating all keys issued.
+
     Args:
         token: str | Token | None (default = None)
             The token to invalidate.

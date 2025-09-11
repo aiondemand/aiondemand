@@ -1,4 +1,4 @@
-""" Access any taxonomy defined by AI-on-Demand
+"""Access any taxonomy defined by AI-on-Demand
 
 Warning:
     Defined taxonomies differ by version of the REST API.
@@ -6,6 +6,7 @@ Warning:
     If you access a taxonomy that is not available for your defined version, an
     EndpointUndefinedError is raised.
 """
+
 from __future__ import annotations
 
 import dataclasses
@@ -88,7 +89,7 @@ def _get_taxonomy(name: str):
         return [_parse_term(term, name.replace("_", " ")) for term in response.json()]
 
     get_taxonomy.__wrapped__.__doc__ = f"""
-    Return the hierarchical taxonomy of {name.replace('_', ' ')}.
+    Return the hierarchical taxonomy of {name.replace("_", " ")}.
 
     This function uses caching, and only the first call will result in a call to the server.
     The cache does not persist between Python sessions. You can clear the cache anytime by calling

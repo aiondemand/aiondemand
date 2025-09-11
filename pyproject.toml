@@ -19,6 +19,7 @@ dev = [
     "aioresponses",
     "pytest",
     "pytest-asyncio",
+    "ruff",
 ]
 doc = [
     "mkdocs-material",
@@ -39,3 +40,12 @@ markers = [
     "server: connects to an AIoD server",
 ]
 addopts = "-m 'not server'"
+
+[tool.ruff]
+fix = true
+lint.select = [
+    "D",  # enables pydocstyle checks
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
