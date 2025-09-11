@@ -75,7 +75,7 @@ def _add_decode_error_note(file: Path, e: tomllib.TOMLDecodeError) -> None:
                 Error reading configuration at {str(file)!r}: {e}
                 File {str(file)!r}, line {raw_line_no}:
                 {file.read_text().splitlines()[line_no]}
-                {'^'.rjust(column_no)}
+                {"^".rjust(column_no)}
                 """
         )
     )

@@ -43,8 +43,20 @@ addopts = "-m 'not server'"
 
 [tool.ruff]
 fix = true
-lint.select = [
+
+[tool.ruff.lint]
+select = [
     "D",  # enables pydocstyle checks
+]
+ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
 ]
 
 [tool.ruff.lint.pydocstyle]

@@ -1,4 +1,4 @@
-"""Access any taxonomy defined by AI-on-Demand
+"""Access any taxonomy defined by AI-on-Demand.
 
 Warning:
     Defined taxonomies differ by version of the REST API.

@@ -74,7 +74,7 @@ class Token:
 
     @property
     def headers(self) -> dict[str, str]:
-        """HTTP header data for the token"""
+        """HTTP header data for the token."""
         if self.has_expired:
             self._refresh()
         return {"Authorization": f"Bearer {self._access_token}"}
