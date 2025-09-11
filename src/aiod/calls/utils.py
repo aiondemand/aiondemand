@@ -53,3 +53,7 @@ def wrap_calls(
         wrapper_list.append(wrapper)
 
     return tuple(wrapper_list)
+
+
+class EndpointUndefinedError(Exception):
+    pass

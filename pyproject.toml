@@ -24,7 +24,6 @@ doc = [
     "mkdocs-material",
     "mkdocstrings-python",
     "mkdocs-jupyter",
-    "griffe<1.0",
 ]
 
 [tool.commitizen]

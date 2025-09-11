@@ -1,3 +1,3 @@
 # Platforms
 
-aiod::platforms
+::: aiod.platforms

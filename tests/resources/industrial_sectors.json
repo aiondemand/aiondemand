@@ -1,0 +1,310 @@
+[
+  {
+    "term": "Manufacturing",
+    "definition": "This sector includes the physical or chemical transformation of materials, substances, or components into new products, although this cannot be used as the single universal criterion for defining manufacturing (see remark on processing of waste below). The materials, substances, or components transformed are raw materials that are products of agriculture, forestry, fishing, mining or quarrying as well as products of other manufacturing activities. Substantial alteration, renovation or reconstruction of goods is generally considered to be manufacturing.The output of a manufacturing process may be finished in the sense that it is ready for utilisation or consumption, or it may be semi-finished in the sense that it is to become an input for further manufacturing. For example, the output of alumina refining is the input used in the primary production of aluminium; primary aluminium is the input to aluminium wire drawing; and aluminium wire is the input for the manufacture of fabricated wire products.Manufacture of specialised components and parts of, and accessories and attachments to, machinery and equipment is, as a general rule, classified in the same class as the manufacture of the machinery and equipment for which the parts and accessories are intended. Manufacture of unspecialised components and parts of machinery and equipment, e.g. engines, pistons, electric motors, electrical assemblies, valves, gears, roller bearings, is classified in the appropriate class of manufacturing, without regard to the machinery and equipment in which these items may be included.",
+    "subterms": [
+      {
+        "term": "Car Industry",
+        "definition": "This subsector includes the manufacture of motor vehicles for transporting passengers or freight. The manufacture of various parts and accessories, as well as the manufacture of trailers and semi-trailers, is included here.",
+        "subterms": []
+      },
+      {
+        "term": "Leather",
+        "definition": "This subsector includes dressing and dyeing of fur and the transformation of hides into leather by tanning or curing and fabricating the leather into products for final consumption.",
+        "subterms": []
+      },
+      {
+        "term": "Non-Metallic Materials and basic process",
+        "definition": "Non-metallic materials are any materials, both synthetic and natural, which do not contain metal. These materials are able to retain their unique chemical properties during the machining process using thermoplastics, thermosets, or elastomers. . There are a wide variety of non-metallic materials,like Rubber, Fiber, Ceramics, plastics, etc.",
+        "subterms": []
+      },
+      {
+        "term": "Paper and Wood",
+        "definition": "The industry that deals with the cuting, transfer and manufacturing  of the wood. It produces various products for our every day life, entertainment and art, without forgeting  the production of paper in all its faces.",
+        "subterms": []
+      },
+      {
+        "term": "Textile",
+        "definition": "This subsector includes preparation and spinning of textile fibres as well as textile weaving, finishing of textiles and wearing apparel, manufacture of made-up textile articles, except apparel (e.g. household linen, blankets, rugs, cordage etc.).",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Administrative and support service activities",
+    "definition": "This sector includes a variety of activities that support general business operations. (Employment activities, Office administrative, office support and other business support activities,Rental and leasing activities, Security and investigation activities, Services to buildings and landscape activities, Travel agency, tour operator and other reservation service and related activities)",
+    "subterms": [
+      {
+        "term": "Legal Aspects",
+        "definition": "The provision of legal support and advice to individuals and businesses by law firms.",
+        "subterms": []
+      },
+      {
+        "term": "Personal Services",
+        "definition": "This subsector includes all service activities not mentioned elsewhere in the classification. Notably it includes types of services such as washing and (dry-)cleaning of textiles and fur products, hairdressing and other beauty treatment, funeral and related activities.",
+        "subterms": []
+      },
+      {
+        "term": "Public Administration",
+        "definition": "This group includes general administration (e.g. executive, legislative, financial administration etc. at all levels of government) and supervision in the field of social and economic life.",
+        "subterms": []
+      },
+      {
+        "term": "Social Security",
+        "definition": "This class includes:- funding and administration of government-provided social security programmes: • sickness, work-accident and unemployment insurance • retirement pensions • programmes covering losses of income due to maternity, temporary disablement, widowhood etc.",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Construction",
+    "definition": "This sector includes general construction and specialised construction activities for buildings and civil engineering works. It includes new work, repair, additions and alterations, the erection of prefabricated buildings or structures on the site and also construction of a temporary nature. General construction is the construction of entire dwellings, office buildings, stores and other public and utility buildings, farm buildings etc., or the construction of civil engineering works such as motorways, streets, bridges, tunnels, railways, airfields, harbours and other water projects, irrigation systems, sewerage systems, industrial facilities, pipelines and electric lines, sports facilities etc. This work can be carried out on own account or on a fee or contract basis. Portions of the work and sometimes even the whole practical work can be subcontracted out. A unit that carries the overall responsibility for a construction project is classified here.Also included is the repair of buildings and engineering works.This section includes the complete construction of buildings, the complete construction of civil engineering works, as well as specialised construction activities, if carried out only as a part of the construction process.The rental of construction equipment with operator is classified with the specific construction activity carried out with this equipment.",
+    "subterms": [
+      {
+        "term": "Buildings",
+        "definition": "",
+        "subterms": []
+      },
+      {
+        "term": "Infrastructures",
+        "definition": "The constructure industry that deals with physical and organizational structures and facilities (e.g. buildings, roads, power supplies) needed for the operation of a society or enterprise.",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Defence",
+    "definition": "Defenece products and technologies",
+    "subterms": []
+  },
+  {
+    "term": "Electricity, gas, steam and air conditioning supply",
+    "definition": "This sector includes the activity of providing electric power, natural gas, steam, hot water and the like through a permanent infrastructure (network) of lines, mains and pipes. The dimension of the network is not decisive; also included are the distribution of electricity, gas, steam, hot water and the like in industrial parks or residential buildings.This sector therefore includes the operation of electric and gas utilities, which generate, control and distribute electric power or gas.",
+    "subterms": [
+      {
+        "term": "Energy Renewables",
+        "definition": "Electric motors, engines and turbines - Electric power generation - Manufacturing and distribution of gas",
+        "subterms": []
+      },
+      {
+        "term": "Nuclear",
+        "definition": "It includes all industrial infrasrtucture and processes from design, construction, operation, envaronmental support security and resiliance of an Electricity  production company based in Nuclear Technology.",
+        "subterms": []
+      },
+      {
+        "term": "Oil and Gas",
+        "definition": "It includes all procesees, environmental research and preparatory research work before set up a construction infrastructure for Oil or Gas mining.",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Financial and Insurance Activities",
+    "definition": "This sector includes financial service activities, including insurance, reinsurance and pension funding activities and activities to support financial services.",
+    "subterms": []
+  },
+  {
+    "term": "Health",
+    "definition": "This sector includes activities of short- or long-term hospitals, general or specialty medical, surgical, psychiatric and substance abuse hospitals, sanatoria, preventoria, medical nursing homes, asylums, mental hospital institutions, rehabilitation centres, leprosaria and other human health institutions which have accommodation facilities and which engage in providing diagnostic and medical treatment to inpatients with any of a wide variety of medical conditions.",
+    "subterms": [
+      {
+        "term": "Assistive Living",
+        "definition": "",
+        "subterms": []
+      },
+      {
+        "term": "Pharmaceuticals",
+        "definition": "",
+        "subterms": []
+      },
+      {
+        "term": "Social Work",
+        "definition": "",
+        "subterms": []
+      },
+      {
+        "term": "Wellbeing",
+        "definition": "",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Information and Communication Technologies",
+    "definition": "This sector includes the production and distribution of information and cultural products, the provision of the means to transmit or distribute these products, as well as data or communications, information technology activities and the processing of data and other information service activities.The main components of this section are publishing activities, including software publishing, motion picture and sound recording activities, radio and TV broadcasting and programming activities, telecommunications activities, information technology activities  and other information service activities .Publishing includes the acquisition of copyrights for content (information products) and making this content available to the general public by engaging in (or arranging for) the reproduction and distribution of this content in various forms. All the feasible forms of publishing (in print, electronic or audio form, on the Internet, as multimedia products such as CD-ROM reference books etc.) are included in this section.",
+    "subterms": [
+      {
+        "term": "Broadcasting",
+        "definition": "This subsector includes the activities of creating content or acquiring the right to distribute content and subsequently broadcasting that content, such as radio, television and data programs of entertainment, news, talk, and the like. Also included is data broadcasting, typically integrated with radio or TV broadcasting. The broadcasting can be performed using different technologies, over-the-air, via satellite, via a cable network or via Internet.",
+        "subterms": []
+      },
+      {
+        "term": "Content Production",
+        "definition": "Produce content resources of various types and modalities as off annotated, trained materials, test-beds, derived through GPI and so on",
+        "subterms": []
+      },
+      {
+        "term": "Distribution",
+        "definition": "Distribute S/W, pressentations, training cources  as well as any multimodal document through videos, web, targeted observatories, droans and so on",
+        "subterms": []
+      },
+      {
+        "term": "Publishing",
+        "definition": "This subsector includes the publishing of books, brochures, leaflets, dictionaries, encyclopaedias, atlases, maps and charts; publishing of newspapers, journals and periodicals; directory and mailing list and other publishing, as well as software publishing.Publishing includes the acquisition of copyrights to content (information products) and making this content available to the general public by engaging in (or arranging for) the reproduction and distribution of this content in various forms. All the feasible forms of publishing (in print, electronic or audio form, on the Internet, as multimedia products such as CD-ROM reference books etc.), except publishing of motion pictures, are included in this division.",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Information Technology",
+    "definition": "",
+    "subterms": [
+      {
+        "term": "Computer Programming",
+        "definition": "This class includes the writing, modifying, testing and supporting of software.This class includes:- designing the structure and content of, and/or writing the computer code necessary to create and implement: • systems software (including updates and patches) • software applications (including updates and patches) • databases • web pages- customising of software, i.e. modifying and configuring an existing application so that it is functional within the clients' information system environment",
+        "subterms": []
+      },
+      {
+        "term": "Consulting",
+        "definition": "This subsector includes the planning and designing of computer systems which integrate computer hardware, software and communication technologies. Services may include related users training.",
+        "subterms": []
+      },
+      {
+        "term": "Telecommunications",
+        "definition": "This sector includes the activities of providing telecommunications and related service activities, that is transmitting voice, data, text, sound and video. The transmission facilities that carry out these activities may be based on a single technology or a combination of technologies. The commonality of activities classified in this division is the transmission of content, without being involved in its creation. The breakdown in this division is based on the type of infrastructure operated.In the case of transmission of television signals this may include the bundling of complete programming channelsen in to programme packages for distribution.",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Mining and Quarring",
+    "definition": "Mining and quarrying include the extraction of minerals occurring naturally as solids (coal and ores), liquids (petroleum) or gases (natural gas). Extraction can be achieved by different methods such as underground or surface mining, well operation, seabed mining etc.This section includes supplementary activities aimed at preparing the crude materials for marketing, for example, crushing, grinding, cleaning, drying, sorting, concentrating ores, liquefaction of natural gas and agglomeration of solid fuels. These operations are often accomplished by the units that extracted the resource and/or others located nearby.Mining activities are classified into divisions, groups and classes on the basis of the principal mineral produced.",
+    "subterms": []
+  },
+  {
+    "term": "Other",
+    "definition": "",
+    "subterms": []
+  },
+  {
+    "term": "Real Estate Activities",
+    "definition": "This sector includes acting as lessors, agents and/or brokers in one or more of the following: selling or buying real estate, rental real estate, providing other real estate services such as appraising real estate or acting as real estate escrow agents. Activities in this section may be carried out on own or leased property and may be done on a fee or contract basis. This section includes real estate property managers.",
+    "subterms": []
+  },
+  {
+    "term": "Tourism",
+    "definition": "Buinsess for Passenger transport and travel- Hotel, short term accomodation- Restaurants and caterings- Events, theme parks, sites of interest and history to explore.",
+    "subterms": []
+  },
+  {
+    "term": "Trade",
+    "definition": "Buinsess for wholesale and retail sale (i.e. sale without transformation) of any type of goods, and rendering services incidental to the sale of merchandise. Wholesaling and retailing are the final steps in the distribution of merchandise. Also included in this section are the repair of motor vehicles and motorcycles.Sale without transformation is considered to include the usual operations (or manipulations) associated with trade, for example sorting, grading and assembling of goods, mixing (blending) of goods (for example sand), bottling (with or without preceding bottle cleaning), packing, breaking bulk and repacking for distribution in smaller lots, storage (whether or not frozen or chilled).",
+    "subterms": [
+      {
+        "term": "Retail",
+        "definition": "This subsector includes the resale (sale without transformation) of new and used goods mainly to the general public for personal or household consumption or utilisation, by shops, department stores, stalls, mail-order houses, door-to-door sales persons, hawkers, consumer cooperatives etc.Retail trade is classified first by type of sale outlet. Retail trade in stores includes the retail sale of used goods . For retail sale in stores, there exists a further distinction between specialised retail sale  and non-specialised retail sale. The above groups are further subdivided by the range of products sold. Sale not via stores is subdivided according to the forms of trade, such as retail sale via stalls and markets and other non-store retail sale, e.g. mail order, door-to-door, by vending machines etc.The goods sold in this division are limited to goods usually referred to as consumer goods or retail goods. Therefore goods not normally entering the retail trade, such as cereal grains, ores, industrial machinery etc. are excluded.",
+        "subterms": []
+      },
+      {
+        "term": "Wholesale",
+        "definition": "This subsector includes wholesale trade on own account or on a fee or contract basis (commission trade) related to domestic wholesale trade as well as international wholesale trade (import/export).",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Transportation and Storage",
+    "definition": "This sector includes the provision of passenger or freight transport, whether scheduled or not, by rail, pipeline, road, water or air and associated activities such as terminal and parking facilities, cargo handling, storage etc. Included in this section is the rental of transport equipment with driver or operator. Also included are postal and courier activities.",
+    "subterms": [
+      {
+        "term": "Maritime",
+        "definition": "Theindustry that deals with anything related to the ocean, sea, and rivers. Maritime includes the ships, ports, companies, and individuals that are involved in the industry..It followes a collection of laws, conventions, and treaties that were put together by international bodies, such as the International Maritime Organization (IMO), to regulate and resolve all aspects of maritime trade, enviromental disputes or accidents that occur in oceans, seas, rivers, and other waterways. Maritime shipping plays a pivotal role in thiw industry, while security is supported by maritime tracking that explois Artificial Intelligence methods and algorithms.",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Water supply; sewerage, waste management and remediation activities",
+    "definition": "This sector includes activities related to water and disposal management (including collection, treatment and disposal) of various forms of waste, such as solid or non-solid industrial or household waste, as well as contaminated sites. The output of the waste or sewage treatment process can either be disposed of or become an input into other production processes.",
+    "subterms": [
+      {
+        "term": "Sewerage",
+        "definition": "This subsector includes the operation of sewer systems or sewage treatment facilities that collect, treat, and dispose of sewage.",
+        "subterms": []
+      },
+      {
+        "term": "Waste Management",
+        "definition": "This subsector includes the collection, treatment, and disposal of waste materials.",
+        "subterms": []
+      },
+      {
+        "term": "Water Supply",
+        "definition": "This subsector includes the collection, treatment and distribution of water for domestic and industrial needs. Collection of water from various sources, as well as distribution by various means is included.",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Accommodation and food service activities",
+    "definition": "This sector includes the provision of short-stay accommodation for visitors and other travellers and the provision of complete meals and drinks fit for immediate consumption. The amount and type of supplementary services provided within this section can vary widely.",
+    "subterms": []
+  },
+  {
+    "term": "Public administration and defense and compulsory social security",
+    "definition": "This sector includes activities of a governmental nature, normally carried out by the public administration. This includes the enactment and judicial interpretation of laws and their pursuant regulation, as well as the administration of programmes based on them, legislative activities, taxation, national defence, public order and safety, immigration services, foreign affairs and the administration of government programmes.",
+    "subterms": [
+      {
+        "term": "Civil Security",
+        "definition": "This class includes:- administration and operation of regular and auxiliary police forces supported by public authorities and of port, border, coastguards and other special police forces, including traffic regulation, alien registration, maintenance of arrest records- provision of supplies for domestic emergency use in case of peacetime disasters",
+        "subterms": []
+      },
+      {
+        "term": "Cybersecurity",
+        "definition": "Cybersecurity is how individuals and organisations reduce the risk of cyber attack. Cybersecurity's core function is to protect the devices we all use (smartphones, laptops, tablets and computers), and the services we access - both online and at work - from theft or damage. It's also about preventing unauthorised access to the vast amounts of personal information we store on these devices, and online.",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Agriculture, forestry, fisheries",
+    "definition": "This sector includes the exploitation of vegetal and animal natural resources, comprising the activities of growing of crops, raising and breeding of animals, harvesting of timber and other plants, animals or animal products from a farm or their natural habitats.",
+    "subterms": [
+      {
+        "term": "Agriculture",
+        "definition": "This subsector includes the exploitation of vegetal and animal natural resources, comprising the activities of growing of crops, raising and breeding of animals, harvesting of timber and other plants, animals or animal products from a farm or their natural habitats.",
+        "subterms": []
+      },
+      {
+        "term": "Fishing",
+        "definition": "This subsector includes capture fishery and aquaculture, covering the use of fishery resources from marine, brackish or freshwater environments, with the goal of capturing or gathering fish, crustaceans, molluscs and other marine organisms and products (e.g. aquatic plants, pearls, sponges etc).",
+        "subterms": []
+      },
+      {
+        "term": "Forestry",
+        "definition": "This subsection includes the production of roundwood as well as the extraction and gathering of wild growing non-wood forest products. Besides the production of timber, forestry activities result in products that undergo little processing, such as firewood, charcoal and roundwood used in an unprocessed form (e.g. pit-props, pulpwood etc.). These activities can be carried out in natural or planted forests.",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Arts",
+    "definition": "This sector includes a wide range of activities to meet varied cultural, entertainment and recreational interests of the general public, including live performances, operation of museum sites, gambling, sports and recreation activities.",
+    "subterms": [
+      {
+        "term": "Recreation",
+        "definition": "This group includes a wide range of units that operate facilities or provide services to meet the varied recreational interests of their patrons. It includes the operation of a variety of attractions, such as mechanical rides, water rides, games, shows, theme exhibits and picnic grounds.",
+        "subterms": []
+      },
+      {
+        "term": "Sports",
+        "definition": "This group includes the operation of sports facilities; activities of sports teams or clubs primarily participating in live sports events before a paying audience; independent athletes engaged in participating in live sporting or racing events before a paying audience; owners of racing participants such as cars, dogs, horses, etc. primarily engaged in entering them in racing events or other spectator sports events; sports trainers providing specialised services to support participants in sports events or competitions; operators of arenas and stadiums; other activities of organising, promoting or managing sports events, n.e.c.",
+        "subterms": []
+      }
+    ]
+  },
+  {
+    "term": "Education",
+    "definition": "This sector includes education at any level or for any profession. The instructions may be oral or written and may be provided by radio, television, Internet or via correspondence. It includes education by the different institutions in the regular school system at its different levels as well as adult education, literacy programmes etc. Also included are military schools and academies, prison schools etc. at their respective levels. The section includes public as well as private education.For each level of initial education, the classes include special education for physically or mentally handicapped pupils.",
+    "subterms": []
+  }
+]

@@ -35,6 +35,7 @@ nav:
       - 'api/publications.md'
       - 'api/services.md'
       - 'api/teams.md'
+      - 'api/taxonomies.md'
   - 'changelog.md'
   - 'contributing.md'
   - 'conduct.md'
@@ -63,26 +64,6 @@ plugins:
     handlers:
       python:
         options:
+          force_inspection: true
           show_source: false
           filters: ["!^_"]
-          extensions:
-          - docs/tools/griffe_extensions.py:
-              modules:
-              - aiod
-              - aiod.resources.case_studies
-              - aiod.resources.computational_assets
-              - aiod.resources.contacts
-              - aiod.resources.datasets
-              - aiod.resources.educational_resources
-              - aiod.resources.events
-              - aiod.resources.experiments
-              - aiod.resources.ml_models
-              - aiod.resources.news
-              - aiod.resources.organisations
-              - aiod.resources.persons
-              - aiod.resources.platforms
-              - aiod.resources.projects
-              - aiod.resources.publications
-              - aiod.resources.services
-              - aiod.resources.teams
-
