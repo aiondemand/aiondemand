@@ -142,7 +142,7 @@ def set_token(token: Token | str) -> None:
 
 
 def get_token() -> Token:
-    """Gets the currently configured token that is used for authenticated requests."""
+    """Get the currently configured token that is used for authenticated requests."""
     if _token is None:
         msg = (
             "No token set. Please create a new token with `aiod.create_token()`,"
@@ -172,24 +172,29 @@ def create_token(
     IMPORTANT: This is a blocking function, and will poll the authentication server until
     authentication is completed or `timeout_seconds` have passed.
 
-    Args:
-        timeout_seconds: int (default = 300)
-            The maximum time this function blocks waiting for the authentication workflow
-            to complete. If `timeout_seconds` seconds have elapsed without successful
-            authentication, this function raises an AuthenticationError.
-            This must be set to a positive integer.
-        write_to_file: bool (default = False)
-            If set to true, the new api key (refresh token) will automatically be saved to
-            the user configuration file (~/.aiod/config.toml).
-        use_in_requests: bool (default = True)
-            If set to true, the new token will automatically be used for future authenticated
-            requests.
+    Parameters
+    ----------
+    timeout_seconds
+        The maximum time this function blocks waiting for the authentication workflow
+        to complete. If `timeout_seconds` seconds have elapsed without successful
+        authentication, this function raises an AuthenticationError.
+        This must be set to a positive integer.
+    write_to_file
+        If set to true, the new api key (refresh token) will automatically be saved to
+        the user configuration file (~/.aiod/config.toml).
+    use_in_requests
+        If set to true, the new token will automatically be used for future authenticated
+        requests.
 
-    Returns:
-        Token: The new token for use in authenticated requests.
+    Returns
+    -------
+    :
+        The new token for use in authenticated requests.
 
-    Raises:
-        AuthenticationError: if authentication is unsuccessful in any way.
+    Raises
+    ------
+    AuthenticationError
+        If authentication is unsuccessful in any way.
 
     """
     if timeout_seconds <= 0 or not isinstance(timeout_seconds, int):
@@ -270,13 +275,14 @@ def invalidate_token(
 
     Ends the current keycloak session, invalidating all keys issued.
 
-    Args:
-        token: str | Token | None (default = None)
-            The token to invalidate.
-            If str, it should be a refresh token.
-            If None, it will default to the currently configured token.
-        ignore_errors:
-            If true, do not raise an error if the logout attempt failed.
+    Parameters
+    ----------
+    token
+        The token to invalidate.
+        If str, it should be a refresh token.
+        If None, it will default to the currently configured token.
+    ignore_errors
+        If true, do not raise an error if the logout attempt failed.
     """
     global _token
     token = token or _token
@@ -297,11 +303,15 @@ class User(NamedTuple):
 def get_current_user() -> User:
     """Return name and roles of the user that is currently authenticated.
 
-    Returns:
-        User: The user information for the currently authenticated user.
+    Returns
+    -------
+    User
+        The user information for the currently authenticated user.
 
-    Raises:
-        NotAuthenticatedError: When the user is not authenticated.
+    Raises
+    ------
+    NotAuthenticatedError
+        When the user is not authenticated.
     """
     response = requests.get(
         f"{config.api_server}authorization_test",

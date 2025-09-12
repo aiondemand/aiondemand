@@ -3,6 +3,9 @@ site_url: https://aiondemand.github.io/aiondemand
 repo_url: https://www.github.com/aiondemand/aiondemand
 repo_name: aiondemand
 
+watch:
+  - src/aiod
+
 theme:
   name: material
   logo: images/secondary-neg-white-25p.webp
@@ -64,6 +67,7 @@ plugins:
     handlers:
       python:
         options:
+          docstring_style: numpy
           force_inspection: true
           show_source: false
           filters: ["!^_"]

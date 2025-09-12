@@ -57,7 +57,10 @@ ignore = [
     "D105",
     "D106",
     "D107",
+#    "D407",
+#    "D408",
 ]
+#extend-select = ["D416"]
 
 [tool.ruff.lint.pydocstyle]
-convention = "google"
+convention = "numpy"

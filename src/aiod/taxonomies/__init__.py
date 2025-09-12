@@ -37,15 +37,16 @@ _TAXONOMIES = [
 class Term:
     """Describes a specific term in a hierarchical taxonomy.
 
-    Attributes:
-        taxonomy (str):
+    Attributes
+    ----------
+        taxonomy: str
             Name of the taxonomy from which the term originates, e.g., 'industrial sectors'.
-        term (str):
+        term: str
             A unique name for the term, e.g., 'Clinical Medicine'.
-        definition (str):
+        definition: str
             A description further clarifying the meaning of the term, e.g.,
             'The branch of medicine that deals with the [...].'.
-        subterms (list[Term]):
+        subterms: list[Term]
             A list of subterms which provide a finer granularity.
             This list may be empty.
     """
@@ -95,12 +96,16 @@ def _get_taxonomy(name: str):
     The cache does not persist between Python sessions. You can clear the cache anytime by calling
     `aiod.taxonomies.{name}.cache_clear()`.
 
-    Returns: list[Term]
+    Returns
+    -------
+    list[Term]
         A hierarchical taxonomy, each entry has a 'term', 'definition', and 'subterms'.
         The 'term' is a short unique name representing the entry.
         The 'definition' provides additional text to clarify the meaning for the term.
         'Subterms' provides terms which are part of this term, and may themselves have subterms as well.
-    Raises:
+
+    Raises
+    ------
         EndpointUndefinedError: If the taxonomy is not available for the configured version of the REST API.
         RuntimeError: For other unexpected errors.
     """
