@@ -20,7 +20,9 @@ extra_css:
 
 nav:
   - Introduction: 'README.md'
-  - notebook: 'example.ipynb'
+  - Examples:
+    - Browsing: 'browsing.ipynb'
+    - Sharing: 'sharing.ipynb'
   - API Reference:
       - 'api/configuration.md'
       - 'api/taxonomies.md'
