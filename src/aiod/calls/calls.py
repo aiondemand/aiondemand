@@ -33,8 +33,10 @@ def get_list(
 ) -> pd.DataFrame | list[dict]:
     """Retrieve a list of ASSET_TYPE from the catalogue.
 
-    Parameters: Keyword arguments required
-    --------------------------------------
+    All parameters must be specified by name.
+
+    Parameters
+    ----------
     platform
         Return metadata of ASSET_TYPE assets of this platform (default is None).
     offset
@@ -70,8 +72,10 @@ def delete_asset(
 ) -> requests.Response:
     """Delete ASSET_TYPE from the catalogue.
 
-    Parameters: Keyword arguments required
-    --------------------------------------
+    All parameters must be specified by name.
+
+    Parameters
+    ----------
     version
         The version of the endpoint (default is None).
 
@@ -96,15 +100,24 @@ def put_asset(
     metadata: dict,
     version: str | None = None,
 ) -> requests.Response:
-    """Update an ASSET_TYPE in the catalogue.
+    """Replace a ASSET_TYPE in catalogue.
 
-    Parameters: keywords required
-    -----------------------------
+    All parameters must be specified by name.
+
+    Notes
+    -----
+    Any attribute not specified in `metadata` will be replaced with the default value!
+    If you wish to only modify some attributes and keep the values of others, make sure
+    to provide _all_ asset metadata.
+
+    Parameters
+    ----------
+    identifier
+        The identifier of the asset whose metadata to replace.
+    metadata
+        A dictionary with for each attribute a value.
     version
-        The version of the endpoint (default is None).
-    data_format
-        The desired format for the response (default is "pandas").
-        For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dicts.
+        If provided, use this version of the REST API instead of `config.version`.
 
     Returns
     -------
@@ -132,16 +145,21 @@ def post_asset(
 ) -> str | requests.Response:
     """Register ASSET_TYPE in catalogue.
 
-    Parameters (keywords required):
+    All parameters must be specified by name.
 
-        version (str | None): The version of the endpoint (default is None).
-        data_format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dict's.
+    Parameters
+    ----------
+    metadata
+        A dictionary with for each attribute a value.
+    version
+        If provided, use this version of the REST API instead of `config.version`.
 
     Returns
     -------
-        str: identifier, if the asset is registered successfully
-        requests.Response: error response, if it failed to register successfully
+    identifier: str
+        if the asset is registered successfully
+    error response: requests.Response
+        error response, if it failed to register successfully
     """
     url = f"{server_url(version)}{asset_type}"
     res = requests.post(url, headers=get_token().headers, json=metadata)
@@ -155,8 +173,10 @@ def counts(
 ) -> int | dict[str, int]:
     """Retrieve the number of ASSET_TYPE assets in the metadata catalogue.
 
-    Parameters: keyword arguments required
-    --------------------------------------
+    All parameters must be specified by name.
+
+    Parameters
+    ----------
     version
         The version of the endpoint (default is None).
     per_platform
@@ -184,8 +204,10 @@ def get_asset(
 ) -> pd.Series | dict:
     """Retrieve metadata for a specific ASSET_TYPE.
 
-    Parameters: keyword arguments required
-    --------------------------------------
+    All parameters except `identifier` must be specified by name.
+
+    Parameters
+    ----------
     identifier
         The identifier of the ASSET_TYPE to retrieve.
     version
@@ -215,8 +237,10 @@ def get_asset_from_platform(
 ) -> pd.Series | dict:
     """Retrieve metadata for a specific ASSET_TYPE identified by the external platform identifier.
 
-    Parameters: keyword arguments required
-    --------------------------------------
+    All parameters must be specified by name.
+
+    Parameters
+    ----------
     platform
         The platform where the ASSET_TYPE asset is retrieved from.
     platform_identifier
@@ -249,8 +273,10 @@ def get_content(
 ) -> bytes:
     """Retrieve the data content of a specific ASSET_TYPE.
 
-    Parameters: keyword arguments required
-    --------------------------------------
+    All parameters must be specified by name.
+
+    Parameters
+    ----------
     identifier
         The identifier of the ASSET_TYPE asset.
     distribution_idx
@@ -285,8 +311,10 @@ def search(
 ) -> pd.DataFrame | list[dict]:
     """Search metadata for ASSET_TYPE type using the Elasticsearch endpoint of the AIoD metadata catalogue.
 
-    Parameters: keyword arguments required
-    --------------------------------------
+    All parameters except `query` must be specified by name.
+
+    Parameters
+    ----------
     search
         The string to be matched against the search fields.
     platforms
@@ -336,8 +364,10 @@ async def get_assets_async(
 ) -> pd.DataFrame | list[dict]:
     """Asynchronously retrieve metadata for a list of ASSET_TYPE identifiers.
 
-    Parameters: keyword arguments required
-    --------------------------------------
+    All parameters except `identifiers` must be specified by name.
+
+    Parameters
+    ----------
     identifiers
         The list of identifiers of the ASSET_TYPE to retrieve.
     version
@@ -370,8 +400,10 @@ async def get_list_async(
 ) -> pd.DataFrame | list[dict]:
     """Asynchronously retrieve a list of ASSET_TYPE from the catalogue in batches.
 
-    Parameters: keyword arguments required
-    --------------------------------------
+    All parameters must be specified by name.
+
+    Parameters
+    ----------
         offset: The offset for pagination (default is 0).
         limit: The maximum number of items to retrieve (default is 10).
         batch_size: The number of items in a a batch.

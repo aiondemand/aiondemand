@@ -1,10 +1,40 @@
 """Access any taxonomy defined by AI-on-Demand.
 
-Warning:
-    Defined taxonomies differ by version of the REST API.
-    This module lists all taxonomies for all supported versions of the REST API.
-    If you access a taxonomy that is not available for your defined version, an
-    EndpointUndefinedError is raised.
+Some metadata fields in AI-on-Demand only accept a limited set of values.
+These values are defined in *hierarchical taxonomies*.
+The **taxonomy** defines terms with a unique name and a definition.
+For example, in the taxonomy of 'Scientific Domains', one might define a
+term 'Chemical Sciences' with the definition 'The scientific study of
+the properties and behavior of matter.'.
+The fact that the taxonomy is **hierarchical** means that each term may
+have subterms defined which can further specify the entry. For example,
+'Chemical Sciences' could be a subterm of 'Natural Sciences', with
+'Biology' and 'Physics' being other subterms ("siblings").
+
+
+Examples
+--------
+```python title="Minimal Example"
+import aiod
+aiod.taxonomies.news_categories()
+```
+
+```python title="Output"
+[
+  Term(taxonomy='news categories', term='Business', definition='', subterms=[
+    Term(taxonomy='news categories', term='Funding', definition='', subterms=[]),
+    ...,  # more subterms, which each may have subterms
+  ]),
+  ...,  # more terms
+]
+```
+
+Notes
+-----
+Defined taxonomies differ by version of the REST API.
+This module lists all taxonomies for all supported versions of the REST API.
+If you access a taxonomy that is not available for your defined version, an
+EndpointUndefinedError is raised.
 """
 
 from __future__ import annotations
@@ -39,16 +69,16 @@ class Term:
 
     Attributes
     ----------
-        taxonomy: str
-            Name of the taxonomy from which the term originates, e.g., 'industrial sectors'.
-        term: str
-            A unique name for the term, e.g., 'Clinical Medicine'.
-        definition: str
-            A description further clarifying the meaning of the term, e.g.,
-            'The branch of medicine that deals with the [...].'.
-        subterms: list[Term]
-            A list of subterms which provide a finer granularity.
-            This list may be empty.
+    taxonomy: str
+        Name of the taxonomy from which the term originates, e.g., 'industrial sectors'.
+    term: str
+        A unique name for the term, e.g., 'Clinical Medicine'.
+    definition: str
+        A description further clarifying the meaning of the term, e.g.,
+        'The branch of medicine that deals with the [...].'.
+    subterms: list[Term]
+        A list of subterms which provide a finer granularity.
+        This list may be empty.
     """
 
     taxonomy: str
@@ -106,8 +136,11 @@ def _get_taxonomy(name: str):
 
     Raises
     ------
-        EndpointUndefinedError: If the taxonomy is not available for the configured version of the REST API.
-        RuntimeError: For other unexpected errors.
+    EndpointUndefinedError
+        If the taxonomy is not available for the configured version of the REST API.
+
+    RuntimeError
+        For unexpected server responses.
     """
     return get_taxonomy
 

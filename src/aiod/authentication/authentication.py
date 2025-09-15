@@ -70,11 +70,22 @@ class Token:
 
     @property
     def has_expired(self) -> bool:
+        """Return whether the *access token* has expired based on local data."""
         return datetime.datetime.now(datetime.UTC) >= self._expiration_date
 
     @property
     def headers(self) -> dict[str, str]:
-        """HTTP header data for the token."""
+        """HTTP authorization header data for the token.
+
+        Examples
+        --------
+        ```python
+        import aiod
+        token = aiod.get_token()
+        requests.post(url, headers=token.headers, json=metadata)
+        ```
+
+        """
         if self.has_expired:
             self._refresh()
         return {"Authorization": f"Bearer {self._access_token}"}
@@ -133,7 +144,19 @@ class Token:
 
 
 def set_token(token: Token | str) -> None:
-    """Set the token directly or provide a refresh token."""
+    """Set the token directly or provide a refresh token.
+
+    Parameters
+    ----------
+    token
+        Sets the token to be used for authenticated requests.
+        If a string is provided, it should be a valid refresh token.
+
+    Notes
+    -----
+    This function does not validate the provided token.
+    If the token is invalid, subsequent authenticated requests may fail.
+    """
     global _token
     if isinstance(token, str):
         _token = Token(refresh_token=token)
@@ -142,7 +165,12 @@ def set_token(token: Token | str) -> None:
 
 
 def get_token() -> Token:
-    """Get the currently configured token that is used for authenticated requests."""
+    """Get the currently configured token that is used for authenticated requests.
+
+    Returns
+    -------
+    :
+    """
     if _token is None:
         msg = (
             "No token set. Please create a new token with `aiod.create_token()`,"
@@ -169,7 +197,9 @@ def create_token(
 ) -> Token:
     """Get an API Key by prompting the user to log in through a browser.
 
-    IMPORTANT: This is a blocking function, and will poll the authentication server until
+    Notes
+    -----
+    This is a blocking function, and will poll the authentication server until
     authentication is completed or `timeout_seconds` have passed.
 
     Parameters
