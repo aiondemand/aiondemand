@@ -25,6 +25,10 @@ doc = [
     "mkdocs-jupyter",
 ]
 
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
 [tool.hatch.version]
 path = "src/aiod/__version__.py"
 
