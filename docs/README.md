@@ -38,7 +38,7 @@ And results will be returned as a [Pandas](https://pandas.pydata.org/docs/gettin
 
 You can even query the elastic search endpoints:
 ```python
-aiod.publications.search(search_query="Robotics")
+aiod.publications.search(query="Robotics")
 ```
 ```bash
       platform platform_resource_identifier                                               name date_published                                            same_as is_accessible_for_free  ... relevant_resource relevant_to      research_area  scientific_domain  type  identifier

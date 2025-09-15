@@ -1,9 +1,10 @@
-""" Tests which connect to the server.
+"""Tests which connect to the server.
 
 Do not add new tests unless there is a very good reason.
 These tests do not run with the default test configuration.
 
 """
+
 import pytest
 
 import aiod

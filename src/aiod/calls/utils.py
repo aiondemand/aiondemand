@@ -7,21 +7,22 @@ from typing import Callable, Literal, Tuple
 def format_response(
     response: list | dict, data_format: Literal["pandas", "json"]
 ) -> pd.Series | pd.DataFrame | dict | list:
-    """
-    Format the response data based on the specified format.
+    """Format the response data based on the specified format.
 
-    Parameters:
+    Parameters
+    ----------
         response (list | dict): The response data to format.
         data_format (Literal["pandas", "json"]): The desired format for the response.
             For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
 
-    Returns:
+    Returns
+    -------
         pd.Series | pd.DataFrame | dict: The formatted response data.
 
-    Raises:
+    Raises
+    ------
         Exception: If the specified format is invalid or not supported.
     """
-
     if data_format == "pandas":
         if isinstance(response, dict):
             return pd.Series(response)

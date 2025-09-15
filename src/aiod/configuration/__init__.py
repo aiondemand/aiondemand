@@ -1,1 +1,1 @@
-from ._config import config, load_configuration
+from ._config import config, load_configuration, Config

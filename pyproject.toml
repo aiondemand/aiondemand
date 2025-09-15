@@ -19,6 +19,7 @@ dev = [
     "aioresponses",
     "pytest",
     "pytest-asyncio",
+    "ruff",
 ]
 doc = [
     "mkdocs-material",
@@ -39,3 +40,27 @@ markers = [
     "server: connects to an AIoD server",
 ]
 addopts = "-m 'not server'"
+
+[tool.ruff]
+fix = true
+
+[tool.ruff.lint]
+select = [
+    "D",  # enables pydocstyle checks
+]
+ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+#    "D407",
+#    "D408",
+]
+#extend-select = ["D416"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"

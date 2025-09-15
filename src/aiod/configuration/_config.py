@@ -14,6 +14,30 @@ AttributeObserver: TypeAlias = Callable[[str, Any, Any], None]
 
 @dataclass
 class Config:
+    """Configuration for which servers and versions to use in connections.
+
+    Notes
+    -----
+    For most users, there is generally no reason to modify these values other
+    than `version`.
+    For developers, it may be useful to connect to a test server or local instance
+    by changing the `api_server` and `auth_server` addresses.
+
+    Attributes
+    ----------
+    version: str
+        The version prefix to use.
+    api_server: str
+        The URL of the metadata catalogue REST API.
+    auth_server: str
+        The authentication server to connect to.
+    realm: str
+        The realm in which the client matching the `client_id` resides.
+    client_id: str
+        The client ID used for authentication.
+
+    """
+
     api_server: str = "https://api.aiod.eu/"
     version: str = "v2"
     auth_server: str = "https://auth.aiod.eu/aiod-auth/"
@@ -26,10 +50,11 @@ class Config:
     )
 
     def subscribe(self, attribute: str, on_change: AttributeObserver) -> None:
+        """Register a callback to be notified if the value of the `attribute` changes."""
         if on_change not in self._observers[attribute]:
             self._observers[attribute].add(on_change)
 
-    def store_to_file(self, attribute: str) -> None:
+    def _store_to_file(self, attribute: str) -> None:
         if attribute not in dir(self):
             raise AttributeError("Cannot store ")
         user_config = tomlkit.loads(_user_config_file.read_text())
@@ -50,6 +75,19 @@ class Config:
 
 
 def load_configuration(file: Path) -> Config:
+    """Load a configuration from file.
+
+    Parameters
+    ----------
+    file
+        The TOML file that defines the configuration to load.
+
+    Returns
+    -------
+    :
+        The loaded configuration.
+
+    """
     try:
         _user_config = tomllib.loads(file.read_text())
     except tomllib.TOMLDecodeError as e:
@@ -75,7 +113,7 @@ def _add_decode_error_note(file: Path, e: tomllib.TOMLDecodeError) -> None:
                 Error reading configuration at {str(file)!r}: {e}
                 File {str(file)!r}, line {raw_line_no}:
                 {file.read_text().splitlines()[line_no]}
-                {'^'.rjust(column_no)}
+                {"^".rjust(column_no)}
                 """
         )
     )

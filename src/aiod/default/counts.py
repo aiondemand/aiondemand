@@ -8,17 +8,18 @@ from aiod.calls.urls import server_url
 def asset_counts(
     version: str | None = None, data_format: Literal["pandas", "json"] = "pandas"
 ) -> pd.DataFrame | dict:
-    """
-    Retrieve counts of assets.
+    """Retrieve counts of assets.
 
     This method sends a GET request to the counts endpoint to retrieve counts of assets.
 
-    Parameters:
+    Parameters
+    ----------
         version (str | None): The version of the counts endpoint (default is None).
         format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
             For "json" format, the returned type is a json decoded type, in this case a dict.
 
-    Returns:
+    Returns
+    -------
         pd.DataFrame | dict: Counts as a Pandas data frame or a dictionary.
     """
     base_url = server_url(version)

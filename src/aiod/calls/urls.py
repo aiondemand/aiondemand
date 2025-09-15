@@ -17,7 +17,6 @@ def url_to_get_asset(
 def url_to_get_list(
     asset_type: str, offset: int = 0, limit: int = 10, version: str | None = None
 ) -> str:
-
     query = urllib.parse.urlencode({"offset": offset, "limit": limit})
     base_url = server_url(version)
     url = f"{base_url}{asset_type}?{query}"
@@ -77,7 +76,6 @@ def url_to_get_list_from_platform(
     limit: int = 10,
     version: str | None = None,
 ) -> str:
-
     query = urllib.parse.urlencode({"offset": offset, "limit": limit})
     base_url = server_url(version)
     url = f"{base_url}platforms/{platform}/{asset_type}?{query}"

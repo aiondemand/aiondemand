@@ -3,6 +3,9 @@ site_url: https://aiondemand.github.io/aiondemand
 repo_url: https://www.github.com/aiondemand/aiondemand
 repo_name: aiondemand
 
+watch:
+  - src/aiod
+
 theme:
   name: material
   logo: images/secondary-neg-white-25p.webp
@@ -17,25 +20,30 @@ extra_css:
 
 nav:
   - Introduction: 'README.md'
-  - notebook: 'example.ipynb'
+  - Examples:
+    - 'Getting Started': 'examples/getting-started.ipynb'
+    - Sharing: 'examples/sharing.ipynb'
   - API Reference:
-      - 'api/case_studies.md'
-      - 'api/computational_assets.md'
-      - 'api/contacts.md'
-      - 'api/datasets.md'
-      - 'api/educational_resources.md'
-      - 'api/events.md'
-      - 'api/experiments.md'
-      - 'api/ml_models.md'
-      - 'api/news.md'
-      - 'api/organisations.md'
-      - 'api/persons.md'
-      - 'api/platforms.md'
-      - 'api/projects.md'
-      - 'api/publications.md'
-      - 'api/services.md'
-      - 'api/teams.md'
+      - 'api/configuration.md'
       - 'api/taxonomies.md'
+      - 'api/authentication.md'
+      - Assets:
+        - 'api/assets/case_studies.md'
+        - 'api/assets/computational_assets.md'
+        - 'api/assets/contacts.md'
+        - 'api/assets/datasets.md'
+        - 'api/assets/educational_resources.md'
+        - 'api/assets/events.md'
+        - 'api/assets/experiments.md'
+        - 'api/assets/ml_models.md'
+        - 'api/assets/news.md'
+        - 'api/assets/organisations.md'
+        - 'api/assets/persons.md'
+        - 'api/assets/platforms.md'
+        - 'api/assets/projects.md'
+        - 'api/assets/publications.md'
+        - 'api/assets/services.md'
+        - 'api/assets/teams.md'
   - 'changelog.md'
   - 'contributing.md'
   - 'conduct.md'
@@ -64,6 +72,7 @@ plugins:
     handlers:
       python:
         options:
+          docstring_style: numpy
           force_inspection: true
           show_source: false
           filters: ["!^_"]
