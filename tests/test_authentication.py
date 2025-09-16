@@ -169,3 +169,17 @@ def test_register_resource_valid_token(valid_refresh_token):
     )
     identifier = aiod.datasets.register(metadata=dict(name="Foo"))
     assert identifier == "data_123412341234123412341234"
+
+
+def test_token_to_file_creates_parent_directory(tmp_path):
+    token_file = tmp_path / ".aiod" / "token.toml"
+    assert not token_file.parent.exists()
+
+    token = Token(refresh_token="abc")
+    token.to_file(token_file)
+    assert token_file.parent.exists() and token_file.parent.is_dir()
+    assert token_file.exists() and token_file.is_file()
+
+    # Calling it multiple times should not result in an error,
+    # even if the directory or file already exist.
+    token.to_file(token_file)
