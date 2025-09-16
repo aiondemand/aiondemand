@@ -5,6 +5,7 @@ from aiod.calls import calls
     counts,
     get_asset,
     register,
+    replace,
     update,
     delete,
     get_asset_from_platform,
