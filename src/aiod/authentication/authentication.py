@@ -117,12 +117,14 @@ class Token:
         logger.info(f"Renewed access token, it expires {self._expiration_date}.")
 
     def to_file(self, file: Path | None = None):
-        file = file or _user_token_file
         doc = tomlkit.document()
         doc.add("refresh_token", self._refresh_token)
         if not self.has_expired:
             doc.add("access_token", self._access_token)
             doc.add("expiration_date", self._expiration_date.isoformat())
+
+        file = file or _user_token_file
+        file.parent.mkdir(parents=True, exist_ok=True)
         file.write_text(tomlkit.dumps(doc))
 
     @classmethod

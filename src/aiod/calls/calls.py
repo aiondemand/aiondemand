@@ -137,6 +137,67 @@ def put_asset(
     return res
 
 
+def patch_asset(
+    *,
+    asset_type: str,
+    identifier: str,
+    metadata: dict,
+    version: str | None = None,
+) -> requests.Response:
+    """Update an ASSET_TYPE in catalogue.
+
+    All parameters must be specified by name.
+
+    Notes
+    -----
+    This is a best-effort implementation, but is not yet officially supported by the server.
+
+    Parameters
+    ----------
+    identifier
+        The identifier of the asset whose metadata to replace.
+    metadata
+        A dictionary with for each attribute a value.
+    version
+        If provided, use this version of the REST API instead of `config.version`.
+
+    Returns
+    -------
+    :
+        The server response.
+
+    Raises
+    ------
+        KeyError if the identifier is not known by the server.
+    """
+    url = url_to_get_asset(asset_type, identifier, version)
+
+    asset = get_asset(
+        identifier, asset_type=asset_type, version=version, data_format="json"
+    )
+    del asset["aiod_entry"]
+    for attribute, value in metadata.items():
+        if attribute not in asset:
+            msg = (
+                f"Attribute {attribute!r} not available for {asset_type} {identifier}."
+            )
+            raise AttributeError(msg)
+        if not isinstance(value, type(asset[attribute])):
+            msg = (
+                f"Value {value!r} for attribute {attribute!r} does "
+                f"not match expected type {type(asset[attribute])}, is {type(value)}."
+            )
+            raise TypeError(msg)
+        asset[attribute] = value
+
+    res = requests.put(url, headers=get_token().headers, json=asset)
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
+        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+    return res
+
+
 def post_asset(
     *,
     asset_type: str,
@@ -220,9 +281,18 @@ def get_asset(
     -------
     :
         The retrieved metadata for the specified ASSET_TYPE.
+
+    Raises
+    ------
+    KeyError
+        If the asset cannot be found.
     """
     url = url_to_get_asset(asset_type, identifier, version)
     res = requests.get(url, headers=_get_auth_headers(required=False))
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
+        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -462,6 +532,7 @@ wrap_common_calls = partial(
         get_asset,
         post_asset,
         put_asset,
+        patch_asset,
         delete_asset,
         get_asset_from_platform,
         get_content,

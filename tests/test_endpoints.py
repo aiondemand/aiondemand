@@ -118,6 +118,22 @@ def test_endpoint_get_asset(asset_name):
         assert metadata == {"resource": "fake_details"}
 
 
+@responses.activate
+def test_endpoint_update_asset(asset_name, valid_refresh_token):
+    responses.get(
+        f"{server_url()}{asset_name}/1",
+        body=b'{"name":"fake", "foo": "bar", "aiod_entry": {}}',
+        status=200,
+    )
+    responses.put(
+        f"{server_url()}{asset_name}/1",
+        match=[matchers.json_params_matcher({"name":"fake", "foo": "baz"})],
+        status=200,
+    )
+    endpoint = getattr(aiod, asset_name)
+    endpoint.update(identifier=1, metadata=dict(foo="baz"))
+
+
 def test_endpoint_get_list_from_platform(asset_name):
     platform_name = "zenodo"
     with responses.RequestsMock() as mocked_requests:
@@ -278,21 +294,21 @@ def test_register_asset(asset_name, valid_refresh_token):
 
 
 @responses.activate
-def test_update_asset(asset_name, valid_refresh_token):
+def test_replace_asset(asset_name, valid_refresh_token):
     identifier = "data_123412341234123412341234"
     responses.put(
         f"http://not.set/not_set/{asset_name}/{identifier}",
         match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
     )
     module = getattr(aiod, asset_name)
-    res = module.update(identifier=identifier, metadata=dict(description="Foo"))
+    res = module.replace(identifier=identifier, metadata=dict(description="Foo"))
     assert res.status_code == HTTPStatus.OK
 
 
 @responses.activate
 def test_update_asset_incorrect_identifier(asset_name, valid_refresh_token):
     identifier = "data_123412341234123412341234"
-    responses.put(
+    responses.get(
         f"http://not.set/not_set/{asset_name}/{identifier}",
         match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
         json={
