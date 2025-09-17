@@ -4,7 +4,7 @@ To authenticate with AI-on-Demand, you need an account.
 First navigate to [the web portal](https://aiod.eu/) and click `login`, you can choose
 to use any authentication service and an account will be created automatically.
 
-## Authentication Flow Example
+## User Authentication Flow Example
 
 Initiate the authentication process by calling `aiod.create_token`. Specifying 
 `write_to_file=True` will ensure the obtained token is stored at `~/.aiod/token.toml`
@@ -32,6 +32,21 @@ requests, such as getting information about the logged in user:
 ```python
 aiod.get_current_user()
 # returns: User(name='...', roles=('...', ...))
+```
+
+
+## Service Grants
+If you do not know if you should use this, then the answer is no. Use the login flow described above.
+If you happen to have the `client_id` and `client_secret` for a service grant client of our authentication server,
+you can use that to authenticate as follows:
+
+```python
+import aiod
+
+aiod.config.client_id = CLIENT_ID
+aiod.authentication.set_token(
+    aiod.authentication.Token(client_secret=CLIENT_SECRET)
+)
 ```
 
 ## Authentication Reference
