@@ -40,7 +40,7 @@ def test_get_user_endpoint(mocked_token: Mock):
             status=200,
         )
         set_token(
-            Token(refresh_token="", access_token="fake_token", expires_in_seconds=300)
+            Token(refresh_token="fake_refresh", access_token="fake_token", expires_in_seconds=300)
         )
         user = aiod.get_current_user()
 

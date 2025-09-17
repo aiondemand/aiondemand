@@ -2,6 +2,7 @@ import datetime
 import time
 import http.client
 from http import HTTPStatus
+import functools
 from pathlib import Path
 
 import requests
@@ -14,31 +15,23 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-_keycloak_openid: KeycloakOpenID | None = None
-
 _token: "Token | None" = None
 _user_token_file = Path("~/.aiod/token.toml").expanduser()
 
 
-def _connect_keycloak() -> KeycloakOpenID:
+@functools.cache
+def keycloak_openid() -> KeycloakOpenID:
+    secret = (_token._client_secret or None) if _token else None
     return KeycloakOpenID(
         server_url=config.auth_server,
         client_id=config.client_id,
         realm_name=config.realm,
+        client_secret_key=secret,
     )
 
 
-def keycloak_openid() -> KeycloakOpenID:
-    global _keycloak_openid
-    if _keycloak_openid is None:
-        _keycloak_openid = _connect_keycloak()
-    return _keycloak_openid
-
-
 def _on_keycloak_config_changed(_: str, __: str, ___: str) -> None:
-    global _keycloak_openid, _token
-    _token = None
-    _keycloak_openid = None
+    keycloak_openid.cache_clear()
 
 
 config.subscribe("auth_server", on_change=_on_keycloak_config_changed)
@@ -56,14 +49,21 @@ class Token:
 
     def __init__(
         self,
-        refresh_token: str,
+        *,
+        client_secret: str | None = None,
+        refresh_token: str | None = None,
         access_token: str | None = None,
         expires_in_seconds: int = -1,
     ):
+        if (client_secret and refresh_token) or not (client_secret or refresh_token):
+            raise ValueError(
+                "Must set exactly one of `client_secret` or `refresh_token`."
+            )
         if expires_in_seconds > 0 and access_token is None:
             raise ValueError(
                 "If `expires_in_seconds` is set, `access_token` must be set to a valid access_token"
             )
+        self._client_secret = client_secret
         self._refresh_token = refresh_token
         self._access_token = access_token or ""
         self._expiration_date = _datetime_utc_in(seconds=expires_in_seconds)
@@ -94,9 +94,12 @@ class Token:
         return self._refresh_token
 
     def _refresh(self) -> None:
-        """Use the `refresh token` to request a new `access token`."""
+        """Use the `refresh token` or `client_secret` to request a new `access token`."""
         try:
-            token_info = keycloak_openid().refresh_token(self._refresh_token)
+            if self._refresh_token:
+                token_info = keycloak_openid().refresh_token(self._refresh_token)
+            if self._client_secret:
+                token_info = keycloak_openid().token(grant_type="client_credentials")
         except KeycloakPostError:
             raise AuthenticationError(
                 "Refresh token is not valid. Use `aiod.create_token` to get a new one."
@@ -118,7 +121,10 @@ class Token:
 
     def to_file(self, file: Path | None = None):
         doc = tomlkit.document()
-        doc.add("refresh_token", self._refresh_token)
+        if self._refresh_token:
+            doc.add("refresh_token", self._refresh_token)
+        if self._client_secret:
+            doc.add("client_secret", self._client_secret)
         if not self.has_expired:
             doc.add("access_token", self._access_token)
             doc.add("expiration_date", self._expiration_date.isoformat())
@@ -131,7 +137,10 @@ class Token:
     def from_file(cls, file: Path | None = None) -> "Token":
         file = file or _user_token_file
         doc = tomlkit.parse(file.read_text())
-        kwargs: dict[str, str | int] = {"refresh_token": str(doc["refresh_token"])}
+        kwargs: dict[str, str | int] = {
+            "refresh_token": str(doc.get("refresh_token", "")),
+            "client_secret": str(doc.get("client_secret", "")),
+        }
         if "expiration_date" in doc:
             expiration_date = datetime.datetime.fromisoformat(doc["expiration_date"])
             expires_in = expiration_date - _datetime_utc_in(seconds=0)
@@ -145,14 +154,13 @@ class Token:
         return Token(**kwargs)  # type: ignore[arg-type]
 
 
-def set_token(token: Token | str) -> None:
-    """Set the token directly or provide a refresh token.
+def set_token(token: Token) -> None:
+    """Set the token directly.
 
     Parameters
     ----------
     token
         Sets the token to be used for authenticated requests.
-        If a string is provided, it should be a valid refresh token.
 
     Notes
     -----
@@ -160,10 +168,8 @@ def set_token(token: Token | str) -> None:
     If the token is invalid, subsequent authenticated requests may fail.
     """
     global _token
-    if isinstance(token, str):
-        _token = Token(refresh_token=token)
-    else:
-        _token = token
+    _token = token
+    keycloak_openid.cache_clear()
 
 
 def get_token() -> Token:
@@ -368,4 +374,8 @@ class NotAuthenticatedError(Exception):
 
 
 if _user_token_file.exists() and _user_token_file.is_file():
-    _token = Token.from_file(_user_token_file)
+    try:
+        _token = Token.from_file(_user_token_file)
+    except Exception as e:
+        e.add_note(f"Failed to load credentials from {str(_user_token_file)!r}")
+        raise e
