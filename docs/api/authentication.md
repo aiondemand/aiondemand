@@ -4,6 +4,17 @@ To authenticate with AI-on-Demand, you need an account.
 First navigate to [the web portal](https://aiod.eu/) and click `login`, you can choose
 to use any authentication service and an account will be created automatically.
 
+!!! danger "Never code your keys into a script"
+
+    There is *never* a reason you should include your refresh token or client secret
+    in a script directly. If you do, you may end up accidentally sharing your secrets
+    when you share it with a colleague or in a public repository.
+    
+    Instead, you can use the built-in functionality to write or
+    read tokens from file. Alternatively, you can use solutions such as 
+    [`python-dotenv`](https://pypi.org/project/python-dotenv/) to use `.env` files 
+    which can be easily overriden with environment variables.
+
 ## User Authentication Flow Example
 
 Initiate the authentication process by calling `aiod.create_token`. Specifying 
@@ -35,18 +46,34 @@ aiod.get_current_user()
 ```
 
 
-## Service Grants
-If you do not know if you should use this, then the answer is no. Use the login flow described above.
-If you happen to have the `client_id` and `client_secret` for a service grant client of our authentication server,
-you can use that to authenticate as follows:
+## Bot Authentication Flow Example
+In some rare cases, you may want to have a dedicated bot account. 
+This is not for regular users, but may be granted to organisations to, for example:
+
+ - Allow the creation of a connector which automatically syncs metadata from their platforms to AI-on-Demand (such as the OpenML connector)
+ - The development of AI-on-Demand internal services which integrate through the REST API and need to perform certain authenticated requests.
+
+???- question "Do I need this?"
+
+    If you need to ask, then the answer is probably no. Use the user login flow described above.
+
+If you want to obtain a `client_id` and `client_secret`, please reach out with a motivation on why you need it, 
+what you will use it for, and why the user authentication flow is not sufficient.
+With a `client_id` and `client_secret`, you can use that to authenticate as follows:
+
+```toml title="secret.toml"
+client_secret = "S2zo0zW6QMy8ffcqCozYbHkj0JajcWtQ"
+```
 
 ```python
+from pathlib import Path
 import aiod
 
 aiod.config.client_id = CLIENT_ID
-aiod.authentication.set_token(
-    aiod.authentication.Token(client_secret=CLIENT_SECRET)
-)
+token = aiod.authentication.Token.from_file(Path("secret.toml"))
+# or:
+# token = aiod.authentication.Token(client_secret=...)
+aiod.authentication.set_token(token)
 ```
 
 ## Authentication Reference
