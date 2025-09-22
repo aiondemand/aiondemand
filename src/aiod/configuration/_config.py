@@ -43,6 +43,7 @@ class Config:
     auth_server: str = "https://auth.aiod.eu/aiod-auth/"
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
+    client_secret: str | None = None
 
     _observers: dict[str, set[AttributeObserver]] = field(
         default_factory=lambda: defaultdict(set),
@@ -72,6 +73,12 @@ class Config:
         if hasattr(self, "_observers"):
             for observer in self._observers[key]:
                 observer(key, old_value, value)
+
+    def _use_localhost(self, version: str = "latest"):
+        """Set server URLs to localhost services. Convenience for developers."""
+        self.version = version if version != "latest" else ""
+        self.auth_server = "http://localhost/aiod-auth/"
+        self.api_server = "http://localhost/"
 
 
 def load_configuration(file: Path) -> Config:
