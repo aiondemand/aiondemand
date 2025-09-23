@@ -8,7 +8,16 @@ authors = [
 readme = "docs/README.md"
 requires-python = ">=3.10"
 dependencies = ["aiohttp", "pandas", "python-keycloak", "requests", "tomlkit"]
+license = "MIT"
 dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://www.aiod.eu"
+Documentation = "https://aiondemand.github.io/aiondemand/"
+Repository = "https://github.com/aiondemand/aiondemand"
+Issues = "https://github.com/aiondemand/aiondemand/issues"
+Changelog = "https://aiondemand.github.io/aiondemand/changelog/"
+
 
 [project.optional-dependencies]
 dev = [
