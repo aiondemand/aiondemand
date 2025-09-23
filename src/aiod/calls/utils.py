@@ -3,6 +3,8 @@ import pandas as pd
 from functools import partial, update_wrapper
 from typing import Callable, Literal, Tuple
 
+import requests
+
 
 def format_response(
     response: list | dict, data_format: Literal["pandas", "json"]
@@ -57,4 +59,16 @@ def wrap_calls(
 
 
 class EndpointUndefinedError(Exception):
+    """Raised when a function tries to connect to an endpoint that does not exist."""
+
     pass
+
+
+class ServerError(RuntimeError):
+    """Raised for any server error that does not (yet) have better client-side handling."""
+
+    def __init__(self, response: requests.Response):
+        self.status_code = response.status_code
+        self.detail = response.json().get("detail")
+        self.reference = response.json().get("reference")
+        self._response = response

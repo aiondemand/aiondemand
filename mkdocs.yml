@@ -25,8 +25,9 @@ nav:
     - Sharing: 'examples/sharing.ipynb'
   - API Reference:
       - 'api/configuration.md'
-      - 'api/taxonomies.md'
       - 'api/authentication.md'
+      - 'api/taxonomies.md'
+      - 'api/bookmarks.md'
       - Assets:
         - 'api/assets/case_studies.md'
         - 'api/assets/computational_assets.md'
