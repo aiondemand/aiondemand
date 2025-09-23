@@ -19,3 +19,4 @@ from aiod.resources import services
 from aiod.resources import teams
 from aiod import taxonomies
 from aiod.__version__ import version
+import aiod.bookmarks
