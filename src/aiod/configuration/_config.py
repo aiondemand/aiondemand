@@ -2,8 +2,6 @@ import textwrap
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-import re
-import tomllib
 import tomlkit
 from typing import Any, Callable, TypeAlias
 import logging
@@ -43,7 +41,6 @@ class Config:
     auth_server: str = "https://auth.aiod.eu/aiod-auth/"
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
-    client_secret: str | None = None
 
     _observers: dict[str, set[AttributeObserver]] = field(
         default_factory=lambda: defaultdict(set),
@@ -96,8 +93,8 @@ def load_configuration(file: Path) -> Config:
 
     """
     try:
-        _user_config = tomllib.loads(file.read_text())
-    except tomllib.TOMLDecodeError as e:
+        _user_config = tomlkit.loads(file.read_text())
+    except tomlkit.exceptions.ParseError as e:
         _add_decode_error_note(file, e)
         raise
 
@@ -107,20 +104,15 @@ def load_configuration(file: Path) -> Config:
     return config
 
 
-def _add_decode_error_note(file: Path, e: tomllib.TOMLDecodeError) -> None:
-    error_format = r"[\w\s]+ \(at line (\d+), column (\d+)\)"
-    if not (match := re.match(error_format, e.args[0])):
-        return
-
-    raw_line_no, raw_column_no = match.groups()
-    line_no, column_no = int(raw_line_no) - 1, int(raw_column_no) - 1
+def _add_decode_error_note(file: Path, e: tomlkit.exceptions.ParseError) -> None:
+    # Lines are 1-indexed and columns are 0-indexed
     e.add_note(
         textwrap.dedent(
             f"""
                 Error reading configuration at {str(file)!r}: {e}
-                File {str(file)!r}, line {raw_line_no}:
-                {file.read_text().splitlines()[line_no]}
-                {"^".rjust(column_no)}
+                File {str(file)!r}, line {e.line}:
+                {file.read_text().splitlines()[e.line - 1]}
+                {"^".rjust(e.col + 1)}
                 """
         )
     )
