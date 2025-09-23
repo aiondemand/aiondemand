@@ -14,13 +14,16 @@ def asset_counts(
 
     Parameters
     ----------
-        version (str | None): The version of the counts endpoint (default is None).
-        format (Literal["pandas", "json"]): The desired format for the response (default is "pandas").
-            For "json" format, the returned type is a json decoded type, in this case a dict.
+    version:
+        The version of the counts endpoint (default is None).
+    data_format:
+        The desired format for the response (default is "pandas").
+        For "json" format, the returned type is a json decoded type, in this case a dict.
 
     Returns
     -------
-        pd.DataFrame | dict: Counts as a Pandas data frame or a dictionary.
+    pd.DataFrame | dict
+        Counts as a Pandas data frame or a dictionary.
     """
     base_url = server_url(version)
     url = f"{base_url}counts"

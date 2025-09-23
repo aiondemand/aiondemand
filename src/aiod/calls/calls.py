@@ -19,7 +19,42 @@ from aiod.calls.urls import (
     url_to_search,
     server_url,
 )
-from aiod.calls.utils import format_response, wrap_calls
+from aiod.calls.utils import format_response, wrap_calls, ServerError
+
+
+def get_any_asset(
+    identifier: str,
+    data_format: Literal["pandas", "json"] = "pandas",
+) -> dict | pd.Series:
+    """Get any asset on AI-on-Demand by identifier.
+
+    Parameters
+    ----------
+    identifier:
+        The identifier of the asset, e.g., `'data_...'`.
+    data_format:
+        The format of the value to be returned.
+
+    Returns
+    -------
+    :
+        All metadata of the asset.
+
+    Raises
+    ------
+    KeyError
+        If the asset cannot be found.
+    """
+    res = requests.get(
+        server_url() + f"assets/{identifier}",
+        headers=_get_auth_headers(required=False),
+    )
+
+    if res.status_code == HTTPStatus.NOT_FOUND:
+        raise KeyError(f"Asset with identifier {identifier!r} not found.")
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
+    return format_response(res.json(), data_format)
 
 
 def get_list(
