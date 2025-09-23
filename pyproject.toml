@@ -49,7 +49,7 @@ packages = ["src/aiod"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.1"
+version = "0.1.2"
 version_files = ["pyproject.toml:version", "src/aiod/__version__.py"]
 
 [project.entry-points."mkdocs.plugins"]
