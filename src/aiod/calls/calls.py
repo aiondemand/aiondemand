@@ -365,6 +365,12 @@ def get_asset_from_platform(
         asset_type, platform, platform_identifier, version
     )
     res = requests.get(url)
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
+        raise KeyError(
+            f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found."
+        )
     resources = format_response(res.json(), data_format)
     return resources
 
