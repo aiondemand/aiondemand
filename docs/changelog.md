@@ -1,6 +1,10 @@
 # Changelog
 
 <!--next-version-placeholder-->
+
+## v0.2.3 (2025-10-03)
+ - The `get_asset_from_platform` function now also raises a `KeyError` when the requested asset cannot be found.
+
 ## v0.2.2 (2025-09-23)
  - Added `aiod.bookmarks` module
  - Added `aiod.get` function for fetching any asset type
