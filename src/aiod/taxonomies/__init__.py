@@ -47,6 +47,7 @@ from typing import TypedDict
 
 import requests
 
+from aiod.configuration import config
 from aiod.calls.urls import server_url
 from aiod.calls.utils import EndpointUndefinedError
 
@@ -110,7 +111,10 @@ def _get_taxonomy(name: str):
     # Since taxonomies rarely change, we cache the result in memory.
     @functools.cache
     def get_taxonomy() -> list[Term]:
-        response = requests.get(f"{server_url()}{name}")
+        response = requests.get(
+            f"{server_url()}{name}",
+            timeout=config.request_timeout_seconds,
+        )
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise EndpointUndefinedError()
         if response.status_code != HTTPStatus.OK:

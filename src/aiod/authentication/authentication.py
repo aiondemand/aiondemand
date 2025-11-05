@@ -270,7 +270,11 @@ def create_token(
     # We do not know when the user finishes their authentication, so we poll the server
     while time.time() - start_time < timeout_seconds:
         time.sleep(poll_interval)
-        token_response = requests.post(token_endpoint, data=token_data)
+        token_response = requests.post(
+            token_endpoint,
+            data=token_data,
+            timeout=config.request_timeout_seconds,
+        )
         token_response_data = token_response.json()
 
         response = (token_response.status_code, token_response_data.get("error"))
@@ -354,6 +358,7 @@ def get_current_user() -> User:
     response = requests.get(
         f"{config.api_server}authorization_test",
         headers=get_token().headers,
+        timeout=config.request_timeout_seconds,
     )
 
     content = response.json()

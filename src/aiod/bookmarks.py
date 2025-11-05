@@ -4,6 +4,7 @@ from http import HTTPStatus
 
 import requests
 
+from aiod.configuration import config
 from aiod.authentication import get_token
 from aiod.calls.urls import server_url
 from aiod.calls.utils import ServerError
@@ -53,6 +54,7 @@ def register(identifier: str) -> Bookmark:
         _bookmarks_url(),
         params=dict(resource_identifier=identifier),
         headers=get_token().headers,
+        timeout=config.request_timeout_seconds,
     )
     if res.status_code == HTTPStatus.NOT_FOUND:
         raise KeyError(f"Could not find asset with identifier {identifier!r}.")
@@ -88,6 +90,7 @@ def delete(identifier: str):
         _bookmarks_url(),
         params=dict(resource_identifier=identifier),
         headers=get_token().headers,
+        timeout=config.request_timeout_seconds,
     )
     # The delete endpoint does not error if the bookmark does not exist
     if res.status_code != HTTPStatus.OK:
@@ -105,6 +108,7 @@ def get_list() -> list[Bookmark]:
     res = requests.get(
         _bookmarks_url(),
         headers=get_token().headers,
+        timeout=config.request_timeout_seconds,
     )
     if res.status_code != HTTPStatus.OK:
         raise ServerError(res)

@@ -1,6 +1,8 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.2.4 (2025-11-05)
+- All web requests will now be made with a preconfigured timeout of 10 seconds. This can also be set using `request_timeout` in the configuration.
 
 ## v0.2.3 (2025-10-03)
  - The `get_asset_from_platform` function now also raises a `KeyError` when the requested asset cannot be found.

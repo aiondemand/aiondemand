@@ -2,6 +2,7 @@ import pandas as pd
 import requests
 from typing import Literal
 
+from aiod.configuration import config
 from aiod.calls.urls import server_url
 
 
@@ -28,7 +29,7 @@ def asset_counts(
     base_url = server_url(version)
     url = f"{base_url}counts"
 
-    res = requests.get(url)
+    res = requests.get(url, timeout=config.request_timeout_seconds)
 
     if data_format == "pandas":
         return pd.DataFrame(res.json())
