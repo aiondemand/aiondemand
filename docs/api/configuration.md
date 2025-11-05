@@ -8,6 +8,7 @@ The default configuration is as follows:
 - auth_server: "https://auth.aiod.eu/aiod-auth/"
 - realm: "aiod"
 - client_id: "aiod-sdk"
+- request_timeout_seconds: 10
 
 ### Updating the Configuration
 The configuration can be updated simply by setting its attributes.

@@ -33,6 +33,9 @@ class Config:
         The realm in which the client matching the `client_id` resides.
     client_id: str
         The client ID used for authentication.
+    request_timeout_seconds: int
+        If any request remains unresponsive for `request_timeout_seconds` seconds,
+        it will automatically be aborted and raise a `requests.Timeout` error.
 
     """
 
