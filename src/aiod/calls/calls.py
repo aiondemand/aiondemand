@@ -226,17 +226,6 @@ def patch_asset(
     )
     del asset["aiod_entry"]
     for attribute, value in metadata.items():
-        if attribute not in asset:
-            msg = (
-                f"Attribute {attribute!r} not available for {asset_type} {identifier}."
-            )
-            raise AttributeError(msg)
-        if not isinstance(value, type(asset[attribute])):
-            msg = (
-                f"Value {value!r} for attribute {attribute!r} does "
-                f"not match expected type {type(asset[attribute])}, is {type(value)}."
-            )
-            raise TypeError(msg)
         asset[attribute] = value
 
     res = requests.put(
