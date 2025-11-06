@@ -1,6 +1,9 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.2.5 (2025-11-06)
+- Temporarily removed client-side checks on `update` calls since they weren't comprehensive enough and in some cases prohibited users from doing legitimate update requests.
+
 ## v0.2.4 (2025-11-05)
 - All web requests will now be made with a preconfigured timeout of 10 seconds. This can also be set using `request_timeout` in the configuration.
 
