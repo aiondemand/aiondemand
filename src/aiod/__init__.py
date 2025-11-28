@@ -1,4 +1,4 @@
-from aiod.configuration import config
+from aiod.configuration import config, use_version
 from aiod import taxonomies
 from aiod import bookmarks
 from aiod.resources import case_studies
