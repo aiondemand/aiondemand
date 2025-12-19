@@ -1,26 +1,25 @@
+import asyncio
+from functools import partial
 from http import HTTPStatus
+from typing import Literal
 
 import aiohttp
-import asyncio
+import pandas as pd
 import requests
 
-import pandas as pd
-from typing import Literal
-from functools import partial
-
-from aiod.authentication.authentication import get_token, _get_auth_headers
-from aiod.configuration import config
+from aiod.authentication.authentication import _get_auth_headers, get_token
 from aiod.calls.urls import (
+    server_url,
     url_to_get_asset,
+    url_to_get_asset_from_platform,
     url_to_get_content,
     url_to_get_list,
     url_to_get_list_from_platform,
-    url_to_get_asset_from_platform,
     url_to_resource_counts,
     url_to_search,
-    server_url,
 )
-from aiod.calls.utils import format_response, wrap_calls, ServerError
+from aiod.calls.utils import ServerError, format_response, wrap_calls
+from aiod.configuration import config
 
 
 def get_any_asset(
