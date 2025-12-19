@@ -29,3 +29,39 @@ assert all(isinstance(x, Asset) for x in items)
 
 - `Asset.identifier` is extracted from the payload if available (either top-level or under `aiod_entry`).
 - `Asset.asset_type` is annotated from the call context (e.g., `datasets`).
+
+## Other Calls
+
+- Any-asset lookup:
+
+```python
+from aiod.calls import calls
+
+a = calls.get_any_asset("data_...", data_format="object")
+# -> Asset
+```
+
+- Not supported: `get_content(...)` returns raw bytes and does not support `data_format='object'`.
+
+## Async Usage
+
+Async variants also support `data_format='object'` and return `Asset` or `list[Asset]`:
+
+```python
+import asyncio
+from aiod.resources import datasets
+from aiod.resources.objects import Asset
+
+async def main():
+	# Multiple identifiers -> list[Asset]
+	assets = await datasets.get_assets_async(
+		["data_a", "data_b"], data_format="object"
+	)
+	assert all(isinstance(x, Asset) for x in assets)
+
+	# Batched listing -> list[Asset]
+	items = await datasets.get_list_async(limit=5, batch_size=2, data_format="object")
+	assert all(isinstance(x, Asset) for x in items)
+
+asyncio.run(main())
+```
