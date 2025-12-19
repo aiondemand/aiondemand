@@ -102,7 +102,6 @@ def load_configuration(file: Path) -> Config:
         _add_decode_error_note(file, e)
         raise
 
-    global config
     for key, value in _user_config.items():
         setattr(config, key, value)
     return config

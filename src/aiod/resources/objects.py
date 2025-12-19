@@ -31,7 +31,10 @@ class Asset:
         # Delegate missing attributes to the underlying mapping for dot-access
         if isinstance(self.data, dict) and item in self.data:
             return self.data[item]
-        raise AttributeError(f"{item!r} not found on Asset; available keys: {list(self.data) if isinstance(self.data, dict) else []}")
+        available = list(self.data) if isinstance(self.data, dict) else []
+        raise AttributeError(
+            f"{item!r} not found on Asset; available keys: {available}"
+        )
 
     def to_dict(self) -> dict:
         """Return the underlying JSON-compatible dictionary payload."""
