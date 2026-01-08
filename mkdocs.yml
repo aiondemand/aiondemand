@@ -12,44 +12,43 @@ theme:
   features:
     - content.code.copy
   font:
-    text: "Montserrat"
+    text: 'Montserrat'
   palette:
-    scheme: "aiod"
+    scheme: 'aiod'
 extra_css:
   - stylesheets/extra.css
 
 nav:
-  - Introduction: "README.md"
+  - Introduction: 'README.md'
   - Examples:
-      - "Getting Started": "examples/getting-started.ipynb"
-      - Sharing: "examples/sharing.ipynb"
+    - 'Getting Started': 'examples/getting-started.ipynb'
+    - Sharing: 'examples/sharing.ipynb'
   - API Reference:
-      - "api/configuration.md"
-      - "api/authentication.md"
-      - "api/taxonomies.md"
-      - "api/bookmarks.md"
-      - "api/objects.md"
-      - "Others": "api/aiod.md"
+      - 'api/configuration.md'
+      - 'api/authentication.md'
+      - 'api/taxonomies.md'
+      - 'api/bookmarks.md'
+      - 'Others': 'api/aiod.md'
       - Assets:
-          - "api/assets/case_studies.md"
-          - "api/assets/computational_assets.md"
-          - "api/assets/contacts.md"
-          - "api/assets/datasets.md"
-          - "api/assets/educational_resources.md"
-          - "api/assets/events.md"
-          - "api/assets/experiments.md"
-          - "api/assets/ml_models.md"
-          - "api/assets/news.md"
-          - "api/assets/organisations.md"
-          - "api/assets/persons.md"
-          - "api/assets/platforms.md"
-          - "api/assets/projects.md"
-          - "api/assets/publications.md"
-          - "api/assets/services.md"
-          - "api/assets/teams.md"
-  - "changelog.md"
-  - "contributing.md"
-  - "conduct.md"
+        - 'api/assets/case_studies.md'
+        - 'api/assets/computational_assets.md'
+        - 'api/assets/contacts.md'
+        - 'api/assets/datasets.md'
+        - 'api/assets/educational_resources.md'
+        - 'api/assets/events.md'
+        - 'api/assets/experiments.md'
+        - 'api/assets/ml_models.md'
+        - 'api/assets/news.md'
+        - 'api/assets/organisations.md'
+        - 'api/assets/persons.md'
+        - 'api/assets/platforms.md'
+        - 'api/assets/projects.md'
+        - 'api/assets/publications.md'
+        - 'api/assets/services.md'
+        - 'api/assets/teams.md'
+  - 'changelog.md'
+  - 'contributing.md'
+  - 'conduct.md'
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -63,21 +62,21 @@ markdown_extensions:
   - pymdownx.superfences
 
 plugins:
-  - search
-  - privacy
-  - asset-type-replacer
-  - mkdocs-jupyter:
-      # TODO: when we can configure aiod, we should start running notebooks
-      # execute: true
-      # allow_errors: false
-      ignore:
-        - "*.py"
-      include_source: True
-  - mkdocstrings:
-      handlers:
-        python:
-          options:
-            docstring_style: numpy
-            force_inspection: true
-            show_source: false
-            filters: ["!^_"]
+- search
+- privacy
+- asset-type-replacer 
+- mkdocs-jupyter:
+    # TODO: when we can configure aiod, we should start running notebooks
+    # execute: true
+    # allow_errors: false
+    ignore:
+      - "*.py"
+    include_source: True
+- mkdocstrings:
+    handlers:
+      python:
+        options:
+          docstring_style: numpy
+          force_inspection: true
+          show_source: false
+          filters: ["!^_"]
