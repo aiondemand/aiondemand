@@ -127,7 +127,7 @@ def test_endpoint_update_asset(asset_name, valid_refresh_token):
     )
     responses.put(
         f"{server_url()}{asset_name}/1",
-        match=[matchers.json_params_matcher({"name": "fake", "foo": "baz"})],
+        match=[matchers.json_params_matcher({"name":"fake", "foo": "baz"})],
         status=200,
     )
     endpoint = getattr(aiod, asset_name)
@@ -360,7 +360,7 @@ def test_delete_asset_incorrect_identifier(asset_name, valid_refresh_token):
 @responses.activate
 def test_industrial_sector_taxonomy():
     taxonomy = json.loads((resources_path / "industrial_sectors.json").read_text())
-    responses.get("http://not.set/not_set/industrial_sectors", json=taxonomy)
+    responses.get(f"http://not.set/not_set/industrial_sectors", json=taxonomy)
 
     industrial_sectors = aiod.taxonomies.industrial_sectors()
     car_industry = Term(
@@ -374,7 +374,7 @@ def test_industrial_sector_taxonomy():
 @responses.activate
 def test_taxonomy_not_found():
     responses.get(
-        "http://not.set/not_set/industrial_sectors",
+        f"http://not.set/not_set/industrial_sectors",
         json={"detail": "Not Found"},
         status=HTTPStatus.NOT_FOUND,
     )
