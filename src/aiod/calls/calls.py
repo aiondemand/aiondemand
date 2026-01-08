@@ -25,7 +25,7 @@ from aiod.calls.utils import format_response, wrap_calls, ServerError
 
 def get_any_asset(
     identifier: str,
-    data_format: Literal["pandas", "json"] = "pandas",
+    data_format: Literal["pandas", "json", "object"] = "pandas",
 ) -> dict | pd.Series:
     """Get any asset on AI-on-Demand by identifier.
 
@@ -56,7 +56,7 @@ def get_any_asset(
         raise KeyError(f"Asset with identifier {identifier!r} not found.")
     if res.status_code != HTTPStatus.OK:
         raise ServerError(res)
-    return format_response(res.json(), data_format)
+    return format_response(res.json(), data_format, asset_type=None)
 
 
 def get_list(
@@ -66,7 +66,7 @@ def get_list(
     offset: int = 0,
     limit: int = 10,
     version: str | None = None,
-    data_format: Literal["pandas", "json"] = "pandas",
+    data_format: Literal["pandas", "json", "object"] = "pandas",
 ) -> pd.DataFrame | list[dict]:
     """Retrieve a list of ASSET_TYPE from the catalogue.
 
@@ -100,7 +100,7 @@ def get_list(
         url,
         timeout=config.request_timeout_seconds,
     )
-    resources = format_response(res.json(), data_format)
+    resources = format_response(res.json(), data_format, asset_type=asset_type)
     return resources
 
 
@@ -309,7 +309,7 @@ def get_asset(
     *,
     asset_type: str,
     version: str | None = None,
-    data_format: Literal["pandas", "json"] = "pandas",
+    data_format: Literal["pandas", "json", "object"] = "pandas",
 ) -> pd.Series | dict:
     """Retrieve metadata for a specific ASSET_TYPE.
 
@@ -345,7 +345,7 @@ def get_asset(
         "detail"
     ):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
-    resources = format_response(res.json(), data_format)
+    resources = format_response(res.json(), data_format, asset_type=asset_type)
     return resources
 
 
@@ -355,7 +355,7 @@ def get_asset_from_platform(
     platform_identifier: str,
     asset_type: str,
     version: str | None = None,
-    data_format: Literal["pandas", "json"] = "pandas",
+    data_format: Literal["pandas", "json", "object"] = "pandas",
 ) -> pd.Series | dict:
     """Retrieve metadata for a specific ASSET_TYPE identified by the external platform identifier.
 
@@ -388,7 +388,7 @@ def get_asset_from_platform(
         raise KeyError(
             f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found."
         )
-    resources = format_response(res.json(), data_format)
+    resources = format_response(res.json(), data_format, asset_type=asset_type)
     return resources
 
 
@@ -437,7 +437,7 @@ def search(
     ) = None,
     get_all: bool = True,
     version: str | None = None,
-    data_format: Literal["pandas", "json"] = "pandas",
+    data_format: Literal["pandas", "json", "object"] = "pandas",
     asset_type: str,
 ) -> pd.DataFrame | list[dict]:
     """Search metadata for ASSET_TYPE type using the Elasticsearch endpoint of the AIoD metadata catalogue.
@@ -485,7 +485,9 @@ def search(
         url,
         timeout=config.request_timeout_seconds,
     )
-    resources = format_response(res.json()["resources"], data_format)
+    resources = format_response(
+        res.json()["resources"], data_format, asset_type=asset_type
+    )
     return resources
 
 
@@ -494,7 +496,7 @@ async def get_assets_async(
     *,
     asset_type: str,
     version: str | None = None,
-    data_format: Literal["pandas", "json"] = "pandas",
+    data_format: Literal["pandas", "json", "object"] = "pandas",
 ) -> pd.DataFrame | list[dict]:
     """Asynchronously retrieve metadata for a list of ASSET_TYPE identifiers.
 
@@ -519,7 +521,7 @@ async def get_assets_async(
         url_to_get_asset(asset_type, identifier, version) for identifier in identifiers
     ]
     response_data = await _fetch_resources(urls)
-    resources = format_response(response_data, data_format)
+    resources = format_response(response_data, data_format, asset_type=asset_type)
     return resources
 
 
@@ -530,7 +532,7 @@ async def get_list_async(
     limit: int = 100,
     batch_size: int = 10,
     version: str | None = None,
-    data_format: Literal["pandas", "json"] = "pandas",
+    data_format: Literal["pandas", "json", "object"] = "pandas",
 ) -> pd.DataFrame | list[dict]:
     """Asynchronously retrieve a list of ASSET_TYPE from the catalogue in batches.
 
@@ -573,7 +575,9 @@ async def get_list_async(
     flattened_response_data = [
         response for batch in response_data for response in batch
     ]
-    resources = format_response(flattened_response_data, data_format)
+    resources = format_response(
+        flattened_response_data, data_format, asset_type=asset_type
+    )
     return resources
 
 

@@ -4,22 +4,29 @@ from functools import partial, update_wrapper
 from typing import Callable, Literal, Tuple
 
 import requests
+from aiod.resources.objects import Asset
 
 
 def format_response(
-    response: list | dict, data_format: Literal["pandas", "json"]
-) -> pd.Series | pd.DataFrame | dict | list:
+    response: list | dict,
+    data_format: Literal["pandas", "json", "object"],
+    *,
+    asset_type: str | None = None,
+) -> pd.Series | pd.DataFrame | dict | list | Asset | list[Asset]:
     """Format the response data based on the specified format.
 
     Parameters
     ----------
         response (list | dict): The response data to format.
-        data_format (Literal["pandas", "json"]): The desired format for the response.
-            For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
+        data_format (Literal["pandas", "json", "object"]): The desired format for the response.
+            - For "pandas", returns a Series (dict input) or DataFrame (list input).
+            - For "json", returns the original decoded JSON type (dict or list).
+            - For "object", returns an ``Asset`` (dict input) or list of ``Asset`` (list input).
+        asset_type: Optional context to annotate ``Asset`` objects when ``data_format='object'``.
 
     Returns
     -------
-        pd.Series | pd.DataFrame | dict: The formatted response data.
+        pd.Series | pd.DataFrame | dict | list | Asset | list[Asset]: The formatted response data.
 
     Raises
     ------
@@ -34,6 +41,11 @@ def format_response(
         isinstance(response, dict) or isinstance(response, list)
     ):
         return response
+    elif data_format == "object":
+        if isinstance(response, dict):
+            return Asset.from_dict(asset_type, response)
+        if isinstance(response, list):
+            return [Asset.from_dict(asset_type, item) for item in response]
 
     raise Exception(
         f"Format: {data_format} invalid or not supported for responses of {type(response)=}."
