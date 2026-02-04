@@ -3,7 +3,20 @@ on:
   pull_request:
     branches:
       - main
-      - develop
+    paths-ignore:
+      - 'docs/**'
+  push:
+    paths-ignore:
+      - 'docs/**'
+    branches:
+      - main
+
+  # Allows workflows to be manually triggered
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-code:
