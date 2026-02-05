@@ -3,7 +3,7 @@
 from aiod.models.apis import _ModelPkgClassifier
 
 
-class OpenmlPkg__Sklearn(_ModelPkgClassifier):
+class AiodPkg__Sklearn(_ModelPkgClassifier):
     _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "scikit-learn",

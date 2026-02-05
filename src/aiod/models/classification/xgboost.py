@@ -3,7 +3,7 @@
 from aiod.models.apis import _ModelPkgClassifier
 
 
-class OpenmlPkg__XGBClassifier(_ModelPkgClassifier):
+class AiodPkg__XGBClassifier(_ModelPkgClassifier):
     _tags = {
         "pkg_id": "XGBClassifier",
         "python_dependencies": "xgboost",
