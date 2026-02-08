@@ -8,6 +8,7 @@ class _AiodModelPkg(_BasePkg):
     _obj_dict = {}
 
     def __init__(self, id=None):
+        self.id = id
         super().__init__()
 
         pkg_id = self.get_tag("pkg_id")
