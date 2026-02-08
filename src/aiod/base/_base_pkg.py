@@ -16,7 +16,7 @@ class _BasePkg(BaseObject):
         # package register and manifest
         "pkg_id": None,  # object id contained, "__multiple" if multiple
         "pkg_obj": "reference",  # or "code"
-        "pkg_obj_type": None,  # openml API type
+        "pkg_obj_type": None,  # API contract type
         "pkg_compression": "zlib",  # compression
         "pkg_pypi_name": None,  # PyPI package name of objects
     }

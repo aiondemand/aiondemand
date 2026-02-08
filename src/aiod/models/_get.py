@@ -24,7 +24,9 @@ def get(id: str):
     id_lookup = _id_lookup()
     obj = id_lookup.get(id)
     if obj is None:
-        raise ValueError(f"Error in openml.get, object with package id {id} " "does not exist.")
+        raise ValueError(
+            f"Error in aiod.get, object with package id {id} " "does not exist."
+        )
     return obj(id).materialize()
 
 
@@ -57,4 +59,6 @@ def _all_objects(obj_type=None):
 
     from aiod.models.apis._classifier import _ModelPkgClassifier
 
-    return all_objects(object_types=_ModelPkgClassifier, package_name="openml", return_names=False)
+    return all_objects(
+        object_types=_ModelPkgClassifier, package_name="aiod", return_names=False
+    )

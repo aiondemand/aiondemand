@@ -20,7 +20,7 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
 
     serialized : bool, optional (default=False)
         If True, returns a serialized version of the dict, via
-        ``openml.utils._inmemory._dict.serialize_dict``.
+        ``aiod.utils._inmemory._dict.serialize_dict``.
         If False, returns the dict directly.
 
     Returns

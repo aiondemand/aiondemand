@@ -3,7 +3,7 @@
 from aiod.base import _BasePkg
 
 
-class _OpenmlModelPkg(_BasePkg):
+class _AiodModelPkg(_BasePkg):
     _obj = None
     _obj_dict = {}
 

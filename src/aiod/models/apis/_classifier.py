@@ -1,9 +1,9 @@
 """Base package for sklearn classifiers."""
 
-from aiod.models.base import _OpenmlModelPkg
+from aiod.models.base import _AiodModelPkg
 
 
-class _ModelPkgClassifier(_OpenmlModelPkg):
+class _ModelPkgClassifier(_AiodModelPkg):
     _tags = {
         # tags specific to API type
         "pkg_obj_type": "classifier",
