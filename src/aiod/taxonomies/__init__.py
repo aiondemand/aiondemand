@@ -37,6 +37,8 @@ If you access a taxonomy that is not available for your defined version, an
 EndpointUndefinedError is raised.
 """
 
+from __future__ import annotations
+
 import dataclasses
 import functools
 import sys
