@@ -44,7 +44,7 @@ class Config:
     auth_server: str = "https://auth.aiod.eu/aiod-auth/"
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
-    request_timeout_seconds: int = 10
+    request_timeout_seconds: int = 100
 
     _observers: dict[str, set[AttributeObserver]] = field(
         default_factory=lambda: defaultdict(set),
