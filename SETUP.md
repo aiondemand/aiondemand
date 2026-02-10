@@ -89,6 +89,15 @@ docker compose up fill-db-with-examples
 
 - **Note:** Add this command in the `Dockerfile` after the `apt-get install` block if the python package dependencies seem to be broken (happens sometimes in Windows): `pip install --upgrade pip setuptools wheel`
 
+**Running tests**
+```bash
+py -3.11 -m venv .venv
+.venv\Scripts\activate
+pip install -e ".[dev]"
+pytest src/tests
+```
+Note: currently the tests are expected to fail. update regarding this is currently tracked here: https://github.com/aiondemand/AIOD-rest-api/issues/681
+
 ---
 
 ## Complete System Verification
