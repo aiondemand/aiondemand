@@ -61,13 +61,10 @@ python -c "import aiod; print('aiondemand installed successfully!')"
 
 ### Part 2: Setup `AIOD-rest-api` (Backend Service)
 
-> Note: the actual repo: `https://github.com/aiondemand/AIOD-rest-api` has a bug that prevents the demidata from being pushed to db tables uaing docker (see: `http://github.com/aiondemand/AIOD-rest-api/issues/677`). until the PR fixing the issue is merged, the working repo would be this fork: `https://github.com/rohansen856/AIOD-rest-api` with branch: `db_data_migration_fix`.
-
 Clone the repository:
 ```bash
-git clone https://github.com/rohansen856/AIOD-rest-api
+git clone https://github.com/aiondemand/AIOD-rest-api
 cd AIOD-rest-api
-git checkout db_data_migration_fix
 ```
 
 **Configure environment:**
