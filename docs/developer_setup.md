@@ -122,7 +122,7 @@ docker compose up
 
 Check API documentation at: `http://localhost:8000/docs`
 
-![alt text](assets/images/aiod-rest-api-verify-1.png)
+![alt text](./images/aiod-rest-api-verify-1.png)
 
 ### 3. Verify data migration in database
 As the mysql database does not expose any ports, we cannot check the data in tables directly using a db client. instead we can manually check from the openapi docs or run `curl` request on the actual fastpi endpoint to check if there is any data in the table:
@@ -137,7 +137,7 @@ Go to `http://localhost:9200` and login with:
 - **Username:** `elastic`
 - **Password:** `changeme`
 
-![alt text](assets/images/aiod-rest-api-verify-2.png)
+![alt text](./images/aiod-rest-api-verify-2.png)
 
 ---
 
