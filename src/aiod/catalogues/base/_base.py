@@ -1,19 +1,28 @@
-"""Base class template for Catalogues."""
+"""Base class for Catalogues."""
 
-__author__ = ["jgyasu"]
+from __future__ import annotations
 
 __all__ = ["BaseCatalogue"]
 
 from abc import abstractmethod
+from typing import Any, Dict, List, Union
 
-from aiod.base import BaseObject  # needs to be implemented
-from aiod.registry import craft  # needs to be implemented
+from aiod.base import _BasePkg
+from aiod.registry import craft
 
 
-class BaseCatalogue(BaseObject):
-    """Base class for catalogues."""
+class BaseCatalogue(_BasePkg):
+    """Base class for catalogue objects.
 
-    _tags = {
+    A catalogue stores collections of object specifications grouped by category.
+    Subclasses implement `_list`, which defines the available items.
+
+    Items can be returned either as:
+    - specification strings (default), or
+    - instantiated objects (via `craft`), if `as_object=True`.
+    """
+
+    _tags: Dict[str, Any] = {
         "authors": ["aiod developers"],
         "maintainers": ["aiod developers"],
         "object_type": "catalogue",
@@ -24,42 +33,48 @@ class BaseCatalogue(BaseObject):
         "info:source": "",  # DOI
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize the catalogue with an empty object cache."""
         super().__init__()
-        self._cached_objects = None
+        self._cached_objects: Dict[str, List[Any]] | None = None
 
     @abstractmethod
-    def _get(self):
-        """Get the default items for this catalogue. Implemented by subclasses.
+    def _list(self) -> Dict[str, List[Union[str, Any]]]:
+        """Return the default items for this catalogue.
 
         Returns
         -------
-        list[str]
-            list of item names/ids
+        dict[str, list[str | Any]]
+            Dictionary mapping category names to lists of items.
+            Items may be specification strings or pre-instantiated objects.
         """
-        pass
+        ...
 
-    def get(self, object_type="all", as_object=False):
-        """Get objects from the catalogue based on type.
+    def list(
+        self,
+        object_type: str = "all",
+        as_object: bool = False,
+    ) -> List[Union[str, Any]]:
+        """Retrieve items from the catalogue.
 
         Parameters
         ----------
         object_type : str, default="all"
-            Type of objects to retrieve. Options:
+            Category of objects to retrieve.
 
-            - "all": all object types
-            - or one of categories returned by `available_categories` method
+            - "all": return items from all categories.
+            - Otherwise: must match one of `available_categories()`.
 
         as_object : bool, default=False
-            If True, return object instances.
-            If False, return specification strings or function names.
+            If True, return instantiated objects.
+            If False, return specification strings or object names.
 
         Returns
         -------
         list[str] or list[Any]
-            List of specification names (default) or object instances.
+            List of specification names (default) or instantiated objects.
         """
-        names_dict = self._get()
+        names_dict = self._list()
 
         if object_type != "all" and object_type not in names_dict:
             raise KeyError(
@@ -67,8 +82,8 @@ class BaseCatalogue(BaseObject):
                 f"Available keys: {list(names_dict.keys())}"
             )
 
-        items = (
-            [item for items in names_dict.values() for item in items]
+        items: List[Union[str, Any]] = (
+            [item for sublist in names_dict.values() for item in sublist]
             if object_type == "all"
             else names_dict[object_type]
         )
@@ -81,12 +96,12 @@ class BaseCatalogue(BaseObject):
                 for item in items
             ]
 
-        # as_object=True path
+        # as_object=True
         if self._cached_objects is None:
             self._cached_objects = {}
 
         if object_type not in self._cached_objects:
-            processed = []
+            processed: List[Any] = []
             for item in items:
                 if isinstance(item, str):
                     processed.append(craft(item))
@@ -96,21 +111,31 @@ class BaseCatalogue(BaseObject):
 
         return self._cached_objects[object_type]
 
-    def available_categories(self):
-        """Return the available item categories in the catalogue.
+    def available_categories(self) -> List[str]:
+        """Return available item categories in the catalogue.
 
         Returns
         -------
         list[str]
-            List of keys from _get(), e.g., ['dataset', 'estimator', 'metric'].
+            Category names defined by `_list()`.
         """
-        return list(self._get().keys())
+        return list(self._list().keys())
 
-    def __len__(self):
-        """Return the total number of items in the catalogue."""
-        return len(self.get("all"))
+    def __len__(self) -> int:
+        """Return total number of items across all categories."""
+        return len(self.list("all"))
 
-    def __contains__(self, name):
-        """Check if an item name exists in the catalogue."""
-        all_items = self.get("all")
-        return name in all_items
+    def __contains__(self, name: str) -> bool:
+        """Check whether a specification name exists in the catalogue.
+
+        Parameters
+        ----------
+        name : str
+            Specification string to check.
+
+        Returns
+        -------
+        bool
+            True if present, False otherwise.
+        """
+        return name in self.list("all")

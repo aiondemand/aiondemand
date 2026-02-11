@@ -8,7 +8,7 @@ from aiod.catalogues.base import BaseCatalogue
 class DummyCatalogue(BaseCatalogue):
     """Minimal subclass for testing BaseCatalogue behavior."""
 
-    def _get(self):
+    def _list(self):
         return {
             "dataset": ["LoadIris"],
             "metric": ["MeanAbsoluteError"],
@@ -22,35 +22,35 @@ def dummy_catalogue():
 
 
 def test_available_categories(dummy_catalogue):
-    """available_categories should return keys from _get()."""
+    """available_categories should return keys from _list()."""
     assert set(dummy_catalogue.available_categories()) == {"dataset", "metric"}
 
 
-def test_get_all_and_specific(dummy_catalogue):
-    """get() should flatten correctly and handle category filters."""
-    all_items = dummy_catalogue.get("all")
+def test_list_all_and_specific(dummy_catalogue):
+    """list() should flatten correctly and handle category filters."""
+    all_items = dummy_catalogue.list("all")
     assert isinstance(all_items, list)
     assert set(all_items) == {"LoadIris", "MeanAbsoluteError"}
 
-    datasets = dummy_catalogue.get("dataset")
+    datasets = dummy_catalogue.list("dataset")
     assert datasets == ["LoadIris"]
 
 
-def test_get_invalid_type(dummy_catalogue):
+def test_list_invalid_type(dummy_catalogue):
     """Invalid object_type should raise KeyError."""
     with pytest.raises(KeyError):
-        dummy_catalogue.get("invalid")
+        dummy_catalogue.list("invalid")
 
 
-def test_get_as_string(dummy_catalogue):
-    """get() with as_object=False should return list of string specs."""
-    items_as_string = dummy_catalogue.get("all", as_object=False)
+def test_list_as_string(dummy_catalogue):
+    """list() with as_object=False should return list of string specs."""
+    items_as_string = dummy_catalogue.list("all", as_object=False)
     assert all(isinstance(item, str) for item in items_as_string)
 
 
-def test_get_as_object(dummy_catalogue):
-    """get() with as_object=True should return the same items for this dummy."""
-    items_as_object = dummy_catalogue.get("all", as_object=True)
+def test_list_as_object(dummy_catalogue):
+    """list() with as_object=True should return the same items for this dummy."""
+    items_as_object = dummy_catalogue.list("all", as_object=True)
     assert all(not isinstance(item, str) for item in items_as_object)
 
 
