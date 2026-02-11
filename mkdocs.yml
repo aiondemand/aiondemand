@@ -20,6 +20,7 @@ extra_css:
 
 nav:
   - Introduction: 'README.md'
+  - 'Developer Setup': 'developer_setup.md'
   - Examples:
     - 'Getting Started': 'examples/getting-started.ipynb'
     - Sharing: 'examples/sharing.ipynb'
