@@ -93,6 +93,31 @@ def url_to_get_asset_from_platform(
     return url
 
 
+def url_to_submissions(
+        version: str | None = None
+    ) -> str:
+    base_url = server_url(version)
+    url = f"{base_url}submissions"
+    return url
+
+
+def url_to_retract_submission(
+    submission_identifier: int, 
+    version: str | None = None
+) -> str:
+    base_url = server_url(version)
+    url = f"{base_url}submissions/retract/{submission_identifier}"
+    return url
+
+
+def url_to_reviews(
+        version: str | None = None
+    ) -> str:
+    base_url = server_url(version)
+    url = f"{base_url}reviews"
+    return url
+
+
 def server_url(version: str | None = None) -> str:
     version_str = version if version is not None else config.version
     if version_str:
