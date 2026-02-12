@@ -143,20 +143,20 @@ def test_device_flow_failure(monkeypatch):
 
 def test_register_resource_no_token():
     with pytest.raises(NotAuthenticatedError):
-        aiod.datasets.register(metadata=dict(name="Foo"))
+        aiod.Datasets().register(metadata=dict(name="Foo"))
 
 
 @responses.activate
 def test_register_resource_invalid_token(invalid_refresh_token):
     with pytest.raises(AuthenticationError) as e:
-        aiod.datasets.register(metadata=dict(name="Foo"))
+        aiod.Datasets().register(metadata=dict(name="Foo"))
     assert "is not valid" in str(e.value)
 
 
 @responses.activate
 def test_register_resource_expired_token(expired_refresh_token):
     with pytest.raises(AuthenticationError) as e:
-        aiod.datasets.register(metadata=dict(name="Foo"))
+        aiod.Datasets().register(metadata=dict(name="Foo"))
     assert "is not valid" in str(e.value)
 
 
@@ -167,7 +167,7 @@ def test_register_resource_valid_token(valid_refresh_token):
         json={"identifier": "data_123412341234123412341234"},
         match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
     )
-    identifier = aiod.datasets.register(metadata=dict(name="Foo"))
+    identifier = aiod.Datasets().register(metadata=dict(name="Foo"))
     assert identifier == "data_123412341234123412341234"
 
 

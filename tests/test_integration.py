@@ -18,7 +18,7 @@ LATEST_VERSION_MARKER = ""
 def test_get_dataset_list_from_default_version_server(version: str):
     if version == LATEST_VERSION_MARKER:
         aiod.config.version = LATEST_VERSION_MARKER
-    datasets = aiod.datasets.get_list()
+    datasets = aiod.Datasets().list()
     assert len(datasets) == 10
-    dataset = aiod.datasets.get_asset(datasets["identifier"].iloc[0])
+    dataset = aiod.Datasets().get(datasets["identifier"].iloc[0])
     assert dataset["name"] == datasets["name"].iloc[0]
