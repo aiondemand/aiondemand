@@ -3,7 +3,7 @@ from aiod.calls import calls
 class BaseResource:
     asset_type: str
 
-    def __init__(self, server=None):
+    def __init__(self):
         pass
 
     def list(self, *, platform=None, offset=0, limit=10, version=None, data_format="pandas"):
