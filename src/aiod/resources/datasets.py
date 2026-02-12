@@ -1,17 +1,6 @@
-from aiod.calls import calls
 
-(
-    get_list,
-    counts,
-    get_asset,
-    register,
-    replace,
-    update,
-    delete,
-    get_asset_from_platform,
-    get_content,
-    get_assets_async,
-    get_list_async,
-) = calls.wrap_common_calls(asset_type="datasets", module=__name__)
+from aiod.resources.base_resource import BaseResource, SearchableMixin
 
-(search,) = calls.wrap_search_call(asset_type="datasets", module=__name__)
+class Datasets(SearchableMixin, BaseResource):
+    asset_type = "datasets"
+
