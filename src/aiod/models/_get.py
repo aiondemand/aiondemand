@@ -58,7 +58,21 @@ def _all_objects(obj_type=None):
     from skbase.lookup import all_objects
 
     from aiod.models.apis._classifier import _ModelPkgClassifier
-
+    from aiod.models.apis._cluster import _ModelPkgCluster
+    from aiod.models.apis._regressor import _ModelPkgRegressor
+    from aiod.models.apis._transformer import _ModelPkgTransformer
+    
+    type_map = {
+        "classifier": _ModelPkgClassifier,
+        "regressor": _ModelPkgRegressor,
+        "clusterer": _ModelPkgCluster,
+        "transformer": _ModelPkgTransformer,
+    }
+    if obj_type is None:
+        object_types = list(type_map.values())
+    else:
+        object_types = type_map[obj_type]
+    
     return all_objects(
-        object_types=_ModelPkgClassifier, package_name="aiod", return_names=False
+        object_types=object_types, package_name="aiod", return_names=False
     )

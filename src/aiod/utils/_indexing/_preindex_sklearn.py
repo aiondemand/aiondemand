@@ -6,6 +6,7 @@ __author__ = ["fkiraly"]
 # all_estimators is also based on the sklearn utility of the same name
 
 from skbase.lookup import all_objects
+from sklearn.utils import all_estimators
 
 
 def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
@@ -46,12 +47,40 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
 
     return loc_dict
 
+def _sklearn_estimators_locdict_by_type(type_filter, serialized=False):
+    """Dictionary of scikit-learn estimators filtered by type.
+
+    Parameters
+    ----------
+    type_filter : str
+        The type of estimator to filter for.
+    serialized : bool, optional (default=False)
+        If True, returns a serialized version of the dict, via
+        ``aiod.utils._inmemory._dict.serialize_dict``.
+        If False, returns the dict directly.
+
+    Returns
+    -------
+    loc_dict : dict
+        A dictionary with:
+            * keys: str, estimator class name, e.g., ``RandomForestClassifier``
+            * values: str, public import path of the estimator, e.g.,
+              ``sklearn.ensemble.RandomForestClassifier``
+    """
+    ests = all_estimators(type_filter=type_filter)
+    loc_dict = {name: f"{est.__module__}.{name}" for name, est in ests}
+    if serialized:
+        from aiod.utils._inmemory._dict import serialize_dict
+        loc_dict = serialize_dict(loc_dict, name=f"sklearn_{type_filter}_loc_dict")
+    return loc_dict
+
 
 def _all_sklearn_estimators(
     package_name="sklearn",
     return_names=True,
     as_dataframe=False,
     suppress_import_stdout=True,
+    filter_tags=None,
 ):
     """List all scikit-learn objects in a given package.
 
@@ -85,6 +114,9 @@ def _all_sklearn_estimators(
 
     suppress_import_stdout : bool, optional. Default=True
         whether to suppress stdout printout upon import.
+
+    filter_tags : str or list of str, optional (default=None)
+        If not None, only estimators with the specified tag value(s) will be returned.
 
     Returns
     -------
@@ -132,4 +164,5 @@ def _all_sklearn_estimators(
         as_dataframe=as_dataframe,
         return_names=return_names,
         suppress_import_stdout=suppress_import_stdout,
+        filter_tags=filter_tags
     )
