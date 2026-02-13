@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import time
 import http.client
 from http import HTTPStatus
@@ -40,7 +40,7 @@ config.subscribe("client_id", on_change=_on_keycloak_config_changed)
 
 
 def _datetime_utc_in(*, seconds: int) -> datetime:
-    span = datetime.timedelta(seconds=seconds)
+    span = timedelta(seconds=seconds)
     return datetime.now(timezone.utc) + span
 
 
