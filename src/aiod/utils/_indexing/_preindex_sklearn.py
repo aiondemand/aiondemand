@@ -80,7 +80,6 @@ def _all_sklearn_estimators(
     return_names=True,
     as_dataframe=False,
     suppress_import_stdout=True,
-    filter_tags=None,
 ):
     """List all scikit-learn objects in a given package.
 
@@ -115,8 +114,6 @@ def _all_sklearn_estimators(
     suppress_import_stdout : bool, optional. Default=True
         whether to suppress stdout printout upon import.
 
-    filter_tags : str or list of str, optional (default=None)
-        If not None, only estimators with the specified tag value(s) will be returned.
 
     Returns
     -------
@@ -164,5 +161,4 @@ def _all_sklearn_estimators(
         as_dataframe=as_dataframe,
         return_names=return_names,
         suppress_import_stdout=suppress_import_stdout,
-        filter_tags=filter_tags
     )
