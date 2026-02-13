@@ -1,0 +1,1 @@
+"""Test AIoD model indexing."""
