@@ -18,7 +18,44 @@ from aiod.resources import publications
 from aiod.resources import services
 from aiod.resources import teams
 
+from aiod._get import get  # temporary redirect, should be merged with get_any_asset
 from aiod.authentication import invalidate_token, get_current_user, create_token
 from aiod.default.counts import asset_counts as counts
-from aiod.calls.calls import get_any_asset as get
+# from aiod.calls.calls import get_any_asset as get
 from aiod.__version__ import version
+
+__all__ = [
+    "config",
+    "taxonomies",
+    "bookmarks",
+    "case_studies",
+    "computational_assets",
+    "contacts",
+    "datasets",
+    "educational_resources",
+    "events",
+    "experiments",
+    "ml_models",
+    "news",
+    "organisations",
+    "persons",
+    "platforms",
+    "projects",
+    "publications",
+    "services",
+    "teams",
+    "invalidate_token",
+    "get_current_user",
+    "create_token",
+    "counts",
+    "get",
+    "version",
+]
+
+
+def __getattr__(name: str):
+    if name in __all__:
+        return globals()[name]
+    if name not in __all__:
+        return get(name)
+    return None
