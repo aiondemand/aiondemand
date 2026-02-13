@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-__all__ = ["BaseCatalogue"]
-
 from abc import abstractmethod
 from typing import Any, Dict, List, Union
 
+import aiod
 from aiod.base import _BasePkg
-from aiod.registry import craft
+
+__all__ = ["BaseCatalogue"]
 
 
 class BaseCatalogue(_BasePkg):
@@ -104,7 +104,7 @@ class BaseCatalogue(_BasePkg):
             processed: List[Any] = []
             for item in items:
                 if isinstance(item, str):
-                    processed.append(craft(item))
+                    processed.append(aiod.get(item))
                 else:
                     processed.append(item)
             self._cached_objects[object_type] = processed
