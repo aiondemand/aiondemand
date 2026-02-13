@@ -13,7 +13,7 @@ def get(id: str):
 
     Returns
     -------
-    class
+    object
         retrieved object
 
     Raises
@@ -21,11 +21,16 @@ def get(id: str):
     ModuleNotFoundError
         if dependencies of object to retrieve are not satisfied
     """
+    if "(" in id:
+        from aiod.registry import craft
+
+        return craft(id)
+
     id_lookup = _id_lookup()
     obj = id_lookup.get(id)
     if obj is None:
         raise ValueError(
-            f"Error in aiod.get, object with package id {id} " "does not exist."
+            f"Error in aiod.get, object with package id {id} does not exist."
         )
     return obj(id).materialize()
 
