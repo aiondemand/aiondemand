@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone
 import time
 import http.client
 from http import HTTPStatus
@@ -39,9 +39,9 @@ config.subscribe("realm", on_change=_on_keycloak_config_changed)
 config.subscribe("client_id", on_change=_on_keycloak_config_changed)
 
 
-def _datetime_utc_in(*, seconds: int) -> datetime.datetime:
+def _datetime_utc_in(*, seconds: int) -> datetime:
     span = datetime.timedelta(seconds=seconds)
-    return datetime.datetime.now(datetime.UTC) + span
+    return datetime.now(timezone.utc) + span
 
 
 class Token:
@@ -71,7 +71,7 @@ class Token:
     @property
     def has_expired(self) -> bool:
         """Return whether the *access token* has expired based on local data."""
-        return datetime.datetime.now(datetime.UTC) >= self._expiration_date
+        return datetime.now(timezone.utc) >= self._expiration_date
 
     @property
     def headers(self) -> dict[str, str]:
@@ -142,7 +142,7 @@ class Token:
             "client_secret": str(doc.get("client_secret", "")),
         }
         if "expiration_date" in doc:
-            expiration_date = datetime.datetime.fromisoformat(doc["expiration_date"])
+            expiration_date = datetime.fromisoformat(doc["expiration_date"])
             expires_in = expiration_date - _datetime_utc_in(seconds=0)
             if expires_in.total_seconds() > 0:
                 kwargs.update(
