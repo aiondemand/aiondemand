@@ -51,11 +51,3 @@ __all__ = [
     "get",
     "version",
 ]
-
-
-def __getattr__(name: str):
-    if name in __all__:
-        return globals()[name]
-    if name not in __all__:
-        return get(name)
-    return None
