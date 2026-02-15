@@ -48,7 +48,7 @@ aiod.publications.search(query="Robotics")
 ```
 ## Contributing
 
-Interested in contributing? Check out the [contributing guidelines](contributing.md).
+Interested in contributing? Check out the [contributing guidelines](contributing.md), then start with the [Developer Setup Guide](developer_setup.md) to set up your local development environment. 
 By contributing to this project, you agree to abide by our [Code of Conduct](conduct.md).
 
 ## Credits
