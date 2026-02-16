@@ -30,12 +30,12 @@ from aiod.__version__ import version
 
 def __getattr__(name: str):
     """Forward attribute access to resources module for backwards compatibility.
-    
+
     This allows `aiod.datasets.get_list()` to work by forwarding to
     `aiod.resources.datasets` which returns a singleton instance.
     """
     from aiod import resources
-    
+
     try:
         return getattr(resources, name)
     except AttributeError:

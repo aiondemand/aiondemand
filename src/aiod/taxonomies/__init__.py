@@ -145,7 +145,7 @@ def _get_taxonomy(name: str):
 
     RuntimeError
         For unexpected server responses.
-    """
+    """  # noqa: E221, E222
     return get_taxonomy
 
 

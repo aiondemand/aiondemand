@@ -1,4 +1,4 @@
-from aiod.resources.base_resource import BaseResource, SearchableMixin
+from aiod.resources.base_resource import BaseResource
 
 
 class Contacts(BaseResource):

@@ -42,7 +42,7 @@ _instances: dict[str, BaseResource] = {}
 
 def __getattr__(name: str):
     """Redirect attribute access to class instances for backwards compatibility.
-    
+
     This allows `aiod.resources.datasets.get_list()` to work by returning
     a singleton instance of the Datasets class.
     """
@@ -57,5 +57,5 @@ def __getattr__(name: str):
 # This ensures that resources.datasets returns an instance, not the module
 for asset_name, asset_class in _asset_classes.items():
     _instances[asset_name] = asset_class()
-    # Set in __dict__ 
+    # Set in __dict__
     globals()[asset_name] = _instances[asset_name]
