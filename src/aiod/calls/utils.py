@@ -1,8 +1,8 @@
-import pandas as pd
-
+from collections.abc import Callable
 from functools import partial, update_wrapper
-from typing import Callable, Literal, Tuple
+from typing import Literal
 
+import pandas as pd
 import requests
 
 
@@ -34,7 +34,7 @@ def format_response(response: list | dict, data_format: Literal["pandas", "json"
     raise Exception(f"Format: {data_format} invalid or not supported for responses of {type(response)=}.")
 
 
-def wrap_calls(asset_type: str, calls: list[Callable], module: str) -> Tuple[Callable, ...]:
+def wrap_calls(asset_type: str, calls: list[Callable], module: str) -> tuple[Callable, ...]:
     wrapper_list = []
     for wrapped in calls:
         wrapper: Callable = partial(wrapped, asset_type=asset_type)

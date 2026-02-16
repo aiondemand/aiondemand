@@ -1,9 +1,10 @@
-import pandas as pd
-import requests
 from typing import Literal
 
-from aiod.configuration import config
+import pandas as pd
+import requests
+
 from aiod.calls.urls import server_url
+from aiod.configuration import config
 
 
 def asset_counts(version: str | None = None, data_format: Literal["pandas", "json"] = "pandas") -> pd.DataFrame | dict:

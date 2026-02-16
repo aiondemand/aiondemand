@@ -1,7 +1,6 @@
 import urllib
-
-from typing import Literal
 import urllib.parse
+from typing import Literal
 
 from aiod.configuration import config
 

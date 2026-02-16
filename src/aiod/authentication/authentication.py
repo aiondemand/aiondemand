@@ -1,17 +1,18 @@
-from datetime import datetime, timezone, timedelta
-import time
-import http.client
-from http import HTTPStatus
 import functools
+import http.client
+import logging
+import time
+from collections.abc import Sequence
+from datetime import datetime, timedelta, timezone
+from http import HTTPStatus
 from pathlib import Path
+from typing import NamedTuple
 
 import requests
 import tomlkit
-from typing import Sequence, NamedTuple
-from keycloak import KeycloakOpenID, KeycloakPostError, KeycloakConnectionError
+from keycloak import KeycloakConnectionError, KeycloakOpenID, KeycloakPostError
 
 from aiod.configuration import config
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +108,7 @@ class Token:
         # Because of the minuscule time difference between the server sending the
         # response and us processing it, the `expires_in` may not be used directly
         # when calculating expiration time.
-        SAFETY_PERIOD_SECONDS = 2
+        SAFETY_PERIOD_SECONDS = 2  # noqa: N806
         self._expiration_date = _datetime_utc_in(seconds=token_info["expires_in"] - SAFETY_PERIOD_SECONDS)
         logger.info(f"Renewed access token, it expires {self._expiration_date}.")
 

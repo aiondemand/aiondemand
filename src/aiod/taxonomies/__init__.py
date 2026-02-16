@@ -47,9 +47,9 @@ from typing import TypedDict
 
 import requests
 
-from aiod.configuration import config
 from aiod.calls.urls import server_url
 from aiod.calls.utils import EndpointUndefinedError
+from aiod.configuration import config
 
 _mod = sys.modules[__name__]
 _TAXONOMIES = [
@@ -85,7 +85,7 @@ class Term:
     taxonomy: str
     term: str
     definition: str
-    subterms: list["Term"]
+    subterms: list[Term]
 
     def __eq__(self, other):
         return self.taxonomy == other.taxonomy and self.term == other.term
@@ -94,7 +94,7 @@ class Term:
 class _TermDict(TypedDict):
     term: str
     definition: str
-    subterms: list["_TermDict"]
+    subterms: list[_TermDict]
 
 
 def _parse_term(term: _TermDict, taxonomy: str) -> Term:

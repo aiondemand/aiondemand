@@ -82,5 +82,8 @@ ignore = [
 ]
 #extend-select = ["D416"]
 
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
