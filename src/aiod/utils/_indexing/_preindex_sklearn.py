@@ -6,7 +6,6 @@ __author__ = ["fkiraly"]
 # all_estimators is also based on the sklearn utility of the same name
 
 from skbase.lookup import all_objects
-from sklearn.utils import all_estimators
 
 
 def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
@@ -67,6 +66,7 @@ def _sklearn_estimators_locdict_by_type(type_filter, serialized=False):
             * values: str, public import path of the estimator, e.g.,
               ``sklearn.ensemble.RandomForestClassifier``
     """
+    from sklearn.utils import all_estimators
     ests = all_estimators(type_filter=type_filter)
     loc_dict = {name: f"{est.__module__}.{name}" for name, est in ests}
     if serialized:
