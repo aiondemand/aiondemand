@@ -63,6 +63,8 @@ addopts = "-m 'not server'"
 
 [tool.ruff]
 fix = true
+line-length = 130
+exclude = ["__pycache__", ".venv", "build", "dist", ".git"]
 
 [tool.ruff.lint]
 select = [

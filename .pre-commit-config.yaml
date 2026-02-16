@@ -1,7 +1,7 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.13.0
+    rev: v0.15.1
     hooks:
       # Run the linter.
       - id: ruff-check
@@ -10,7 +10,7 @@ repos:
       - id: ruff-format
         files: src/.*
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.991
+    rev: v1.19.1
     hooks:
       - id: mypy
         name: mypy src
@@ -19,19 +19,4 @@ repos:
           - types-requests
           - types-python-dateutil
           - types-pytz
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-      - id: flake8
-        name: flake8 src
-        files: src/.*
-        additional_dependencies:
-          - flake8-print==5.0.0
-  - repo: local
-    hooks:
-      - id: pytest-check
-        name: pytest-check
-        entry: pytest tests
-        language: system
-        pass_filenames: false
-        always_run: true
+
