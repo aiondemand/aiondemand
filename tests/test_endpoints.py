@@ -18,19 +18,6 @@ from aiod.taxonomies import Term
 resources_path = Path(__file__).parent / "resources"
 
 
-def _camelize_plural(asset_name: str) -> str:
-    # "ml_models" -> "MLModels", "case_studies" -> "CaseStudies"
-    if asset_name == "ml_models":
-        return "MLModels"
-    return "".join(part.capitalize() for part in asset_name.split("_"))
-
-
-def endpoint_for(asset_name: str):
-    cls_name = _camelize_plural(asset_name)
-    cls = getattr(aiod, cls_name)
-    return cls()
-
-
 asset_names = [
     "case_studies",
     "computational_assets",
@@ -74,18 +61,18 @@ def asset_with_search(request):
 
 
 def test_common_endpoints_are_created(asset_name: str):
-    asset = endpoint_for(asset_name)
-    assert isinstance(getattr(asset, "list"), Callable)
+    asset = getattr(aiod, asset_name)
+    assert isinstance(getattr(asset, "get_list"), Callable)
     assert isinstance(getattr(asset, "counts"), Callable)
-    assert isinstance(getattr(asset, "get"), Callable)
-    assert isinstance(getattr(asset, "get_from_platform"), Callable)
-    assert isinstance(getattr(asset, "content"), Callable)
+    assert isinstance(getattr(asset, "get_asset"), Callable)
+    assert isinstance(getattr(asset, "get_asset_from_platform"), Callable)
+    assert isinstance(getattr(asset, "get_content"), Callable)
     assert isinstance(getattr(asset, "get_list_async"), Callable)
     assert isinstance(getattr(asset, "get_assets_async"), Callable)
 
 
 def test_search_endpoints_are_created(asset_with_search: str):
-    asset = endpoint_for(asset_with_search)
+    asset = getattr(aiod, asset_with_search)
     assert isinstance(getattr(asset, "search"), Callable)
 
 
@@ -97,8 +84,8 @@ def test_endpoint_get_list(asset_name):
             body=b'[{"resource_1": "info"},{"resource_2": "info"}]',
             status=200,
         )
-        endpoint = endpoint_for(asset_name)
-        metadata_list = endpoint.list()
+        endpoint = getattr(aiod, asset_name)
+        metadata_list = endpoint.get_list()
 
         assert len(metadata_list) == 2
 
@@ -111,7 +98,7 @@ def test_endpoint_counts(asset_name):
             body=b"2",
             status=200,
         )
-        endpoint = endpoint_for(asset_name)
+        endpoint = getattr(aiod, asset_name)
         counts = endpoint.counts()
 
         assert counts == 2
@@ -125,8 +112,8 @@ def test_endpoint_get_asset(asset_name):
             body=b'{"resource":"fake_details"}',
             status=200,
         )
-        endpoint = endpoint_for(asset_name)
-        metadata = endpoint.get(identifier=1, data_format="json")
+        endpoint = getattr(aiod, asset_name)
+        metadata = endpoint.get_asset(identifier=1, data_format="json")
 
         assert metadata == {"resource": "fake_details"}
 
@@ -143,7 +130,7 @@ def test_endpoint_update_asset(asset_name, valid_refresh_token):
         match=[matchers.json_params_matcher({"name":"fake", "foo": "baz"})],
         status=200,
     )
-    endpoint = endpoint_for(asset_name)
+    endpoint = getattr(aiod, asset_name)
     endpoint.update(identifier=1, metadata=dict(foo="baz"))
 
 
@@ -156,8 +143,8 @@ def test_endpoint_get_list_from_platform(asset_name):
             body=b'[{"resource_1": "info"},{"resource_2": "info"}]',
             status=200,
         )
-        endpoint = endpoint_for(asset_name)
-        metadata_list = endpoint.list(platform=platform_name)
+        endpoint = getattr(aiod, asset_name)
+        metadata_list = endpoint.get_list(platform=platform_name)
 
         assert len(metadata_list) == 2
 
@@ -172,8 +159,8 @@ def test_endpoint_get_asset_from_platform(asset_name):
             body=b'{"resource":"fake_details"}',
             status=200,
         )
-        endpoint = endpoint_for(asset_name)
-        metadata = endpoint.get_from_platform(
+        endpoint = getattr(aiod, asset_name)
+        metadata = endpoint.get_asset_from_platform(
             platform=platform_name,
             platform_identifier=platform_identifier,
             data_format="json",
@@ -192,8 +179,8 @@ def test_get_content(asset_name):
             body=res_body,
             status=200,
         )
-        endpoint = endpoint_for(asset_name)
-        content = endpoint.content(identifier=1)
+        endpoint = getattr(aiod, asset_name)
+        content = endpoint.get_content(identifier=1)
 
         assert content == b"a,b,c\n1,2,3"
 
@@ -208,8 +195,8 @@ def test_get_content_with_distribution_idx(asset_name):
             body=res_body,
             status=200,
         )
-        endpoint = endpoint_for(asset_name)
-        content = endpoint.content(identifier=1, distribution_idx=2)
+        endpoint = getattr(aiod, asset_name)
+        content = endpoint.get_content(identifier=1, distribution_idx=2)
 
         assert content == b"a,b,c\n1,2,3"
 
@@ -231,7 +218,7 @@ def test_search(asset_with_search):
             body=b'{"total_hits": 2,"resources": [{"resource_1": "info"},{"resource_2": "info"}],"limit": 10,"offset": 0}',
             status=200,
         )
-        endpoint = endpoint_for(asset_with_search)
+        endpoint = getattr(aiod, asset_with_search)
         metadata_list = endpoint.search(
             query=search_query,
             search_field=search_field,
@@ -258,7 +245,7 @@ def test_endpoint_get_asset_async(asset_name):
             status=200,
         )
 
-        endpoint = endpoint_for(asset_name)
+        endpoint = getattr(aiod, asset_name)
         metadata = loop.run_until_complete(
             endpoint.get_assets_async(identifiers=[1, 3], data_format="json")
         )
@@ -282,7 +269,7 @@ def test_endpoint_get_list_async(asset_name):
             status=200,
         )
 
-        endpoint = endpoint_for(asset_name)
+        endpoint = getattr(aiod, asset_name)
         metadata = loop.run_until_complete(
             endpoint.get_list_async(offset=0, limit=3, batch_size=2, data_format="json")
         )
@@ -301,8 +288,8 @@ def test_register_asset(asset_name, valid_refresh_token):
         match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
         json={"identifier": identifier},
     )
-    endpoint = endpoint_for(asset_name)
-    identifier_ = endpoint.register(metadata=dict(name="Foo"))
+    module = getattr(aiod, asset_name)
+    identifier_ = module.register(metadata=dict(name="Foo"))
     assert identifier_ == identifier
 
 
@@ -313,8 +300,8 @@ def test_replace_asset(asset_name, valid_refresh_token):
         f"http://not.set/not_set/{asset_name}/{identifier}",
         match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
     )
-    endpoint = endpoint_for(asset_name)
-    res = endpoint.replace(identifier=identifier, metadata=dict(description="Foo"))
+    module = getattr(aiod, asset_name)
+    res = module.replace(identifier=identifier, metadata=dict(description="Foo"))
     assert res.status_code == HTTPStatus.OK
 
 
@@ -331,9 +318,9 @@ def test_update_asset_incorrect_identifier(asset_name, valid_refresh_token):
         },
         status=HTTPStatus.NOT_FOUND,
     )
-    endpoint = endpoint_for(asset_name)
+    module = getattr(aiod, asset_name)
     with pytest.raises(KeyError) as e:
-        endpoint.update(identifier=identifier, metadata=dict(description="Foo"))
+        module.update(identifier=identifier, metadata=dict(description="Foo"))
     msg = e.value.args[0]
     assert msg.startswith("No") and msg.endswith("found.")
 
@@ -345,8 +332,8 @@ def test_delete_asset(asset_name, valid_refresh_token):
         f"http://not.set/not_set/{asset_name}/{identifier}",
         match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
     )
-    endpoint = endpoint_for(asset_name)
-    res = endpoint.delete(identifier=identifier)
+    module = getattr(aiod, asset_name)
+    res = module.delete(identifier=identifier)
     assert res.status_code == HTTPStatus.OK
 
 
@@ -363,9 +350,9 @@ def test_delete_asset_incorrect_identifier(asset_name, valid_refresh_token):
         },
         status=HTTPStatus.NOT_FOUND,
     )
-    endpoint = endpoint_for(asset_name)
+    module = getattr(aiod, asset_name)
     with pytest.raises(KeyError) as e:
-        endpoint.delete(identifier=identifier)
+        module.delete(identifier=identifier)
     msg = e.value.args[0]
     assert msg.startswith("No") and msg.endswith("found.")
 
