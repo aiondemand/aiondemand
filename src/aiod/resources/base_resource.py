@@ -7,7 +7,7 @@ class BaseResource:
     def __init__(self):
         pass
 
-    def list(
+    def get_list(
         self, *, platform=None, offset=0, limit=10, version=None, data_format="pandas"
     ):
         return calls.get_list(
@@ -24,7 +24,7 @@ class BaseResource:
             asset_type=self.asset_type, version=version, per_platform=per_platform
         )
 
-    def get(self, identifier, *, version=None, data_format="pandas"):
+    def get_asset(self, identifier, *, version=None, data_format="pandas"):
         return calls.get_asset(
             identifier,
             asset_type=self.asset_type,
@@ -58,7 +58,7 @@ class BaseResource:
             asset_type=self.asset_type, identifier=identifier, version=version
         )
 
-    def get_from_platform(
+    def get_asset_from_platform(
         self, *, platform, platform_identifier, version=None, data_format="pandas"
     ):
         return calls.get_asset_from_platform(
@@ -69,7 +69,7 @@ class BaseResource:
             data_format=data_format,
         )
 
-    def content(self, identifier, *, distribution_idx=0, version=None):
+    def get_content(self, identifier, *, distribution_idx=0, version=None):
         return calls.get_content(
             asset_type=self.asset_type,
             identifier=identifier,
