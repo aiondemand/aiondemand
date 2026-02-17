@@ -8,6 +8,64 @@ __author__ = ["fkiraly"]
 from skbase.lookup import all_objects
 
 
+def _get_public_module_path(estimator_class, package_name="sklearn"):
+    """Get the public import path for an estimator class.
+
+    Parameters
+    ----------
+    estimator_class : class
+        The estimator class to find the public path for.
+    package_name : str, optional (default="sklearn")
+        The package name to search within.
+
+    Returns
+    -------
+    str
+        The public module path, e.g., "sklearn.ensemble" instead of
+        "sklearn.ensemble._forest". Falls back to the original module path
+        if no public path is found.
+    """
+    import importlib
+    import pkgutil
+
+    # Get the original module path (potentially private)
+    original_module = estimator_class.__module__
+    class_name = estimator_class.__name__
+
+    # If the module doesn't have a private component, return it as-is
+    if "._" not in original_module:
+        return original_module
+
+    # Try to find the public module by checking parent modules
+    module_parts = original_module.split(".")
+
+    # Work backwards through the module path to find the first public module
+    for i in range(len(module_parts), 0, -1):
+        # Skip if this level is a private module
+        if module_parts[i - 1].startswith("_"):
+            continue
+
+        # Build the candidate public module path
+        public_module_path = ".".join(module_parts[:i])
+
+        try:
+            # Try to import the public module
+            public_module = importlib.import_module(public_module_path)
+
+            # Check if the class is accessible from this public module
+            if hasattr(public_module, class_name):
+                public_class = getattr(public_module, class_name)
+                # Verify it's the same class (same id)
+                if public_class is estimator_class:
+                    return public_module_path
+        except (ImportError, AttributeError):
+            # If import fails, try the next level up
+            continue
+
+    # Fallback to original module if no public path found
+    return original_module
+
+
 def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
     """Dictionary of all scikit-learn estimators in sktime and sklearn.
 
@@ -37,7 +95,10 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
         return_names=False,
     )
 
-    loc_dict = {est.__name__: f"{est.__module__}.{est.__name__}" for est in all_ests}
+    loc_dict = {}
+    for est in all_ests:
+        public_path = _get_public_module_path(est, package_name)
+        loc_dict[est.__name__] = f"{public_path}.{est.__name__}"
 
     if serialized:
         from aiod.utils._inmemory._dict import serialize_dict
