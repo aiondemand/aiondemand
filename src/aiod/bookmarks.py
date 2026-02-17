@@ -1,4 +1,4 @@
-import datetime as dt
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from http import HTTPStatus
 
@@ -18,12 +18,12 @@ class Bookmark:
     ----------
     identifier: str
         The identifier of the asset on AI-on-Demand, e.g., 'data_xyz...'
-    created: datetime.datetime
+    created: datetime
         The datetime when the bookmark was originally created.
     """
 
     identifier: str
-    created: dt.datetime
+    created: datetime
 
 
 def _bookmarks_url() -> str:
@@ -63,8 +63,8 @@ def register(identifier: str) -> Bookmark:
 
     return Bookmark(
         identifier=res.json()["resource_identifier"],
-        created=dt.datetime.fromisoformat(res.json()["created_at"]).replace(
-            tzinfo=dt.UTC
+        created=datetime.fromisoformat(res.json()["created_at"]).replace(
+            tzinfo=timezone.utc
         ),
     )
 
@@ -115,8 +115,8 @@ def get_list() -> list[Bookmark]:
     return [
         Bookmark(
             identifier=bookmark["resource_identifier"],
-            created=dt.datetime.fromisoformat(bookmark["created_at"]).replace(
-                tzinfo=dt.UTC
+            created=datetime.fromisoformat(bookmark["created_at"]).replace(
+                tzinfo=timezone.utc
             ),
         )
         for bookmark in res.json()
