@@ -16,7 +16,8 @@ def _get_public_module_path(estimator_class, package_name="sklearn"):
     estimator_class : class
         The estimator class to find the public path for.
     package_name : str, optional (default="sklearn")
-        The package name to search within.
+        The package name to search within. Only module paths starting
+        with this package name will be processed.
 
     Returns
     -------
@@ -26,11 +27,14 @@ def _get_public_module_path(estimator_class, package_name="sklearn"):
         if no public path is found.
     """
     import importlib
-    import pkgutil
 
     # Get the original module path (potentially private)
     original_module = estimator_class.__module__
     class_name = estimator_class.__name__
+
+    # Only process modules from the specified package
+    if not original_module.startswith(package_name):
+        return original_module
 
     # If the module doesn't have a private component, return it as-is
     if "._" not in original_module:
@@ -55,8 +59,11 @@ def _get_public_module_path(estimator_class, package_name="sklearn"):
             # Check if the class is accessible from this public module
             if hasattr(public_module, class_name):
                 public_class = getattr(public_module, class_name)
-                # Verify it's the same class (same id)
-                if public_class is estimator_class:
+                # Verify it's the same class using identity check first,
+                # then fallback to module and name comparison
+                if (public_class is estimator_class or
+                    (public_class.__module__ == estimator_class.__module__ and
+                     public_class.__name__ == estimator_class.__name__)):
                     return public_module_path
         except (ImportError, AttributeError):
             # If import fails, try the next level up
