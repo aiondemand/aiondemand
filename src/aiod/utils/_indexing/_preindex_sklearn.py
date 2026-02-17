@@ -59,11 +59,8 @@ def _get_public_module_path(estimator_class, package_name="sklearn"):
             # Check if the class is accessible from this public module
             if hasattr(public_module, class_name):
                 public_class = getattr(public_module, class_name)
-                # Verify it's the same class using identity check first,
-                # then fallback to module and name comparison
-                if (public_class is estimator_class or
-                    (public_class.__module__ == estimator_class.__module__ and
-                     public_class.__name__ == estimator_class.__name__)):
+                # Verify it's the same class using identity check
+                if public_class is estimator_class:
                     return public_module_path
         except (ImportError, AttributeError):
             # If import fails, try the next level up
