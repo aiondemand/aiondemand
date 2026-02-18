@@ -1,6 +1,7 @@
 from aiod.configuration import config
 from aiod import taxonomies
 from aiod import bookmarks
+from aiod import cross_linkage
 from aiod.resources import case_studies
 from aiod.resources import computational_assets
 from aiod.resources import contacts

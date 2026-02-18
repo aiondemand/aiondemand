@@ -18,6 +18,10 @@ from aiod.calls.urls import (
     url_to_get_asset_from_platform,
     url_to_resource_counts,
     url_to_search,
+    url_to_get_publications_for_model,
+    url_to_get_models_for_publication,
+    url_to_register_cross_link,
+    url_to_delete_cross_link,
     server_url,
 )
 from aiod.calls.utils import format_response, wrap_calls, ServerError
@@ -586,6 +590,176 @@ async def _fetch_resources(urls) -> dict:
         tasks = [_fetch_data(session, url) for url in urls]
         response_data = await asyncio.gather(*tasks)
     return response_data
+
+
+def get_publications_for_model(
+    model_identifier: str,
+    *,
+    relation_type: str | None = None,
+    version: str | None = None,
+    data_format: Literal["pandas", "json"] = "pandas",
+) -> pd.DataFrame | list[dict]:
+    """Retrieve publications (papers) linked to a specific ml_model (estimator).
+
+    Parameters
+    ----------
+    model_identifier
+        The AIoD identifier of the ml_model asset.
+    relation_type
+        Filter by relation type: 'proposes', 'related', or 'uses'.
+        If None, all linked publications are returned.
+    version
+        The version of the endpoint (default is None).
+    data_format
+        The desired format for the response (default is "pandas").
+
+    Returns
+    -------
+    :
+        The linked publications in the specified format.
+
+    Raises
+    ------
+    KeyError
+        If the model identifier cannot be found.
+    """
+    url = url_to_get_publications_for_model(model_identifier, relation_type, version)
+    res = requests.get(
+        url,
+        headers=_get_auth_headers(required=False),
+        timeout=config.request_timeout_seconds,
+    )
+    if res.status_code == HTTPStatus.NOT_FOUND:
+        raise KeyError(f"No ml_model with identifier {model_identifier!r} found.")
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
+    return format_response(res.json(), data_format)
+
+
+def get_models_for_publication(
+    publication_identifier: str,
+    *,
+    relation_type: str | None = None,
+    version: str | None = None,
+    data_format: Literal["pandas", "json"] = "pandas",
+) -> pd.DataFrame | list[dict]:
+    """Retrieve ml_models (estimators) linked to a specific publication (paper).
+
+    Parameters
+    ----------
+    publication_identifier
+        The AIoD identifier of the publication asset.
+    relation_type
+        Filter by relation type: 'proposes', 'related', or 'uses'.
+        If None, all linked ml_models are returned.
+    version
+        The version of the endpoint (default is None).
+    data_format
+        The desired format for the response (default is "pandas").
+
+    Returns
+    -------
+    :
+        The linked ml_models in the specified format.
+
+    Raises
+    ------
+    KeyError
+        If the publication identifier cannot be found.
+    """
+    url = url_to_get_models_for_publication(publication_identifier, relation_type, version)
+    res = requests.get(
+        url,
+        headers=_get_auth_headers(required=False),
+        timeout=config.request_timeout_seconds,
+    )
+    if res.status_code == HTTPStatus.NOT_FOUND:
+        raise KeyError(f"No publication with identifier {publication_identifier!r} found.")
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
+    return format_response(res.json(), data_format)
+
+
+def register_cross_link(
+    model_identifier: str,
+    publication_identifier: str,
+    relation_type: str,
+    *,
+    version: str | None = None,
+) -> str:
+    """Register a cross-link between an ml_model (estimator) and a publication (paper).
+
+    Parameters
+    ----------
+    model_identifier
+        The AIoD identifier of the ml_model asset.
+    publication_identifier
+        The AIoD identifier of the publication asset.
+    relation_type
+        The type of relation: 'proposes', 'related', or 'uses'.
+    version
+        The version of the endpoint (default is None).
+
+    Returns
+    -------
+    str
+        The identifier of the newly created cross-link.
+
+    Raises
+    ------
+    KeyError
+        If either identifier is not found.
+    """
+    url = url_to_register_cross_link(model_identifier, version)
+    res = requests.post(
+        url,
+        headers=get_token().headers,
+        json={"publication_identifier": publication_identifier, "relation_type": relation_type},
+        timeout=config.request_timeout_seconds,
+    )
+    if res.status_code == HTTPStatus.NOT_FOUND:
+        raise KeyError(
+            f"Could not find ml_model {model_identifier!r} or "
+            f"publication {publication_identifier!r}."
+        )
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
+    return res.json()["identifier"]
+
+
+def delete_cross_link(
+    link_identifier: str,
+    *,
+    version: str | None = None,
+) -> requests.Response:
+    """Delete a cross-link between an ml_model and a publication.
+
+    Parameters
+    ----------
+    link_identifier
+        The identifier of the cross-link to delete.
+    version
+        The version of the endpoint (default is None).
+
+    Returns
+    -------
+    :
+        The server response.
+
+    Raises
+    ------
+    KeyError
+        If the link identifier is not found.
+    """
+    url = url_to_delete_cross_link(link_identifier, version)
+    res = requests.delete(
+        url,
+        headers=get_token().headers,
+        timeout=config.request_timeout_seconds,
+    )
+    if res.status_code == HTTPStatus.NOT_FOUND:
+        raise KeyError(f"No cross-link with identifier {link_identifier!r} found.")
+    return res
 
 
 wrap_common_calls = partial(

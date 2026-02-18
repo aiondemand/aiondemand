@@ -98,3 +98,45 @@ def server_url(version: str | None = None) -> str:
     if version_str:
         return f"{config.api_server}{version_str}/"
     return config.api_server
+
+
+def url_to_get_publications_for_model(
+    model_identifier: str,
+    relation_type: str | None = None,
+    version: str | None = None,
+) -> str:
+    base_url = server_url(version)
+    url = f"{base_url}ml_models/{model_identifier}/publications"
+    if relation_type is not None:
+        query = urllib.parse.urlencode({"relation_type": relation_type})
+        url = f"{url}?{query}"
+    return url
+
+
+def url_to_get_models_for_publication(
+    publication_identifier: str,
+    relation_type: str | None = None,
+    version: str | None = None,
+) -> str:
+    base_url = server_url(version)
+    url = f"{base_url}publications/{publication_identifier}/ml_models"
+    if relation_type is not None:
+        query = urllib.parse.urlencode({"relation_type": relation_type})
+        url = f"{url}?{query}"
+    return url
+
+
+def url_to_register_cross_link(
+    model_identifier: str,
+    version: str | None = None,
+) -> str:
+    base_url = server_url(version)
+    return f"{base_url}ml_models/{model_identifier}/publications"
+
+
+def url_to_delete_cross_link(
+    link_identifier: str,
+    version: str | None = None,
+) -> str:
+    base_url = server_url(version)
+    return f"{base_url}cross_links/{link_identifier}"
