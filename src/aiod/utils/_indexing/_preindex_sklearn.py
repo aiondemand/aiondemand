@@ -37,7 +37,12 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
         return_names=False,
     )
 
-    loc_dict = {est.__name__: f"{est.__module__}.{est.__name__}" for est in all_ests}
+    def _full_path(est):
+        module_name = est.__module__
+        public_module_name = module_name.split("._")[0]
+        return f"{public_module_name}.{est.__name__}"
+
+    loc_dict = {est.__name__: _full_path(est) for est in all_ests}
 
     if serialized:
         from aiod.utils._inmemory._dict import serialize_dict
