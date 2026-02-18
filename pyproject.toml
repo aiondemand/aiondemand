@@ -63,11 +63,16 @@ addopts = "-m 'not server'"
 
 [tool.ruff]
 fix = true
+line-length = 130
 
 [tool.ruff.lint]
 select = [
     "D",  # enables pydocstyle checks
+    "T20",  # flake8-print (replaces flake8-print plugin)
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # ignore unused imports in __init__.py
 ignore = [
     "D100",
     "D101",
