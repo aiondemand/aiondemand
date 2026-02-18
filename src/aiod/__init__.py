@@ -22,7 +22,7 @@ from aiod._get import get  # temporary redirect, should be merged with get_any_a
 from aiod.authentication import invalidate_token, get_current_user, create_token
 from aiod.default.counts import asset_counts as counts
 # from aiod.calls.calls import get_any_asset as get
-from aiod.__version__ import version
+__version__ = "0.2.5"
 
 __all__ = [
     "config",
