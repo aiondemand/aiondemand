@@ -1,9 +1,9 @@
 """Xgboost classifier."""
 
-from aiod.models.apis import _ModelPkgClassifier
+from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
-class AiodPkg__XGBClassifier(_ModelPkgClassifier):
+class AiodPkg__XGBClassifier(_ModelPkgSklearnEstimator):
     _tags = {
         "pkg_id": "XGBClassifier",
         "python_dependencies": "xgboost",
