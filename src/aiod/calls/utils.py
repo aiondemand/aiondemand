@@ -3,7 +3,49 @@ import pandas as pd
 from functools import partial, update_wrapper
 from typing import Callable, Literal, Tuple
 
+import asyncio
 import requests
+import aiohttp
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+from aiod.configuration import config
+
+
+def get_requests_session() -> requests.Session:
+    """Create a requests Session with automatic retries."""
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=config.retry_total,
+        backoff_factor=config.retry_backoff_factor,
+        status_forcelist=config.retry_status_forcelist,
+        allowed_methods=["HEAD", "GET", "PUT", "DELETE", "OPTIONS", "TRACE", "POST"],
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
+
+
+async def robust_request(session: aiohttp.ClientSession, method: str, url: str, **kwargs):
+    """Perform an async request with automatic retries."""
+    for attempt in range(config.retry_total + 1):
+        try:
+            async with session.request(method, url, **kwargs) as response:
+                if response.status in config.retry_status_forcelist:
+                    if attempt < config.retry_total:
+                        sleep_time = config.retry_backoff_factor * (2**attempt)
+                        await asyncio.sleep(sleep_time)
+                        continue
+                    else:
+                        return await response.json()
+                return await response.json()
+        except aiohttp.ClientError:
+            if attempt < config.retry_total:
+                sleep_time = config.retry_backoff_factor * (2**attempt)
+                await asyncio.sleep(sleep_time)
+            else:
+                raise
 
 
 def format_response(
