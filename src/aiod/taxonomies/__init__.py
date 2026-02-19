@@ -37,8 +37,6 @@ If you access a taxonomy that is not available for your defined version, an
 EndpointUndefinedError is raised.
 """
 
-from __future__ import annotations
-
 import dataclasses
 import functools
 import sys
@@ -85,7 +83,7 @@ class Term:
     taxonomy: str
     term: str
     definition: str
-    subterms: list[Term]
+    subterms: list["Term"]
 
     def __eq__(self, other):
         return self.taxonomy == other.taxonomy and self.term == other.term
@@ -94,7 +92,7 @@ class Term:
 class _TermDict(TypedDict):
     term: str
     definition: str
-    subterms: list[_TermDict]
+    subterms: list["_TermDict"]
 
 
 def _parse_term(term: _TermDict, taxonomy: str) -> Term:
@@ -110,7 +108,7 @@ def _parse_term(term: _TermDict, taxonomy: str) -> Term:
 def _get_taxonomy(name: str):
     # Since taxonomies rarely change, we cache the result in memory.
     @functools.cache
-    def get_taxonomy() -> list[Term]:
+    def get_taxonomy() -> list["Term"]:
         response = requests.get(
             f"{server_url()}{name}",
             timeout=config.request_timeout_seconds,
