@@ -1,5 +1,6 @@
 from aiod import bookmarks, taxonomies
 from aiod.authentication import create_token, get_current_user, invalidate_token
+
 # from aiod.calls.calls import get_any_asset as get
 from aiod.configuration import config
 from aiod.default.counts import asset_counts as counts
@@ -57,4 +58,3 @@ __all__ = [
 #     return None
 
 __version__ = "0.2.5"
-
