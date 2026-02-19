@@ -77,6 +77,7 @@ ignore = [
     "D105",
     "D106",
     "D107",
+    "N806", # allow uppercase variable names in funtion
 #    "D407",
 #    "D408",
 ]
