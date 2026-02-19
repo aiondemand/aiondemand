@@ -63,11 +63,11 @@ addopts = "-m 'not server'"
 
 [tool.ruff]
 fix = true
+line-length = 130
+exclude = ["__pycache__", ".venv", "build", "dist", ".git"]
 
 [tool.ruff.lint]
-select = [
-    "D",  # enables pydocstyle checks
-]
+select = ["E", "F", "B", "I", "UP", "N", "C4", "D", "T20"]
 ignore = [
     "D100",
     "D101",
@@ -81,6 +81,9 @@ ignore = [
 #    "D408",
 ]
 #extend-select = ["D416"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
