@@ -69,6 +69,13 @@ class ServerError(RuntimeError):
 
     def __init__(self, response: requests.Response):
         self.status_code = response.status_code
-        self.detail = response.json().get("detail")
-        self.reference = response.json().get("reference")
+        try:
+            body = response.json()
+        except (ValueError, requests.exceptions.JSONDecodeError):
+            body = {}
+        self.detail = body.get("detail")
+        self.reference = body.get("reference")
         self._response = response
+        super().__init__(
+            f"Server returned {self.status_code}: {self.detail or response.text[:200]}"
+        )
