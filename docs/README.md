@@ -19,6 +19,21 @@ $ pip install aiondemand
 
 Tip: install your dependencies in a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/).
 
+## Quick Start for Beginners
+
+Clone the repository:
+
+git clone https://github.com/aiondemand/aiondemand.git
+cd aiondemand
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+Run a simple check:
+
+python -c "import aiod; print('AIOD installed successfully')"
+
 ## Usage
 You can directly access endpoints through the Python API, for example to browse datasets:
 ```python
