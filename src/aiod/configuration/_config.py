@@ -122,6 +122,50 @@ def _add_decode_error_note(file: Path, e: tomlkit.exceptions.ParseError) -> None
     )
 
 
+class use_version:
+    """Context manager to temporarily use a different API version.
+
+    This allows us to make requests to different versions of the REST API
+    without permanently changing the global configuration.
+
+    Parameters
+    ----------
+    version : str
+        The API version to use (e.g., "v1", "v2", "latest", or "" for no version prefix).
+
+    Examples
+    --------
+    >>> import aiod
+    >>> # Make requests to v2 API (default)
+    >>> datasets = aiod.datasets.get_list(limit=5)
+    >>> # Temporarily switch to v1 API
+    >>> with aiod.use_version("v1"):
+    ...     datasets_v1 = aiod.datasets.get_list(limit=5)
+    >>> # Back to v2 API
+    >>> datasets = aiod.datasets.get_list(limit=5)
+
+    Notes
+    -----
+    This context manager is thread-safe for the current implementation since
+    config.version is a simple attribute access. However, be cautious when using
+    this in multi-threaded environments as the version change affects the global
+    config object.
+    """
+
+    def __init__(self, version: str):
+        self.new_version = version
+        self.old_version: str | None = None
+
+    def __enter__(self):
+        self.old_version = config.version
+        config.version = self.new_version
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        config.version = self.old_version
+        return False
+
+
 config = Config()  # Modified through `load_configuration`
 _user_config_file = Path("~/.aiod/config.toml").expanduser()
 if _user_config_file.exists() and _user_config_file.is_file():
