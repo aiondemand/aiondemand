@@ -1,14 +1,13 @@
-import pandas as pd
-import requests
 from typing import Literal
 
-from aiod.configuration import config
+import pandas as pd
+import requests
+
 from aiod.calls.urls import server_url
+from aiod.configuration import config
 
 
-def asset_counts(
-    version: str | None = None, data_format: Literal["pandas", "json"] = "pandas"
-) -> pd.DataFrame | dict:
+def asset_counts(version: str | None = None, data_format: Literal["pandas", "json"] = "pandas") -> pd.DataFrame | dict:
     """Retrieve counts of assets.
 
     This method sends a GET request to the counts endpoint to retrieve counts of assets.
@@ -36,6 +35,4 @@ def asset_counts(
     elif data_format == "json" and isinstance(res.json(), dict):
         return res.json()
 
-    raise Exception(
-        f"Format: {data_format} invalid or not supported for responses of {type(res.json())=}."
-    )
+    raise Exception(f"Format: {data_format} invalid or not supported for responses of {type(res.json())=}.")

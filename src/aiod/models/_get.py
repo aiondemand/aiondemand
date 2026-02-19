@@ -24,9 +24,7 @@ def get(id: str):
     id_lookup = _id_lookup()
     obj = id_lookup.get(id)
     if obj is None:
-        raise ValueError(
-            f"Error in aiod.get, object with package id {id} " "does not exist."
-        )
+        raise ValueError(f"Error in aiod.get, object with package id {id} does not exist.")
     return obj(id).materialize()
 
 
@@ -48,7 +46,7 @@ def _id_lookup_cached(obj_type=None):
             lookup_dict[obj_index] = obj
         else:
             obj_all_ids = obj.contained_ids()
-            lookup_dict.update({obj_id: obj for obj_id in obj_all_ids})
+            lookup_dict.update(dict.fromkeys(obj_all_ids, obj))
 
     return lookup_dict
 
@@ -57,22 +55,6 @@ def _id_lookup_cached(obj_type=None):
 def _all_objects(obj_type=None):
     from skbase.lookup import all_objects
 
-    from aiod.models.apis._classifier import _ModelPkgClassifier
-    from aiod.models.apis._cluster import _ModelPkgCluster
-    from aiod.models.apis._regressor import _ModelPkgRegressor
-    from aiod.models.apis._transformer import _ModelPkgTransformer
-    
-    type_map = {
-        "classifier": _ModelPkgClassifier,
-        "regressor": _ModelPkgRegressor,
-        "clusterer": _ModelPkgCluster,
-        "transformer": _ModelPkgTransformer,
-    }
-    if obj_type is None:
-        object_types = list(type_map.values())
-    else:
-        object_types = type_map[obj_type]
-    
-    return all_objects(
-        object_types=object_types, package_name="aiod", return_names=False
-    )
+    from aiod.models.apis._sklearn_apis import _ModelPkgSklearnEstimator
+
+    return all_objects(object_types=_ModelPkgSklearnEstimator, package_name="aiod", return_names=False)

@@ -78,7 +78,7 @@ def class_to_source(cls) -> str:
     -------
     str : complete definition of cls, as str.
         Imports are not contained or serialized.
-    """ ""
+    """
 
     # Fast path: class has retrievable source
     if _has_source(cls):

@@ -2,11 +2,13 @@
 
 from aiod.models.base import _AiodModelPkg
 
+__all__ = ["_ModelPkgSklearnEstimator"]
 
-class _ModelPkgClassifier(_AiodModelPkg):
+
+class _ModelPkgSklearnEstimator(_AiodModelPkg):
     _tags = {
         # tags specific to API type
-        "pkg_obj_type": "classifier",
+        "pkg_obj_type": "multiple",
     }
 
     def get_obj_tags(self):

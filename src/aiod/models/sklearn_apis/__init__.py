@@ -1,6 +1,7 @@
 """Sklearn classification models."""
-from .scikit_learn import AiodPkg__SklearnClassifiers
+
 from .auto_sklearn import AiodPkg__AutoSklearnClassifier
+from .scikit_learn import AiodPkg__SklearnClassifiers
 from .xgboost import AiodPkg__XGBClassifier
 
 __all__ = [
