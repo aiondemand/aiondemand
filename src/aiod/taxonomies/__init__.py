@@ -83,7 +83,7 @@ class Term:
     taxonomy: str
     term: str
     definition: str
-    subterms: list[Term]
+    subterms: list["Term"]
 
     def __eq__(self, other):
         return self.taxonomy == other.taxonomy and self.term == other.term
@@ -108,7 +108,7 @@ def _parse_term(term: _TermDict, taxonomy: str) -> Term:
 def _get_taxonomy(name: str):
     # Since taxonomies rarely change, we cache the result in memory.
     @functools.cache
-    def get_taxonomy() -> list[Term]:
+    def get_taxonomy() -> list["Term"]:
         response = requests.get(
             f"{server_url()}{name}",
             timeout=config.request_timeout_seconds,

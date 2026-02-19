@@ -248,5 +248,5 @@ class AiodPkg__Sklearn(_ModelPkgSklearnEstimator):
         "regressor": [
             "StackingRegressor",
             "VotingRegressor",
-        ]
+        ],
     }

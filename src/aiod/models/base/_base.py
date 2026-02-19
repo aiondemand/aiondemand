@@ -36,9 +36,9 @@ class _AiodModelPkg(_BasePkg):
 
         if _obj is None:
             raise ValueError(
-                "Error in materialize."
+                "Error in _AiodModelPkg._materialize. "
                 "Either _materialize must be implemented, or"
-                "the _obj attribute must be not None."
+                " the _obj attribute must be not None."
             )
 
         if pkg_obj == "reference":
