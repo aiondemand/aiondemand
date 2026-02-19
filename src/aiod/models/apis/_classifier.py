@@ -3,7 +3,7 @@
 from aiod.models.base import _AiodModelPkg
 
 
-class _ModelPkgClassifier(_AiodModelPkg):
+class _ModelPkgSklearnEstimator(_AiodModelPkg):
     _tags = {
         # tags specific to API type
         "pkg_obj_type": "classifier",

@@ -1,13 +1,14 @@
 """Auto-sklearn classifier."""
 
-from aiod.models.apis import _ModelPkgClassifier
+from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
-class AiodPkg__Sklearn(_ModelPkgClassifier):
+class AiodPkg__Sklearn(_ModelPkgSklearnEstimator):
     _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "scikit-learn",
         "pkg_pypi_name": "scikit-learn",
+        "object_types": ["classifier", "regressor"],
     }
 
     # obtained via utils._indexing._preindex_sklearn
@@ -223,4 +224,29 @@ class AiodPkg__Sklearn(_ModelPkgClassifier):
         "VarianceThreshold": "sklearn.feature_selection.VarianceThreshold",
         "VotingClassifier": "sklearn.ensemble.VotingClassifier",
         "VotingRegressor": "sklearn.ensemble.VotingRegressor",
+    }
+
+    # todo - needs to be generated, for this a new util needs to be written
+    # important: polymorphic objects like Pipeline or GridSearchCV
+    # should be handled with care, as inheritance etc does not reflect the polymorphism
+    # this may need manual curation for start, which should also be automated later
+    _type_of_objs = {
+        "StackingClassifier": "classifier",
+        "VotingClassifier": "classifier",
+        "StackingRegressor": "regressor",
+        "VotingRegressor": "regressor",
+        "Pipeline": ["classifier", "regressor"],
+    }
+
+    # todo: this also should be preindexed. can be generated from _type_of_objs
+    # important to be mindful of objects with multiple types, e.g., Pipeline
+    _objs_by_type = {
+        "classifier": [
+            "StackingClassifier",
+            "VotingClassifier",
+        ],
+        "regressor": [
+            "StackingRegressor",
+            "VotingRegressor",
+        ]
     }
