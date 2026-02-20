@@ -116,7 +116,9 @@ def _get_taxonomy(name: str):
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise EndpointUndefinedError()
         if response.status_code != HTTPStatus.OK:
-            raise RuntimeError(f"Unexpected response from ({response.status_code}, {response.json()})")
+            raise RuntimeError(
+                f"Unexpected response from ({response.status_code}, {response.json()})"
+            )
         return [_parse_term(term, name.replace("_", " ")) for term in response.json()]
 
     get_taxonomy.__wrapped__.__doc__ = f"""

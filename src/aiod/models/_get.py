@@ -25,8 +25,7 @@ def get(id: str):
     obj = id_lookup.get(id)
     if obj is None:
         raise ValueError(
-            f"Error in aiod.get, object with package"
-            f" id {id} does not exist."
+            f"Error in aiod.get, object with package id {id} does not exist."
         )
     return obj(id).materialize()
 
