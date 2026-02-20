@@ -124,8 +124,11 @@ def _get_taxonomy(name: str):
     get_taxonomy.__wrapped__.__doc__ = f"""
     Return the hierarchical taxonomy of {name.replace("_", " ")}.
 
-    This function uses caching, and only the first call will result in a call to the server.
-    The cache does not persist between Python sessions. You can clear the cache anytime by calling
+    This function uses caching, and only the first call will result in a
+    call to the server.
+    The cache does not persist between Python sessions.
+    You can clear the cache anytime by calling
+
     `aiod.taxonomies.{name}.cache_clear()`.
 
     Returns
@@ -134,7 +137,8 @@ def _get_taxonomy(name: str):
         A hierarchical taxonomy, each entry has a 'term', 'definition', and 'subterms'.
         The 'term' is a short unique name representing the entry.
         The 'definition' provides additional text to clarify the meaning for the term.
-        'Subterms' provides terms which are part of this term, and may themselves have subterms as well.
+        'Subterms' provides terms which are part of this term, and may themselves have
+        subterms as well.
 
     Raises
     ------
