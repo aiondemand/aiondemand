@@ -4,7 +4,7 @@ from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
 class AiodPkg__Sklearn(_ModelPkgSklearnEstimator):
-    _tags = {
+    _tags: dict[str, str | list[str] | None] = {
         "pkg_id": "__multiple",
         "python_dependencies": "scikit-learn",
         "pkg_pypi_name": "scikit-learn",

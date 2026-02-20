@@ -10,7 +10,7 @@ from skbase.utils.dependencies import _check_estimator_deps
 
 
 class _BasePkg(BaseObject):
-    _tags = {
+    _tags: dict[str, str | list[str] | None] = {
         "python_dependencies": None,
         "python_version": None,
         # package register and manifest
@@ -79,7 +79,6 @@ def class_to_source(cls) -> str:
     str : complete definition of cls, as str.
         Imports are not contained or serialized.
     """
-
     # Fast path: class has retrievable source
     if _has_source(cls):
         source = inspect.getsource(cls)

@@ -11,7 +11,7 @@ from skbase.lookup import all_objects
 
 
 def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
-    """Dictionary of all scikit-learn estimators in sktime and sklearn.
+    """Return dictionary of all scikit-learn estimators in sktime and sklearn.
 
     Parameters
     ----------
@@ -55,7 +55,7 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
 
 
 def _sklearn_estimators_locdict_by_type(type_filter, serialized=False):
-    """Dictionary of scikit-learn estimators filtered by type.
+    """Return dictionary of scikit-learn estimators filtered by type.
 
     Parameters
     ----------
@@ -186,7 +186,7 @@ def _generate_sklearn_objs_by_type(type_of_objs: dict) -> dict:
     -------
         Dictionary mapping types to lists of object names.
     """
-    objs_by_type = {}
+    objs_by_type: dict[str, list[str]] = {}
 
     for obj_name, obj_types in type_of_objs.items():
         if isinstance(obj_types, str):
@@ -213,7 +213,7 @@ def _generate_sklearn_types_of_obj() -> dict:
     """
     # TODO: handle meta-estimators properly
     all_est = _all_sklearn_estimators()
-    type_of_objs = {}
+    type_of_objs: dict[str, list[str] | str] = {}
     mixin_to_type = {
         "RegressorMixin": "regressor",
         "ClassifierMixin": "classifier",

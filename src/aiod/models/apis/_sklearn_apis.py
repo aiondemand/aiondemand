@@ -6,7 +6,7 @@ __all__ = ["_ModelPkgSklearnEstimator"]
 
 
 class _ModelPkgSklearnEstimator(_AiodModelPkg):
-    _tags = {
+    _tags: dict[str, str | list[str] | None] = {
         # tags specific to API type
         "pkg_obj_type": "multiple",
     }

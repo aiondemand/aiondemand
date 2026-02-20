@@ -1,7 +1,5 @@
 from aiod import bookmarks, taxonomies
 from aiod.authentication import create_token, get_current_user, invalidate_token
-
-# from aiod.calls.calls import get_any_asset as get
 from aiod.configuration import config
 from aiod.default.counts import asset_counts as counts
 from aiod.resources import (
@@ -22,6 +20,9 @@ from aiod.resources import (
     services,
     teams,
 )
+
+# from aiod.calls.calls import get_any_asset as get
+from ._get import get
 
 __all__ = [
     "config",
