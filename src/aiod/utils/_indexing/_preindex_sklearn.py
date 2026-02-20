@@ -5,6 +5,8 @@
 __author__ = ["fkiraly"]
 # all_estimators is also based on the sklearn utility of the same name
 
+import inspect
+
 from skbase.lookup import all_objects
 
 
@@ -170,3 +172,66 @@ def _all_sklearn_estimators(
         return_names=return_names,
         suppress_import_stdout=suppress_import_stdout,
     )
+
+
+def generate_sklearn_objs_by_type(type_of_objs: dict) -> dict:
+    """
+    Generate _objs_by_type dictionary from _type_of_objs.
+
+    Args:
+        type_of_objs: Dictionary mapping object names to their types.
+                     Types can be strings or lists of strings for polymorphic objects.
+
+    Returns
+    -------
+        Dictionary mapping types to lists of object names.
+    """
+    objs_by_type = {}
+
+    for obj_name, obj_types in type_of_objs.items():
+        if isinstance(obj_types, str):
+            obj_types = [obj_types]
+
+        for obj_type in obj_types:
+            if obj_type not in objs_by_type:
+                objs_by_type[obj_type] = []
+            objs_by_type[obj_type].append(obj_name)
+
+    return objs_by_type
+
+
+def generate_sklearn_types_of_obj() -> dict:
+    """
+    Generate _type_of_objs dictionary from _all_sklearn_estimators.
+
+    Args:
+        type_of_objs: Dictionary mapping object names to their types.
+
+    Returns
+    -------
+        Dictionary mapping object names to their types (as strings or lists of strings).
+    """
+    all_est = _all_sklearn_estimators()
+    type_of_objs = {}
+    mixin_to_type = {
+        "RegressorMixin": "regressor",
+        "ClassifierMixin": "classifier",
+        "TransformerMixin": "transformer",
+        "ClusterMixin": "cluster",
+        "BiclusterMixin": "cluster",
+        "DensityMixin": "density",
+        "OutlierMixin": "outlier_detector",
+        "_VectorizerMixin": "transformer",
+    }
+
+    for est_name, est_class in all_est:
+        mro = inspect.getmro(est_class)
+
+        found_types = []
+        for base_class in mro:
+            if base_class.__name__ in mixin_to_type:
+                est_type = mixin_to_type[base_class.__name__]
+                if est_type not in found_types:
+                    found_types.append(est_type)
+        if found_types:
+            type_of_objs[est_name] = found_types if len(found_types) > 1 else found_types[0]
