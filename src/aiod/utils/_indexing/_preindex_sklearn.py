@@ -174,7 +174,7 @@ def _all_sklearn_estimators(
     )
 
 
-def generate_sklearn_objs_by_type(type_of_objs: dict) -> dict:
+def _generate_sklearn_objs_by_type(type_of_objs: dict) -> dict:
     """
     Generate _objs_by_type dictionary from _type_of_objs.
 
@@ -200,7 +200,7 @@ def generate_sklearn_objs_by_type(type_of_objs: dict) -> dict:
     return objs_by_type
 
 
-def generate_sklearn_types_of_obj() -> dict:
+def _generate_sklearn_types_of_obj() -> dict:
     """
     Generate _type_of_objs dictionary from _all_sklearn_estimators.
 
@@ -211,6 +211,7 @@ def generate_sklearn_types_of_obj() -> dict:
     -------
         Dictionary mapping object names to their types (as strings or lists of strings).
     """
+    # TODO: handle meta-estimators properly
     all_est = _all_sklearn_estimators()
     type_of_objs = {}
     mixin_to_type = {
@@ -235,3 +236,5 @@ def generate_sklearn_types_of_obj() -> dict:
                     found_types.append(est_type)
         if found_types:
             type_of_objs[est_name] = found_types if len(found_types) > 1 else found_types[0]
+
+    return type_of_objs
