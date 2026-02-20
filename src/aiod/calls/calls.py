@@ -8,6 +8,13 @@ import pandas as pd
 import requests
 
 from aiod.authentication.authentication import _get_auth_headers, get_token
+import pandas as pd
+
+from typing import Literal
+from functools import partial
+
+from aiod.authentication.authentication import get_token, _get_auth_headers
+from aiod.configuration import config
 from aiod.calls.urls import (
     server_url,
     url_to_get_asset,
@@ -21,6 +28,8 @@ from aiod.calls.urls import (
 from aiod.calls.utils import ServerError, format_response, wrap_calls
 from aiod.configuration import config
 
+from aiod.calls.utils import format_response, wrap_calls, ServerError
+_session = requests.Session()
 
 def get_any_asset(
     identifier: str,
@@ -45,7 +54,7 @@ def get_any_asset(
     KeyError
         If the asset cannot be found.
     """
-    res = requests.get(
+    res = _session.get(
         server_url() + f"assets/{identifier}",
         headers=_get_auth_headers(required=False),
         timeout=config.request_timeout_seconds,
@@ -95,7 +104,7 @@ def get_list(
         if platform is not None
         else url_to_get_list(asset_type, offset, limit, version)
     )
-    res = requests.get(
+    res = _session.get(
         url,
         timeout=config.request_timeout_seconds,
     )
@@ -124,7 +133,7 @@ def delete_asset(
         The server response.
     """
     url = url_to_get_asset(asset_type, identifier, version)
-    res = requests.delete(
+    res = _session.delete(
         url,
         headers=get_token().headers,
         timeout=config.request_timeout_seconds,
@@ -170,7 +179,7 @@ def put_asset(
         KeyError if the identifier is not known by the server.
     """
     url = url_to_get_asset(asset_type, identifier, version)
-    res = requests.put(
+    res = _session.put(
         url,
         headers=get_token().headers,
         json=metadata,
@@ -221,7 +230,7 @@ def patch_asset(
     for attribute, value in metadata.items():
         asset[attribute] = value
 
-    res = requests.put(
+    res = _session.put(
         url,
         headers=get_token().headers,
         json=asset,
@@ -257,7 +266,7 @@ def post_asset(
         error response, if it failed to register successfully
     """
     url = f"{server_url(version)}{asset_type}"
-    res = requests.post(
+    res = _session.post(
         url,
         headers=get_token().headers,
         json=metadata,
@@ -289,7 +298,7 @@ def counts(*, asset_type: str, version: str | None = None, per_platform: bool = 
         and the number of ASSET_TYPE assets from that platform as values.
     """
     url = url_to_resource_counts(version, per_platform, asset_type)
-    res = requests.get(url, timeout=config.request_timeout_seconds)
+    res = _session.get(url, timeout=config.request_timeout_seconds)
     return res.json()
 
 
@@ -325,7 +334,7 @@ def get_asset(
         If the asset cannot be found.
     """
     url = url_to_get_asset(asset_type, identifier, version)
-    res = requests.get(
+    res = _session.get(
         url,
         headers=_get_auth_headers(required=False),
         timeout=config.request_timeout_seconds,
@@ -369,6 +378,16 @@ def get_asset_from_platform(
     res = requests.get(url, timeout=config.request_timeout_seconds)
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
         raise KeyError(f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found.")
+    url = url_to_get_asset_from_platform(
+        asset_type, platform, platform_identifier, version
+    )
+    res = _session.get(url, timeout=config.request_timeout_seconds)
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
+        raise KeyError(
+            f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found."
+        )
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -399,7 +418,7 @@ def get_content(
         The data content for the specified ASSET_TYPE.
     """
     url = url_to_get_content(asset_type, identifier, distribution_idx, version)
-    res = requests.get(
+    res = _session.get(
         url,
         timeout=config.request_timeout_seconds,
     )
@@ -460,7 +479,7 @@ def search(
         get_all,
         version,
     )
-    res = requests.get(
+    res = _session.get(
         url,
         timeout=config.request_timeout_seconds,
     )
