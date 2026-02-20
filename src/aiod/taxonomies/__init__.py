@@ -92,7 +92,7 @@ class Term:
 class _TermDict(TypedDict):
     term: str
     definition: str
-    subterms: list[_TermDict]
+    subterms: list["_TermDict"]
 
 
 def _parse_term(term: _TermDict, taxonomy: str) -> Term:
