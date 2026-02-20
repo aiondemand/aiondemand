@@ -77,10 +77,14 @@ ignore = [
     "D105",
     "D106",
     "D107",
+    "N806", # allow uppercase variable names in funtion
 #    "D407",
 #    "D408",
 ]
 #extend-select = ["D416"]
+
+[tool.ruff.lint.pep8-naming]
+ignore-names = ["AiodPkg__*"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
