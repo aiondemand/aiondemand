@@ -52,7 +52,7 @@ class _AiodModelPkg(_BasePkg):
         if pkg_obj == "code":
             exec(self._obj)
 
-            return obj
+            return obj  # noqa: F821
 
         # elif pkg_obj == "craft":
         #    identify and call appropriate craft method

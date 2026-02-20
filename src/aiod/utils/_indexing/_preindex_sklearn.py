@@ -9,7 +9,7 @@ from skbase.lookup import all_objects
 
 
 def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
-    """Dictionary of all scikit-learn estimators in sktime and sklearn.
+    """Return dictionary of all scikit-learn estimators in sktime and sklearn.
 
     Parameters
     ----------
