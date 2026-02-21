@@ -1,7 +1,9 @@
-from aiod.registry._craft import craft, deps, imports
+from aiod.registry._craft import craft as _craft
+from aiod.registry._craft import deps as _deps
+from aiod.registry._craft import imports as _imports
 
 __all__ = [
-    "craft",
-    "deps",
-    "imports",
+    "_craft",
+    "_deps",
+    "_imports",
 ]

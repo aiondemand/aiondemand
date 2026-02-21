@@ -2,7 +2,7 @@
 
 import pytest
 
-from aiod.registry import craft, imports
+from aiod.registry._craft import craft, imports
 
 simple_spec = "RandomForestClassifier()"
 simple_spec_with_params = "RandomForestClassifier(n_estimators=10, max_depth=3)"
