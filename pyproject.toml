@@ -10,14 +10,6 @@ requires-python = ">=3.10"
 license = "MIT"
 dynamic = ["version"]
 
-[project.urls]
-Homepage = "https://www.aiod.eu"
-Documentation = "https://aiondemand.github.io/aiondemand/"
-Repository = "https://github.com/aiondemand/aiondemand"
-Issues = "https://github.com/aiondemand/aiondemand/issues"
-Changelog = "https://aiondemand.github.io/aiondemand/changelog/"
-
-
 dependencies = [
     "aiohttp",
     "pandas",
@@ -48,6 +40,13 @@ tests_integrations = [
 [build-system]
 requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
+
+[project.urls]
+Homepage = "https://www.aiod.eu"
+Documentation = "https://aiondemand.github.io/aiondemand/"
+Repository = "https://github.com/aiondemand/aiondemand"
+Issues = "https://github.com/aiondemand/aiondemand/issues"
+Changelog = "https://aiondemand.github.io/aiondemand/changelog/"
 
 [tool.hatch.version]
 path = "src/aiod/__init__.py"
