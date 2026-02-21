@@ -33,6 +33,9 @@ doc = [
     "mkdocstrings-python",
     "mkdocs-jupyter",
 ]
+tests_integrations = [
+    "scikit-learn",
+]
 
 [build-system]
 requires = ["hatchling >= 1.26"]

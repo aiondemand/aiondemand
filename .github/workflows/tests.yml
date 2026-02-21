@@ -32,10 +32,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-      - run: python -m pip install ".[dev]"
+      - run: python -m pip install ".[dev,tests_integrations]"
         name: Install Dependencies
       - run: python -m pytest tests
         name: Run local tests
+      - run: python -m pytest src/aiod
+        name: Run tests in package
       - run: python -m pytest -m server tests
         name: Run integration tests
 
