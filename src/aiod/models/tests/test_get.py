@@ -13,4 +13,3 @@ def test_get_basic_usage():
 
     rfc_from_get = get("RandomForestClassifier")
     assert rfc_from_get == RandomForestClassifier
-
