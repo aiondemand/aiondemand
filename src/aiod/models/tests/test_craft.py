@@ -42,7 +42,7 @@ def test_craft(spec):
     # in sktime, we would assert crafted_again == crafted_obj,
     # but sklearn estimators do not implement __eq__ as parameter equality
     assert type(crafted_obj) is type(crafted_again)
-    assert str(crafted_again.get_params()) == str(crafted_obj.get_params())
+    assert str(crafted_again) == str(crafted_obj)
 
 
 def test_imports_simple():
