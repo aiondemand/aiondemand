@@ -19,7 +19,7 @@ def get(id: str):
     ModuleNotFoundError
         if dependencies of object to retrieve are not satisfied
     """
-    from aiod.models._registry_craft import craft
+    from aiod.models._registry._craft import craft
 
     # todo: add logic for dependency checking
     return craft(id)
