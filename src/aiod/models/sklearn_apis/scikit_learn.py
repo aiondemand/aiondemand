@@ -424,9 +424,30 @@ class AiodPkg__Sklearn(_ModelPkgSklearnEstimator):
         "VarianceThreshold": "transformer",
         "VotingClassifier": ["classifier", "transformer"],
         "VotingRegressor": ["regressor", "transformer"],
-        "Pipeline": ["classifier", "regressor", "transformer", "clusterer", "density", "outlier_detector"],
-        "GridSearchCV": ["classifier", "regressor", "transformer", "clusterer", "density", "outlier_detector"],
-        "RandomizedSearchCV": ["classifier", "regressor", "transformer", "clusterer", "density", "outlier_detector"],
+        "Pipeline": [
+            "classifier",
+            "regressor",
+            "transformer",
+            "clusterer",
+            "density",
+            "outlier_detector",
+        ],
+        "GridSearchCV": [
+            "classifier",
+            "regressor",
+            "transformer",
+            "clusterer",
+            "density",
+            "outlier_detector",
+        ],
+        "RandomizedSearchCV": [
+            "classifier",
+            "regressor",
+            "transformer",
+            "clusterer",
+            "density",
+            "outlier_detector",
+        ],
     }
 
     # todo: this also should be preindexed. can be generated from _type_of_objs
