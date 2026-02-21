@@ -1,4 +1,4 @@
-S# ruff: noqa: E501
+# ruff: noqa: E501
 """Auto-sklearn classifier."""
 
 from aiod.models.apis import _ModelPkgSklearnEstimator

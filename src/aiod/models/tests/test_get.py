@@ -9,6 +9,10 @@ from skbase.utils.dependencies import _check_soft_dependencies
     reason="run only if scikit-learn is installed",
 )
 def test_get_basic_usage():
+    """Test basic get usage if soft dependencies are present.
+
+    When called with a class ID, the class should be retrieved directly.
+    """
     from sklearn.ensemble import RandomForestClassifier
 
     from aiod.models import get
