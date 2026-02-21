@@ -217,10 +217,10 @@ def _generate_sklearn_types_of_obj() -> dict:
         "RegressorMixin": "regressor",
         "ClassifierMixin": "classifier",
         "TransformerMixin": "transformer",
-        "ClusterMixin": "cluster",
-        "BiclusterMixin": "cluster",
+        "ClusterMixin": "clusterer",
+        "BiclusterMixin": "biclusterer",
         "DensityMixin": "density",
-        "OutlierMixin": "outlier_detector",
+        "OutlierMixin": "detector_outlier",
         "_VectorizerMixin": "transformer",
     }
 
