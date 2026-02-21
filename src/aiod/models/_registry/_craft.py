@@ -18,7 +18,7 @@ will have the same effect as new_est = spec.clone()
 
 import re
 
-from aiod.models import get
+from aiod.models._registry._cls_lookup import _get_class
 
 
 def _extract_class_names(spec):
@@ -51,7 +51,7 @@ def craft(spec):
 
     for name in cls_names:
         try:
-            register[name] = get(name)
+            register[name] = _get_class(name)
         except Exception as e:
             raise RuntimeError(
                 f"class {name} is required to build spec, but get('{name}') failed"

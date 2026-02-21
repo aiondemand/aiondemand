@@ -1,31 +1,26 @@
-"""Model retrieval utility."""
+"""Model retrieval utility for classes."""
 
 from functools import lru_cache
 
 
-def get(id: str):
-    """Retrieve model object with unique identifier.
+def _get_class(id: str):
+    """Retrieve model class with unique identifier.
 
     Parameter
     ---------
     id : str
-        unique identifier of object to retrieve
+        unique identifier of class to retrieve
 
     Returns
     -------
-    object or class
-        retrieved object
+    class
+        retrieved class
 
     Raises
     ------
     ModuleNotFoundError
         if dependencies of object to retrieve are not satisfied
     """
-    if "(" in id:
-        from aiod.registry import craft
-
-        return craft(id)
-
     id_lookup = _id_lookup()
     obj = id_lookup.get(id)
     if obj is None:
