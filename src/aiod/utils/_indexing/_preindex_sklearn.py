@@ -233,7 +233,9 @@ def _generate_sklearn_types_of_obj() -> dict:
                 est_type = mixin_to_type[base_class.__name__]
                 if est_type not in found_types:
                     found_types.append(est_type)
-        if found_types:
-            type_of_objs[est_name] = found_types if len(found_types) > 1 else found_types[0]
+        if len(found_types) > 1:
+            type_of_objs[est_name] = found_types
+        elif len(found_types) == 1:
+            type_of_objs[est_name] = found_types[0]
 
     return type_of_objs
