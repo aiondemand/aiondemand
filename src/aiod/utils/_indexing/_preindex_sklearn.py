@@ -124,7 +124,6 @@ def _all_sklearn_estimators(
     suppress_import_stdout : bool, optional. Default=True
         whether to suppress stdout printout upon import.
 
-
     Returns
     -------
     all_estimators will return one of the following:

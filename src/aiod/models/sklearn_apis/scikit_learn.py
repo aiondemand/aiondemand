@@ -1,10 +1,11 @@
+S# ruff: noqa: E501
 """Auto-sklearn classifier."""
 
 from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
 class AiodPkg__Sklearn(_ModelPkgSklearnEstimator):
-    _tags: dict[str, str | list[str] | None] = {
+    _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "scikit-learn",
         "pkg_pypi_name": "scikit-learn",

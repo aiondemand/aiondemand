@@ -4,8 +4,8 @@ from aiod.base import _BasePkg
 
 
 class _AiodModelPkg(_BasePkg):
-    _obj: str | None = None
-    _obj_dict: dict[str, list[str] | str] = {}
+    _obj = None
+    _obj_dict = {}
 
     def __init__(self, id=None):
         self.id = id
@@ -52,7 +52,7 @@ class _AiodModelPkg(_BasePkg):
         if pkg_obj == "code":
             exec(self._obj)
 
-            return _obj
+            return obj  # noqa: F821
 
         # elif pkg_obj == "craft":
         #    identify and call appropriate craft method

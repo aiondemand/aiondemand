@@ -10,7 +10,7 @@ from skbase.utils.dependencies import _check_estimator_deps
 
 
 class _BasePkg(BaseObject):
-    _tags: dict[str, str | list[str] | None] = {
+    _tags = {
         "python_dependencies": None,
         "python_version": None,
         # package register and manifest
