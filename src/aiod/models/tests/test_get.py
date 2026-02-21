@@ -4,7 +4,10 @@ import pytest
 from skbase.utils.dependencies import _check_soft_dependencies
 
 
-@pytest.mark.skipif(not _check_soft_dependencies("scikit-learn", severity="none"))
+@pytest.mark.skipif(
+    not _check_soft_dependencies("scikit-learn", severity="none"),
+    reason="run only if scikit-learn is installed",
+)
 def test_get_basic_usage():
     from sklearn.ensemble import RandomForestClassifier
 
