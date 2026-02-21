@@ -26,7 +26,7 @@ def _extract_class_names(spec):
     pattern = r"\b([A-Z][A-Za-z0-9_]*)\b"
     cls_name_list = re.findall(pattern, spec)
 
-    EXCLUDE_LIST = ["True", "False"]
+    EXCLUDE_LIST = ["True", "False", "None"]
     cls_name_list = [x for x in cls_name_list if x not in EXCLUDE_LIST]
 
     return cls_name_list
