@@ -1,6 +1,7 @@
 """Testing of crafting functionality for sklearn components."""
 
 import pytest
+from skbase.utils.deep_equals import deep_equals
 
 from aiod.models._registry._craft import craft, imports
 
@@ -44,8 +45,8 @@ def test_craft(spec):
 
     # in sktime, we would assert crafted_again == crafted_obj,
     # but sklearn estimators do not implement __eq__ as parameter equality
-    assert type(crafted_obj) == type(crafted_again)
-    assert crafted_again.get_params() == crafted_obj.get_params()
+    assert type(crafted_obj) is type(crafted_again)
+    assert deep_equals(crafted_again.get_params(), crafted_obj.get_params())
 
 
 def test_imports_simple():
