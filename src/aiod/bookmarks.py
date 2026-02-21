@@ -1,13 +1,13 @@
-import datetime as dt
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from http import HTTPStatus
 
 import requests
 
-from aiod.configuration import config
 from aiod.authentication import get_token
 from aiod.calls.urls import server_url
 from aiod.calls.utils import ServerError
+from aiod.configuration import config
 
 
 @dataclass
@@ -18,12 +18,12 @@ class Bookmark:
     ----------
     identifier: str
         The identifier of the asset on AI-on-Demand, e.g., 'data_xyz...'
-    created: datetime.datetime
+    created: datetime
         The datetime when the bookmark was originally created.
     """
 
     identifier: str
-    created: dt.datetime
+    created: datetime
 
 
 def _bookmarks_url() -> str:
@@ -52,7 +52,7 @@ def register(identifier: str) -> Bookmark:
     """
     res = requests.post(
         _bookmarks_url(),
-        params=dict(resource_identifier=identifier),
+        params={"resource_identifier": identifier},
         headers=get_token().headers,
         timeout=config.request_timeout_seconds,
     )
@@ -63,9 +63,7 @@ def register(identifier: str) -> Bookmark:
 
     return Bookmark(
         identifier=res.json()["resource_identifier"],
-        created=dt.datetime.fromisoformat(res.json()["created_at"]).replace(
-            tzinfo=dt.UTC
-        ),
+        created=datetime.fromisoformat(res.json()["created_at"]).replace(tzinfo=timezone.utc),
     )
 
 
@@ -88,7 +86,7 @@ def delete(identifier: str):
     """
     res = requests.delete(
         _bookmarks_url(),
-        params=dict(resource_identifier=identifier),
+        params={"resource_identifier": identifier},
         headers=get_token().headers,
         timeout=config.request_timeout_seconds,
     )
@@ -115,9 +113,7 @@ def get_list() -> list[Bookmark]:
     return [
         Bookmark(
             identifier=bookmark["resource_identifier"],
-            created=dt.datetime.fromisoformat(bookmark["created_at"]).replace(
-                tzinfo=dt.UTC
-            ),
+            created=datetime.fromisoformat(bookmark["created_at"]).replace(tzinfo=timezone.utc),
         )
         for bookmark in res.json()
     ]

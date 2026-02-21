@@ -13,7 +13,7 @@ def get(id: str):
 
     Returns
     -------
-    object
+    object or class
         retrieved object
 
     Raises
@@ -53,7 +53,7 @@ def _id_lookup_cached(obj_type=None):
             lookup_dict[obj_index] = obj
         else:
             obj_all_ids = obj.contained_ids()
-            lookup_dict.update({obj_id: obj for obj_id in obj_all_ids})
+            lookup_dict.update(dict.fromkeys(obj_all_ids, obj))
 
     return lookup_dict
 
@@ -62,8 +62,8 @@ def _id_lookup_cached(obj_type=None):
 def _all_objects(obj_type=None):
     from skbase.lookup import all_objects
 
-    from aiod.models.apis._classifier import _ModelPkgClassifier
+    from aiod.models.apis._sklearn_apis import _ModelPkgSklearnEstimator
 
     return all_objects(
-        object_types=_ModelPkgClassifier, package_name="aiod", return_names=False
+        object_types=_ModelPkgSklearnEstimator, package_name="aiod", return_names=False
     )
