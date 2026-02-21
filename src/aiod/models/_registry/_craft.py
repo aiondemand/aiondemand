@@ -96,7 +96,7 @@ def deps(spec, include_test_deps=False):
 
     for x in _extract_class_names(spec):
         try:
-            cls = get(x)
+            cls = _get_class(x)
         except Exception as e:
             raise RuntimeError(
                 f"class {x} is required to build spec, but get('{x}') failed"
@@ -143,7 +143,7 @@ def imports(spec):
 
     for x in _extract_class_names(spec):
         try:
-            cls = get(x)
+            cls = _get_class(x)
         except Exception as e:
             raise RuntimeError(
                 f"class {x} is required to build spec, but get('{x}') failed"
