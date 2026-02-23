@@ -1,15 +1,15 @@
 # ruff: noqa: E501
 """mlxtend model package."""
 
-from aiod.models.apis import _ModelPkgClassifier
+from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
-class AiodPkg__mlxtend(_ModelPkgClassifier):
+class AiodPkg__mlxtend(_ModelPkgSklearnEstimator):
     _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "mlxtend",
         "pkg_pypi_name": "mlxtend",
-        "object_types": ["classifier", "regressor", "transformer"],
+        "object_types": ["classifier", "regressor"],
     }
 
     _obj_dict = {
