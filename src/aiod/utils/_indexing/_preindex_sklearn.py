@@ -5,11 +5,13 @@
 __author__ = ["fkiraly"]
 # all_estimators is also based on the sklearn utility of the same name
 
+import inspect
+
 from skbase.lookup import all_objects
 
 
 def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
-    """Dictionary of all scikit-learn estimators in sktime and sklearn.
+    """Return dictionary of all scikit-learn estimators in sktime and sklearn.
 
     Parameters
     ----------
@@ -49,6 +51,37 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
 
         loc_dict = serialize_dict(loc_dict, name="sklearn_estimators_loc_dict")
 
+    return loc_dict
+
+
+def _sklearn_estimators_locdict_by_type(type_filter, serialized=False):
+    """Return dictionary of scikit-learn estimators filtered by type.
+
+    Parameters
+    ----------
+    type_filter : str
+        The type of estimator to filter for.
+    serialized : bool, optional (default=False)
+        If True, returns a serialized version of the dict, via
+        ``aiod.utils._inmemory._dict.serialize_dict``.
+        If False, returns the dict directly.
+
+    Returns
+    -------
+    loc_dict : dict
+        A dictionary with:
+            * keys: str, estimator class name, e.g., ``RandomForestClassifier``
+            * values: str, public import path of the estimator, e.g.,
+              ``sklearn.ensemble.RandomForestClassifier``
+    """
+    from sklearn.utils import all_estimators
+
+    ests = all_estimators(type_filter=type_filter)
+    loc_dict = {name: f"{est.__module__}.{name}" for name, est in ests}
+    if serialized:
+        from aiod.utils._inmemory._dict import serialize_dict
+
+        loc_dict = serialize_dict(loc_dict, name=f"sklearn_{type_filter}_loc_dict")
     return loc_dict
 
 
@@ -138,3 +171,71 @@ def _all_sklearn_estimators(
         return_names=return_names,
         suppress_import_stdout=suppress_import_stdout,
     )
+
+
+def _generate_sklearn_objs_by_type(type_of_objs: dict) -> dict:
+    """
+    Generate _objs_by_type dictionary from _type_of_objs.
+
+    Args:
+        type_of_objs: Dictionary mapping object names to their types.
+                     Types can be strings or lists of strings for polymorphic objects.
+
+    Returns
+    -------
+        Dictionary mapping types to lists of object names.
+    """
+    objs_by_type: dict[str, list[str]] = {}
+
+    for obj_name, obj_types in type_of_objs.items():
+        if isinstance(obj_types, str):
+            obj_types = [obj_types]
+
+        for obj_type in obj_types:
+            if obj_type not in objs_by_type:
+                objs_by_type[obj_type] = []
+            objs_by_type[obj_type].append(obj_name)
+
+    return objs_by_type
+
+
+def _generate_sklearn_types_of_obj() -> dict:
+    """
+    Generate _type_of_objs dictionary from _all_sklearn_estimators.
+
+    Args:
+        type_of_objs: Dictionary mapping object names to their types.
+
+    Returns
+    -------
+        Dictionary mapping object names to their types (as strings or lists of strings).
+    """
+    # TODO: handle meta-estimators properly
+    all_est = _all_sklearn_estimators()
+    type_of_objs: dict[str, list[str] | str] = {}
+    mixin_to_type = {
+        "RegressorMixin": "regressor",
+        "ClassifierMixin": "classifier",
+        "TransformerMixin": "transformer",
+        "ClusterMixin": "clusterer",
+        "BiclusterMixin": "biclusterer",
+        "DensityMixin": "density",
+        "OutlierMixin": "detector_outlier",
+        "_VectorizerMixin": "transformer",
+    }
+
+    for est_name, est_class in all_est:
+        mro = inspect.getmro(est_class)
+
+        found_types = []
+        for base_class in mro:
+            if base_class.__name__ in mixin_to_type:
+                est_type = mixin_to_type[base_class.__name__]
+                if est_type not in found_types:
+                    found_types.append(est_type)
+        if len(found_types) > 1:
+            type_of_objs[est_name] = found_types
+        elif len(found_types) == 1:
+            type_of_objs[est_name] = found_types[0]
+
+    return type_of_objs

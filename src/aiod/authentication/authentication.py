@@ -1,17 +1,18 @@
-from datetime import datetime, timezone, timedelta
-import time
-import http.client
-from http import HTTPStatus
 import functools
+import http.client
+import logging
+import time
+from collections.abc import Sequence
+from datetime import datetime, timedelta, timezone
+from http import HTTPStatus
 from pathlib import Path
+from typing import NamedTuple
 
 import requests
 import tomlkit
-from typing import Sequence, NamedTuple
-from keycloak import KeycloakOpenID, KeycloakPostError, KeycloakConnectionError
+from keycloak import KeycloakConnectionError, KeycloakOpenID, KeycloakPostError
 
 from aiod.configuration import config
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -56,13 +57,9 @@ class Token:
         expires_in_seconds: int = -1,
     ):
         if (client_secret and refresh_token) or not (client_secret or refresh_token):
-            raise ValueError(
-                "Must set exactly one of `client_secret` or `refresh_token`."
-            )
+            raise ValueError("Must set exactly one of `client_secret` or `refresh_token`.")
         if expires_in_seconds > 0 and access_token is None:
-            raise ValueError(
-                "If `expires_in_seconds` is set, `access_token` must be set to a valid access_token"
-            )
+            raise ValueError("If `expires_in_seconds` is set, `access_token` must be set to a valid access_token")
         self._client_secret = client_secret
         self._refresh_token = refresh_token
         self._access_token = access_token or ""
@@ -101,9 +98,7 @@ class Token:
             if self._client_secret:
                 token_info = keycloak_openid().token(grant_type="client_credentials")
         except KeycloakPostError:
-            raise AuthenticationError(
-                "Refresh token is not valid. Use `aiod.create_token` to get a new one."
-            ) from None
+            raise AuthenticationError("Refresh token is not valid. Use `aiod.create_token` to get a new one.") from None
         except KeycloakConnectionError as e:
             e.add_note(f"Could not connect {config.auth_server!r}, try again later.")
             raise
@@ -113,10 +108,8 @@ class Token:
         # Because of the minuscule time difference between the server sending the
         # response and us processing it, the `expires_in` may not be used directly
         # when calculating expiration time.
-        SAFETY_PERIOD_SECONDS = 2
-        self._expiration_date = _datetime_utc_in(
-            seconds=token_info["expires_in"] - SAFETY_PERIOD_SECONDS
-        )
+        SAFETY_PERIOD_SECONDS = 2  # noqa: N806
+        self._expiration_date = _datetime_utc_in(seconds=token_info["expires_in"] - SAFETY_PERIOD_SECONDS)
         logger.info(f"Renewed access token, it expires {self._expiration_date}.")
 
     def to_file(self, file: Path | None = None):
@@ -180,10 +173,7 @@ def get_token() -> Token:
     :
     """
     if _token is None:
-        msg = (
-            "No token set. Please create a new token with `aiod.create_token()`,"
-            " or set one with `aiod.set_token('...')`."
-        )
+        msg = "No token set. Please create a new token with `aiod.create_token()`, or set one with `aiod.set_token('...')`."
         raise NotAuthenticatedError(msg)
     return _token
 
@@ -302,17 +292,11 @@ def create_token(
             case (HTTPStatus.BAD_REQUEST, "expired_token"):
                 raise AuthenticationError("Device code has expired, please try again.")
             case (status, error):
-                raise AuthenticationError(
-                    f"Unexpected error, please contact the developers ({status}, {error})."
-                )
-    raise AuthenticationError(
-        f"No successful authentication within {timeout_seconds=} seconds."
-    )
+                raise AuthenticationError(f"Unexpected error, please contact the developers ({status}, {error}).")
+    raise AuthenticationError(f"No successful authentication within {timeout_seconds=} seconds.")
 
 
-def invalidate_token(
-    token: str | Token | None = None, ignore_errors: bool = False
-) -> None:
+def invalidate_token(token: str | Token | None = None, ignore_errors: bool = False) -> None:
     """Invalidates the current (or provided) API key.
 
     Ends the current keycloak session, invalidating all keys issued.
