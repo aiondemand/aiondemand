@@ -46,6 +46,54 @@ class BaseResource:
         return [cls._from_dict(item) for item in data]
 
     @classmethod
+    def search(
+        cls: type[T],
+        query: str,
+        offset: int = 0,
+        limit: int = 100,
+        platform: str | None = None,
+    ) -> list[T]:
+        """Search for resources matching a query."""
+        from aiod.calls.calls import search
+        platforms = [platform] if platform else None
+        data = search(
+            query=query,
+            asset_type=cls.asset_type,
+            offset=offset,
+            limit=limit,
+            platforms=platforms,
+            data_format="json",
+        )
+        return [cls._from_dict(item) for item in data]
+
+    @classmethod
+    def get_from_platform(
+        cls: type[T],
+        platform: str,
+        platform_identifier: str,
+    ) -> T:
+        """Retrieve a resource by its platform and platform-specific identifier."""
+        from aiod.calls.calls import get_asset_from_platform
+        data = get_asset_from_platform(
+            platform=platform,
+            platform_identifier=platform_identifier,
+            asset_type=cls.asset_type,
+            data_format="json",
+        )
+        return cls._from_dict(data)
+
+    def get_content(self, distribution_idx: int = 0) -> bytes:
+        """Retrieve the data content associated with this resource."""
+        if not self.identifier:
+            raise ValueError("Resource must have an identifier to fetch content.")
+        from aiod.calls.calls import get_content
+        return get_content(
+            identifier=self.identifier,
+            asset_type=self.asset_type,
+            distribution_idx=distribution_idx,
+        )
+
+    @classmethod
     def counts(cls) -> int | dict[str, int]:
         """Retrieve the number of resources in the metadata catalogue."""
         from aiod.calls.calls import counts
@@ -55,7 +103,6 @@ class BaseResource:
         """Save the resource to the catalogue (register or update)."""
         if self.identifier:
             from aiod.calls.calls import patch_asset
-            # Best effort patch logic
             patch_asset(
                 asset_type=self.asset_type,
                 identifier=self.identifier,
@@ -75,18 +122,21 @@ class BaseResource:
         from aiod.calls.calls import delete_asset
         delete_asset(asset_type=self.asset_type, identifier=self.identifier)
 
+    # --- Backward Compatibility Aliases ---
+    get_asset = get
+    get_list = list
+    register = save
+    update = save
+
     def to_dict(self) -> dict[str, Any]:
         """Convert the resource to a dictionary."""
         d = dataclasses.asdict(self)
-        # Remove internal fields or None values if necessary
         return {k: v for k, v in d.items() if v is not None}
 
     @classmethod
     def _from_dict(cls: type[T], data: dict[str, Any]) -> T:
         """Create a resource instance from a dictionary."""
-        # Get the fields of the dataclass
         fields = {f.name for f in dataclasses.fields(cls)}
-        # Filter data to only include valid fields
         filtered_data = {k: v for k, v in data.items() if k in fields}
         return cls(**filtered_data)
 

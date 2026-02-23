@@ -17,18 +17,38 @@ class MLModel(BaseResource):
     version: str | None = None
     keywords: list[str] | None = None
 
-(
-    get_list,
-    counts,
-    get_asset,
-    register,
-    replace,
-    update,
-    delete,
-    get_asset_from_platform,
-    get_content,
-    get_assets_async,
-    get_list_async,
-) = calls.wrap_common_calls(asset_type="ml_models", module=__name__)
+# --- Backward Compatibility API (Proxies to MLModel classmethods) ---
 
-(search,) = calls.wrap_search_call(asset_type="ml_models", module=__name__)
+def get_list(*args, **kwargs):
+    """Retrieve a list of MLModel assets."""
+    return MLModel.get_list(*args, **kwargs)
+
+def counts(*args, **kwargs):
+    """Retrieve the number of MLModel assets."""
+    return MLModel.counts(*args, **kwargs)
+
+def get_asset(*args, **kwargs):
+    """Retrieve a specific MLModel asset."""
+    return MLModel.get_asset(*args, **kwargs)
+
+def register(*args, **kwargs):
+    """Register a new MLModel asset."""
+    return MLModel.register(*args, **kwargs)
+
+def update(*args, **kwargs):
+    """Update an existing MLModel asset."""
+    return MLModel.update(*args, **kwargs)
+
+def delete(*args, **kwargs):
+    """Delete an MLModel asset."""
+    return MLModel.delete(*args, **kwargs)
+
+def get_asset_from_platform(*args, **kwargs):
+    """Retrieve an MLModel asset from an external platform."""
+    return MLModel.get_from_platform(*args, **kwargs)
+
+def search(*args, **kwargs):
+    """Search for MLModel assets."""
+    return MLModel.search(*args, **kwargs)
+
+# Note: Async methods can be added similarly if needed.

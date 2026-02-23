@@ -15,18 +15,36 @@ class News(BaseResource):
     same_as: str | None = None
     keywords: list[str] | None = None
 
-(
-    get_list,
-    counts,
-    get_asset,
-    register,
-    replace,
-    update,
-    delete,
-    get_asset_from_platform,
-    get_content,
-    get_assets_async,
-    get_list_async,
-) = calls.wrap_common_calls(asset_type="news", module=__name__)
+# --- Backward Compatibility API (Proxies to News classmethods) ---
 
-(search,) = calls.wrap_search_call(asset_type="news", module=__name__)
+def get_list(*args, **kwargs):
+    """Retrieve a list of News assets."""
+    return News.get_list(*args, **kwargs)
+
+def counts(*args, **kwargs):
+    """Retrieve the number of News assets."""
+    return News.counts(*args, **kwargs)
+
+def get_asset(*args, **kwargs):
+    """Retrieve a specific News asset."""
+    return News.get_asset(*args, **kwargs)
+
+def register(*args, **kwargs):
+    """Register a new News asset."""
+    return News.register(*args, **kwargs)
+
+def update(*args, **kwargs):
+    """Update an existing News asset."""
+    return News.update(*args, **kwargs)
+
+def delete(*args, **kwargs):
+    """Delete a News asset."""
+    return News.delete(*args, **kwargs)
+
+def get_asset_from_platform(*args, **kwargs):
+    """Retrieve a News asset from an external platform."""
+    return News.get_from_platform(*args, **kwargs)
+
+def search(*args, **kwargs):
+    """Search for News assets."""
+    return News.search(*args, **kwargs)

@@ -16,18 +16,36 @@ class Publication(BaseResource):
     type: str | None = None
     issn: str | None = None
 
-(
-    get_list,
-    counts,
-    get_asset,
-    register,
-    replace,
-    update,
-    delete,
-    get_asset_from_platform,
-    get_content,
-    get_assets_async,
-    get_list_async,
-) = calls.wrap_common_calls(asset_type="publications", module=__name__)
+# --- Backward Compatibility API (Proxies to Publication classmethods) ---
 
-(search,) = calls.wrap_search_call(asset_type="publications", module=__name__)
+def get_list(*args, **kwargs):
+    """Retrieve a list of Publication assets."""
+    return Publication.get_list(*args, **kwargs)
+
+def counts(*args, **kwargs):
+    """Retrieve the number of Publication assets."""
+    return Publication.counts(*args, **kwargs)
+
+def get_asset(*args, **kwargs):
+    """Retrieve a specific Publication asset."""
+    return Publication.get_asset(*args, **kwargs)
+
+def register(*args, **kwargs):
+    """Register a new Publication asset."""
+    return Publication.register(*args, **kwargs)
+
+def update(*args, **kwargs):
+    """Update an existing Publication asset."""
+    return Publication.update(*args, **kwargs)
+
+def delete(*args, **kwargs):
+    """Delete a Publication asset."""
+    return Publication.delete(*args, **kwargs)
+
+def get_asset_from_platform(*args, **kwargs):
+    """Retrieve a Publication asset from an external platform."""
+    return Publication.get_from_platform(*args, **kwargs)
+
+def search(*args, **kwargs):
+    """Search for Publication assets."""
+    return Publication.search(*args, **kwargs)
