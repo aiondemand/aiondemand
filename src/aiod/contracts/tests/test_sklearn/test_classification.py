@@ -1,9 +1,9 @@
 import pytest
-import aiod
-from aiod.contracts import SklearnClassifierContract
-
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.ensemble import RandomForestClassifier
+
+import aiod
+from aiod.contracts import SklearnClassifierContract
 
 
 class NotEstimator:
@@ -50,6 +50,7 @@ def mock_aiod_get(monkeypatch):
     def _mock_get(identifier: str):
         if identifier == "RandomForestClassifier":
             from sklearn.ensemble import RandomForestClassifier
+
             return RandomForestClassifier
         raise ValueError("not found")
 

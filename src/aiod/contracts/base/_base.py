@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Type
-
 
 class _BaseContract:
     """Base class for API contracts.
@@ -13,7 +11,7 @@ class _BaseContract:
     """
 
     @classmethod
-    def isinhabitant(cls, identifier: str | Type) -> bool:
+    def isinhabitant(cls, identifier: str | type) -> bool:
         """Return True if object satisfies this contract."""
         try:
             obj = cls._resolve(identifier)
@@ -26,7 +24,7 @@ class _BaseContract:
             return False
 
     @classmethod
-    def runtests(cls, identifier: str | Type) -> dict:
+    def runtests(cls, identifier: str | type) -> dict:
         """Run contract tests and return summary."""
         obj = cls._resolve(identifier)
 
@@ -52,7 +50,7 @@ class _BaseContract:
         return results
 
     @classmethod
-    def _resolve(cls, identifier: str | Type):
+    def _resolve(cls, identifier: str | type):
         """Resolve identifier to class."""
         if isinstance(identifier, str):
             from aiod import get
@@ -61,11 +59,11 @@ class _BaseContract:
         return identifier
 
     @classmethod
-    def _check_structure(cls, obj: Type) -> bool:
+    def _check_structure(cls, obj: type) -> bool:
         raise RuntimeError("abstract method")
 
     @classmethod
-    def _run_behavioral_tests(cls, obj: Type):
+    def _run_behavioral_tests(cls, obj: type):
         raise RuntimeError("abstract method")
 
 

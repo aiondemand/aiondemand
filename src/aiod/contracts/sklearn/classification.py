@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Type
-
 from aiod.contracts.base import _BaseContract
 
 
@@ -11,7 +9,7 @@ class SklearnClassifierContract(_BaseContract):
     """Contract for sklearn-compatible classifiers."""
 
     @classmethod
-    def _check_structure(cls, obj: Type) -> bool:
+    def _check_structure(cls, obj: type) -> bool:
         from sklearn.base import BaseEstimator, ClassifierMixin
 
         if not issubclass(obj, BaseEstimator):
@@ -27,7 +25,7 @@ class SklearnClassifierContract(_BaseContract):
         return True
 
     @classmethod
-    def _run_behavioral_tests(cls, obj: Type):
+    def _run_behavioral_tests(cls, obj: type):
         import numpy as np
 
         X = np.array([[0, 0], [1, 1], [0, 1], [1, 0]])

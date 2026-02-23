@@ -1,6 +1,6 @@
 import pytest
-import aiod
 
+import aiod
 from aiod.contracts.base import _BaseContract
 
 
