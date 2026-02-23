@@ -1,6 +1,6 @@
 import pytest
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 
 import aiod
 from aiod.contracts import SklearnClassifierContract
@@ -15,7 +15,7 @@ class MissingFit(BaseEstimator, ClassifierMixin):
         return [0] * len(X)
 
 
-class BrokenBehaviorClassifier(RandomForestClassifier):
+class BrokenBehaviorClassifier(LogisticRegression):
     def predict(self, X):
         raise RuntimeError("behavior failure")
 
@@ -27,7 +27,7 @@ def contract():
 
 @pytest.fixture
 def valid_class():
-    return RandomForestClassifier
+    return LogisticRegression
 
 
 @pytest.fixture
@@ -48,10 +48,10 @@ def broken_behavior_class():
 @pytest.fixture
 def mock_aiod_get(monkeypatch):
     def _mock_get(identifier: str):
-        if identifier == "RandomForestClassifier":
-            from sklearn.ensemble import RandomForestClassifier
+        if identifier == "LogisticRegression":
+            from sklearn.linear_model import LogisticRegression
 
-            return RandomForestClassifier
+            return LogisticRegression
         raise ValueError("not found")
 
     monkeypatch.setattr(aiod, "get", _mock_get)
@@ -62,7 +62,7 @@ def test_isinhabitant_with_class(contract, valid_class):
 
 
 def test_isinhabitant_with_string(contract, mock_aiod_get):
-    assert contract.isinhabitant("RandomForestClassifier") is True
+    assert contract.isinhabitant("LogisticRegression") is True
 
 
 def test_isinhabitant_invalid_string(contract, mock_aiod_get):

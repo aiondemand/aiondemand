@@ -4,12 +4,6 @@ from __future__ import annotations
 
 
 class _BaseContract:
-    """Base class for API contracts.
-
-    API contracts define structural and behavioral constraints
-    that an object must satisfy to inhabit the contract.
-    """
-
     @classmethod
     def isinhabitant(cls, identifier: str | type) -> bool:
         """Return True if object satisfies this contract."""
