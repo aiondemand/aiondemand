@@ -9,12 +9,12 @@ class AiodPkg__CatBoost(_ModelPkgSklearnEstimator):
     }
 
     _obj_dict = {
-        'CatBoost': 'catboost.core.CatBoost',
-        'CatBoostClassifier': 'catboost.core.CatBoostClassifier',
-        'CatBoostRanker': 'catboost.core.CatBoostRanker',
-        'CatBoostRegressor': 'catboost.core.CatBoostRegressor',
+        "CatBoost": "catboost.core.CatBoost",
+        "CatBoostClassifier": "catboost.core.CatBoostClassifier",
+        "CatBoostRanker": "catboost.core.CatBoostRanker",
+        "CatBoostRegressor": "catboost.core.CatBoostRegressor",
     }
-    
+
     _type_of_objs = {
         "CatBoost": ["classifier", "regressor"],
         "CatBoostClassifier": "classifier",
