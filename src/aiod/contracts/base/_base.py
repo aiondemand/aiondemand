@@ -2,26 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Type
-
-from aiod.base import _BasePkg
+from typing import Type
 
 
-class BaseAPIContract(_BasePkg):
+class _BaseContract:
     """Base class for API contracts.
 
     API contracts define structural and behavioral constraints
     that an object must satisfy to inhabit the contract.
     """
-
-    _tags: Dict[str, Any] = {
-        "contract_type": None,
-        "maintainers": ["aiod developers"],
-        "python_dependencies": None,
-        "pkg_id": None,
-        "pkg_obj": "reference",
-        "pkg_obj_type": "api_contract",
-    }
 
     @classmethod
     def isinhabitant(cls, identifier: str | Type) -> bool:
@@ -78,3 +67,6 @@ class BaseAPIContract(_BasePkg):
     @classmethod
     def _run_behavioral_tests(cls, obj: Type):
         raise RuntimeError("abstract method")
+
+
+__all__ = ["_BaseContract"]

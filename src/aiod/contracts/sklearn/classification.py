@@ -4,17 +4,11 @@ from __future__ import annotations
 
 from typing import Type
 
-from aiod.contracts.base import BaseAPIContract
+from aiod.contracts.base import _BaseContract
 
 
-class SklearnClassifierContract(BaseAPIContract):
+class SklearnClassifierContract(_BaseContract):
     """Contract for sklearn-compatible classifiers."""
-
-    _tags = {
-        "contract_type": "sklearn_classifier",
-        "python_dependencies": "scikit-learn",
-        "pkg_id": "SklearnClassifierContract",
-    }
 
     @classmethod
     def _check_structure(cls, obj: Type) -> bool:

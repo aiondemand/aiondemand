@@ -1,5 +1,5 @@
 """Module with packaging adapters."""
 
-from aiod.contracts.base._base import BaseAPIContract
+from aiod.contracts.base._base import _BaseContract
 
-__all__ = ["BaseAPIContract"]
+__all__ = ["_BaseContract"]

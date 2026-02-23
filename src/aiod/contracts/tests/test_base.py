@@ -1,7 +1,7 @@
 import pytest
 import aiod
 
-from aiod.contracts import BaseAPIContract
+from aiod.contracts.base import _BaseContract
 
 
 class ValidEstimator:
@@ -25,7 +25,7 @@ class BrokenBehavior:
         raise RuntimeError("behavior failure")
 
 
-class DummyContract(BaseAPIContract):
+class DummyContract(_BaseContract):
     _tags = {
         "contract_type": "dummy",
         "python_dependencies": None,
