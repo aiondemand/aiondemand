@@ -25,7 +25,7 @@ def get(id: str):
     obj = id_lookup.get(id)
     if obj is None:
         raise ValueError(
-            f"Error in aiod.get, object with package id {id} " "does not exist."
+            f"Error in aiod.get, object with package id {id} does not exist."
         )
     return obj(id).materialize()
 
@@ -48,7 +48,7 @@ def _id_lookup_cached(obj_type=None):
             lookup_dict[obj_index] = obj
         else:
             obj_all_ids = obj.contained_ids()
-            lookup_dict.update({obj_id: obj for obj_id in obj_all_ids})
+            lookup_dict.update(dict.fromkeys(obj_all_ids, obj))
 
     return lookup_dict
 
@@ -57,8 +57,8 @@ def _id_lookup_cached(obj_type=None):
 def _all_objects(obj_type=None):
     from skbase.lookup import all_objects
 
-    from aiod.models.apis._classifier import _ModelPkgClassifier
+    from aiod.models.apis._sklearn_apis import _ModelPkgSklearnEstimator
 
     return all_objects(
-        object_types=_ModelPkgClassifier, package_name="aiod", return_names=False
+        object_types=_ModelPkgSklearnEstimator, package_name="aiod", return_names=False
     )

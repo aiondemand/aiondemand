@@ -2,6 +2,7 @@ import asyncio
 import json
 from http import HTTPStatus
 
+from aiohttp.pytest_plugin import loop
 import pytest
 import responses
 from responses import matchers
@@ -232,7 +233,9 @@ def test_search(asset_with_search):
 
 
 def test_endpoint_get_asset_async(asset_name):
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     with aioresponses() as mocked_responses:
         mocked_responses.get(
             f"{server_url()}{asset_name}/1",
@@ -256,7 +259,9 @@ def test_endpoint_get_asset_async(asset_name):
 
 
 def test_endpoint_get_list_async(asset_name):
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     with aioresponses() as mocked_responses:
         mocked_responses.get(
             f"{server_url()}{asset_name}?offset=0&limit=2",
