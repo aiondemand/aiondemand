@@ -54,37 +54,6 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
     return loc_dict
 
 
-def _sklearn_estimators_locdict_by_type(type_filter, serialized=False):
-    """Return dictionary of scikit-learn estimators filtered by type.
-
-    Parameters
-    ----------
-    type_filter : str
-        The type of estimator to filter for.
-    serialized : bool, optional (default=False)
-        If True, returns a serialized version of the dict, via
-        ``aiod.utils._inmemory._dict.serialize_dict``.
-        If False, returns the dict directly.
-
-    Returns
-    -------
-    loc_dict : dict
-        A dictionary with:
-            * keys: str, estimator class name, e.g., ``RandomForestClassifier``
-            * values: str, public import path of the estimator, e.g.,
-              ``sklearn.ensemble.RandomForestClassifier``
-    """
-    from sklearn.utils import all_estimators
-
-    ests = all_estimators(type_filter=type_filter)
-    loc_dict = {name: f"{est.__module__}.{name}" for name, est in ests}
-    if serialized:
-        from aiod.utils._inmemory._dict import serialize_dict
-
-        loc_dict = serialize_dict(loc_dict, name=f"sklearn_{type_filter}_loc_dict")
-    return loc_dict
-
-
 def _all_sklearn_estimators(
     package_name="sklearn",
     return_names=True,
@@ -210,7 +179,6 @@ def _generate_sklearn_types_of_obj() -> dict:
     -------
         Dictionary mapping object names to their types (as strings or lists of strings).
     """
-    # TODO: handle meta-estimators properly
     all_est = _all_sklearn_estimators()
     type_of_objs: dict[str, list[str] | str] = {}
     mixin_to_type = {
@@ -220,19 +188,46 @@ def _generate_sklearn_types_of_obj() -> dict:
         "ClusterMixin": "clusterer",
         "BiclusterMixin": "biclusterer",
         "DensityMixin": "density",
-        "OutlierMixin": "detector_outlier",
+        "KernelDensity": "density",
+        "OutlierMixin": "outlier_detector",
         "_VectorizerMixin": "transformer",
+        "MetaEstimatorMixin": "meta_estimator",
     }
 
-    for est_name, est_class in all_est:
-        mro = inspect.getmro(est_class)
+    polymorphic_meta = [
+        "Pipeline",
+        "GridSearchCV",
+        "RandomizedSearchCV",
+        "FrozenEstimator",
+    ]
 
-        found_types = []
-        for base_class in mro:
-            if base_class.__name__ in mixin_to_type:
-                est_type = mixin_to_type[base_class.__name__]
-                if est_type not in found_types:
-                    found_types.append(est_type)
+    for est_name, est_class in all_est:
+        if est_name in polymorphic_meta:
+            found_types = [
+                "classifier",
+                "regressor",
+                "transformer",
+                "clusterer",
+                "meta_estimator",
+                "biclusterer",
+                "density",
+                "outlier_detector",
+                "manifold",
+                "covariance",
+            ]
+        else:
+            mro = inspect.getmro(est_class)
+            found_types = []
+            for base_class in mro[:-4]:
+                if base_class.__name__ in mixin_to_type:
+                    est_type = mixin_to_type[base_class.__name__]
+                    if est_type not in found_types:
+                        found_types.append(est_type)
+
+            for module in ["manifold", "covariance"]:
+                if module in est_class.__module__:
+                    found_types.append(module)
+
         if len(found_types) > 1:
             type_of_objs[est_name] = found_types
         elif len(found_types) == 1:
