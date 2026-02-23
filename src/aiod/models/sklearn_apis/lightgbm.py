@@ -1,10 +1,10 @@
 # ruff: noqa: E501
 """LightGBM model package."""
 
-from aiod.models.apis import _ModelPkgClassifier
+from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
-class AiodPkg__LightGBM(_ModelPkgClassifier):
+class AiodPkg__LightGBM(_ModelPkgSklearnEstimator):
     _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "lightgbm",
