@@ -1,5 +1,5 @@
 # ruff: noqa: E501
-"""scikit-lego model package"""
+"""scikit-lego model package."""
 
 from aiod.models.apis import _ModelPkgSklearnEstimator
 
