@@ -1,5 +1,5 @@
 # ruff: noqa: E501
-"""imbalanced-learn model package"""
+"""imbalanced-learn model package."""
 
 from aiod.models.apis import _ModelPkgSklearnEstimator
 
