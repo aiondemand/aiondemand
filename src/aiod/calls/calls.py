@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 def _log_request(method: str, url: str, status_code: int, elapsed_ms: float) -> None:
     """Log HTTP request details at DEBUG level if debug_http is enabled."""
-    if config.debug_http:
+    if config.debug_http and logger.isEnabledFor(logging.DEBUG):
         logger.debug("%s %s → %d (%.0fms)", method, url, status_code, elapsed_ms)
 
 
