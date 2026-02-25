@@ -2,6 +2,7 @@
 
 import pytest
 import importlib
+import sys
 
 from aiod.utils._indexing._preindex_sklearn import (
     _all_sklearn_estimators,
@@ -30,7 +31,7 @@ class TestCommonIndexing:
 
             assert expected_set == actual_set
 
-
+@pytest.mark.skipif(sys.version_info < (3, 11), reason="ClassicalMDS sklearn estimator not available in Python 3.10")
 class TestSklearnPreIndex:
     """Test sklearn indexing utilities."""
 
