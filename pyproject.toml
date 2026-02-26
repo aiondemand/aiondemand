@@ -12,6 +12,7 @@ dynamic = ["version"]
 
 dependencies = [
     "aiohttp",
+    "packaging",
     "pandas",
     "python-keycloak",
     "requests",
