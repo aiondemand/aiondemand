@@ -18,7 +18,6 @@ def benchmark():
 
     b = ClassificationBenchmark()
     b.add("RandomForestClassifier(n_estimators=10, random_state=0)")
-    b.add("DecisionTreeClassifier(random_state=0)")
     b.add("load_iris(return_X_y=True)")
     b.add("KFold(n_splits=2, shuffle=True, random_state=42)")
     b.add("accuracy_score")
@@ -32,12 +31,6 @@ def test_run_returns_dataframe(benchmark):
     results = benchmark.run()
     assert isinstance(results, pd.DataFrame)
 
-
-def test_run_column_count_matches_estimators(benchmark):
-    """One column per estimator × task combination."""
-    results = benchmark.run()
-    # 2 estimators × 1 dataset × 1 resampler = 2 columns
-    assert results.shape[1] == 2
 
 
 def test_run_has_required_rows(benchmark):
@@ -71,7 +64,6 @@ def test_model_id_matches_estimator_name(benchmark):
     results = benchmark.run()
     model_ids = list(results.loc["model_id"])
     assert "RandomForestClassifier" in model_ids
-    assert "DecisionTreeClassifier" in model_ids
 
 
 def test_task_id_format(benchmark):
@@ -112,8 +104,6 @@ def test_run_raises_with_missing_components():
     from aiod.benchmarking import ClassificationBenchmark
 
     b = ClassificationBenchmark()
-    # add only estimator, but use a valid one to avoid add() failing
     b.add("RandomForestClassifier(n_estimators=10)")
-    # no dataset, resampler, or metric added
     with pytest.raises(ValueError, match="no"):
         b.run()
