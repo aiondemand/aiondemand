@@ -57,8 +57,11 @@ def _id_lookup_cached(obj_type=None):
 def _all_objects(obj_type=None):
     from skbase.lookup import all_objects
 
+    from aiod.models.apis._pytorch_tabular_apis import _ModelPkgPytorchTabularEstimator
     from aiod.models.apis._sklearn_apis import _ModelPkgSklearnEstimator
 
     return all_objects(
-        object_types=_ModelPkgSklearnEstimator, package_name="aiod", return_names=False
+        object_types=[_ModelPkgSklearnEstimator, _ModelPkgPytorchTabularEstimator],
+        package_name="aiod",
+        return_names=False,
     )
