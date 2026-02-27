@@ -7,17 +7,17 @@ authors = [
 ]
 readme = "docs/README.md"
 requires-python = ">=3.10"
-dependencies = ["aiohttp", "pandas", "python-keycloak", "requests", "tomlkit"]
 license = "MIT"
 dynamic = ["version"]
 
-[project.urls]
-Homepage = "https://www.aiod.eu"
-Documentation = "https://aiondemand.github.io/aiondemand/"
-Repository = "https://github.com/aiondemand/aiondemand"
-Issues = "https://github.com/aiondemand/aiondemand/issues"
-Changelog = "https://aiondemand.github.io/aiondemand/changelog/"
-
+dependencies = [
+    "aiohttp",
+    "pandas",
+    "python-keycloak",
+    "requests",
+    "scikit-base",
+    "tomlkit",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -33,10 +33,20 @@ doc = [
     "mkdocstrings-python",
     "mkdocs-jupyter",
 ]
+tests_integrations = [
+    "scikit-learn",
+]
 
 [build-system]
 requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
+
+[project.urls]
+Homepage = "https://www.aiod.eu"
+Documentation = "https://aiondemand.github.io/aiondemand/"
+Repository = "https://github.com/aiondemand/aiondemand"
+Issues = "https://github.com/aiondemand/aiondemand/issues"
+Changelog = "https://aiondemand.github.io/aiondemand/changelog/"
 
 [tool.hatch.version]
 path = "src/aiod/__init__.py"
@@ -63,7 +73,7 @@ addopts = "-m 'not server'"
 
 [tool.ruff]
 fix = true
-line-length = 130
+line-length = 88
 exclude = ["__pycache__", ".venv", "build", "dist", ".git"]
 
 [tool.ruff.lint]

@@ -92,7 +92,11 @@ All tests should pass.
 
 ### Making Changes
 
-While working on a feature or bug fix, branch off the default branch (main). Even when working on a fork, always create a new feature branch. This keeps your fork clean and easier to sync with upstream.
+While working on a feature, you can work from the "main"-branch, provided you are working on a fork.
+However, even if you are working on a fork we strongly recommend you to make changes on a new branch.
+When working on the main repository, this is required. When working on a fork, this makes it easier to 
+keep your fork in sync with the upstream repository (this one).
+Your new branch should branch off "main":
 
 Before creating your branch, make sure your local main branch is up to date:
 
