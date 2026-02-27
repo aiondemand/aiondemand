@@ -36,6 +36,11 @@ doc = [
 tests_integrations = [
     "scikit-learn",
 ]
+llm = [
+    "litellm",
+    "pymupdf",
+    "pydantic>=2.0",
+]
 
 [build-system]
 requires = ["hatchling >= 1.26"]
@@ -47,6 +52,9 @@ Documentation = "https://aiondemand.github.io/aiondemand/"
 Repository = "https://github.com/aiondemand/aiondemand"
 Issues = "https://github.com/aiondemand/aiondemand/issues"
 Changelog = "https://aiondemand.github.io/aiondemand/changelog/"
+
+[project.scripts]
+aiod-crosslink = "aiod.crosslink_cli:main"
 
 [tool.hatch.version]
 path = "src/aiod/__init__.py"
