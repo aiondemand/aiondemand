@@ -11,12 +11,12 @@ class NotEstimator:
 
 
 class MissingFit(BaseEstimator, ClassifierMixin):
-    def predict(self, X):
+    def predict(self, X):  # noqa: N803
         return [0] * len(X)
 
 
 class BrokenBehaviorClassifier(LogisticRegression):
-    def predict(self, X):
+    def predict(self, X):  # noqa: N803
         raise RuntimeError("behavior failure")
 
 

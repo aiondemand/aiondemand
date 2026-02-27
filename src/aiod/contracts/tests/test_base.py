@@ -5,23 +5,23 @@ from aiod.contracts.base import _BaseContract
 
 
 class ValidEstimator:
-    def fit(self, X, y):
+    def fit(self, X, y):  # noqa: N803
         return self
 
-    def predict(self, X):
+    def predict(self, X):  # noqa: N803
         return [0] * len(X)
 
 
 class MissingPredict:
-    def fit(self, X, y):
+    def fit(self, X, y):  # noqa: N803
         return self
 
 
 class BrokenBehavior:
-    def fit(self, X, y):
+    def fit(self, X, y):  # noqa: N803
         return self
 
-    def predict(self, X):
+    def predict(self, X):  # noqa: N803
         raise RuntimeError("behavior failure")
 
 
