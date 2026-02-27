@@ -54,13 +54,33 @@ class Config:
     )
 
     def subscribe(self, attribute: str, on_change: AttributeObserver) -> None:
-        """Register a callback to be notified if the value of the `attribute` changes."""
+        """Register a callback to be notified if the value of the `attribute` changes.
+
+        Parameters
+        ----------
+        attribute
+            The name of the attribute to observe.
+        on_change
+            The callback to invoke when the attribute changes.
+        """
         if on_change not in self._observers[attribute]:
             self._observers[attribute].add(on_change)
 
     def _store_to_file(self, attribute: str) -> None:
+        """ Store the value of the `attribute` to the configuration file 
+        
+        Parameters
+        ----------
+        attribute
+            The name of the attribute to persist.
+
+        Raises
+        ------
+        AttributeError
+            If the `attribute` is not a valid attribute of this configuration object.
+        """
         if attribute not in dir(self):
-            raise AttributeError("Cannot store ")
+            raise AttributeError(f"Cannot store unknown attribute {attribute!r}")
         user_config = tomlkit.loads(_user_config_file.read_text())
         if value := getattr(self, attribute):
             user_config[attribute] = value
