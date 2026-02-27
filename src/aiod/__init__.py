@@ -1,6 +1,10 @@
+from aiod import bookmarks, taxonomies
+from aiod.authentication import create_token, get_current_user, invalidate_token
 from aiod.configuration import config
-from aiod import taxonomies
-from aiod import bookmarks
+
+from aiod.default.counts import asset_counts as counts
+from aiod.models import get
+
 from aiod.resources import (
     BaseResource,
     SearchableMixin,
@@ -22,11 +26,35 @@ from aiod.resources import (
     Teams,
 )
 
-from aiod.authentication import invalidate_token, get_current_user, create_token
-from aiod.default.counts import asset_counts as counts
-from aiod.calls.calls import get_any_asset as get
-from aiod.__version__ import version
-
+__all__ = [
+    "bookmarks",
+    "taxonomies",
+    "config",
+    "create_token",
+    "get_current_user",
+    "invalidate_token",
+    "counts",
+    "get",
+    "BaseResource",
+    "SearchableMixin",
+    "CaseStudies",
+    "ComputationalAssets",
+    "Contacts",
+    "Datasets",
+    "EducationalResources",
+    "Events",
+    "Experiments",
+    "MLModels",
+    "News",
+    "Organisations",
+    "Persons",
+    "Platforms",
+    "Projects",
+    "Publications",
+    "Services",
+    "Teams",
+    "__version__",
+]
 
 def __getattr__(name: str):
     """Forward attribute access to resources module for backwards compatibility.
@@ -38,3 +66,12 @@ def __getattr__(name: str):
     if hasattr(resources,name):
         return getattr(resources, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+# def __getattr__(name: str):
+#     if name in __all__:
+#         return globals()[name]
+#     if name not in __all__:
+#         return get(name)
+#     return None
+
+__version__ = "0.2.5"

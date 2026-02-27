@@ -1,10 +1,12 @@
+import logging
 import textwrap
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any, TypeAlias
+
 import tomlkit
-from typing import Any, Callable, TypeAlias
-import logging
 
 logger = logging.getLogger(__file__)
 AttributeObserver: TypeAlias = Callable[[str, Any, Any], None]
@@ -128,6 +130,4 @@ if _user_config_file.exists() and _user_config_file.is_file():
     load_configuration(_user_config_file)
     logger.info(f"Loaded configuration from {_user_config_file}: {config}.")
 else:
-    logger.info(
-        f"No configuration file detected, using default configuration: {config}."
-    )
+    logger.info(f"No configuration file detected, using default configuration: {config}.")
