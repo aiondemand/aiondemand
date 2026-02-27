@@ -34,9 +34,7 @@ def __getattr__(name: str):
     This allows `aiod.datasets.get_list()` to work by forwarding to
     `aiod.resources.datasets` which returns a singleton instance.
     """
-    from aiod import resources
-
-    try:
+    import aiod.resources as resources
+    if hasattr(resources,name):
         return getattr(resources, name)
-    except AttributeError:
-        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
