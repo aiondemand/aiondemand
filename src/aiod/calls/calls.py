@@ -1,13 +1,11 @@
 import asyncio
 from functools import partial
-from http import HTTPStatus
 from typing import Literal
 
-import aiohttp
+import httpx
 import pandas as pd
-import requests
 
-from aiod.authentication.authentication import _get_auth_headers, get_token
+from aiod._client import AiodNotFoundError, client
 from aiod.calls.urls import (
     server_url,
     url_to_get_asset,
@@ -18,8 +16,7 @@ from aiod.calls.urls import (
     url_to_resource_counts,
     url_to_search,
 )
-from aiod.calls.utils import ServerError, format_response, wrap_calls
-from aiod.configuration import config
+from aiod.calls.utils import format_response, wrap_calls
 
 
 def get_any_asset(
@@ -45,16 +42,10 @@ def get_any_asset(
     KeyError
         If the asset cannot be found.
     """
-    res = requests.get(
-        server_url() + f"assets/{identifier}",
-        headers=_get_auth_headers(required=False),
-        timeout=config.request_timeout_seconds,
-    )
-
-    if res.status_code == HTTPStatus.NOT_FOUND:
-        raise KeyError(f"Asset with identifier {identifier!r} not found.")
-    if res.status_code != HTTPStatus.OK:
-        raise ServerError(res)
+    try:
+        res = client.get(server_url() + f"assets/{identifier}")
+    except AiodNotFoundError:
+        raise KeyError(f"Asset with identifier {identifier!r} not found.") from None
     return format_response(res.json(), data_format)
 
 
@@ -95,10 +86,7 @@ def get_list(
         if platform is not None
         else url_to_get_list(asset_type, offset, limit, version)
     )
-    res = requests.get(
-        url,
-        timeout=config.request_timeout_seconds,
-    )
+    res = client.get(url)
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -108,7 +96,7 @@ def delete_asset(
     asset_type: str,
     identifier: str,
     version: str | None = None,
-) -> requests.Response:
+) -> httpx.Response:
     """Delete ASSET_TYPE from the catalogue.
 
     All parameters must be specified by name.
@@ -124,13 +112,12 @@ def delete_asset(
         The server response.
     """
     url = url_to_get_asset(asset_type, identifier, version)
-    res = requests.delete(
-        url,
-        headers=get_token().headers,
-        timeout=config.request_timeout_seconds,
-    )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
-        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+    try:
+        res = client.delete(url)
+    except AiodNotFoundError:
+        raise KeyError(
+            f"No {asset_type} with identifier {identifier!r} found."
+        ) from None
     return res
 
 
@@ -140,7 +127,7 @@ def put_asset(
     identifier: str,
     metadata: dict,
     version: str | None = None,
-) -> requests.Response:
+) -> httpx.Response:
     """Replace a ASSET_TYPE in catalogue.
 
     All parameters must be specified by name.
@@ -170,14 +157,12 @@ def put_asset(
         KeyError if the identifier is not known by the server.
     """
     url = url_to_get_asset(asset_type, identifier, version)
-    res = requests.put(
-        url,
-        headers=get_token().headers,
-        json=metadata,
-        timeout=config.request_timeout_seconds,
-    )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
-        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+    try:
+        res = client.put(url, json=metadata)
+    except AiodNotFoundError:
+        raise KeyError(
+            f"No {asset_type} with identifier {identifier!r} found."
+        ) from None
     return res
 
 
@@ -187,7 +172,7 @@ def patch_asset(
     identifier: str,
     metadata: dict,
     version: str | None = None,
-) -> requests.Response:
+) -> httpx.Response:
     """Update an ASSET_TYPE in catalogue.
 
     All parameters must be specified by name.
@@ -216,19 +201,19 @@ def patch_asset(
     """
     url = url_to_get_asset(asset_type, identifier, version)
 
-    asset = get_asset(identifier, asset_type=asset_type, version=version, data_format="json")
+    asset = get_asset(
+        identifier, asset_type=asset_type, version=version, data_format="json"
+    )
     del asset["aiod_entry"]
     for attribute, value in metadata.items():
         asset[attribute] = value
 
-    res = requests.put(
-        url,
-        headers=get_token().headers,
-        json=asset,
-        timeout=config.request_timeout_seconds,
-    )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
-        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+    try:
+        res = client.put(url, json=asset)
+    except AiodNotFoundError:
+        raise KeyError(
+            f"No {asset_type} with identifier {identifier!r} found."
+        ) from None
     return res
 
 
@@ -237,7 +222,7 @@ def post_asset(
     asset_type: str,
     metadata: dict,
     version: str | None = None,
-) -> str | requests.Response:
+) -> str:
     """Register ASSET_TYPE in catalogue.
 
     All parameters must be specified by name.
@@ -257,18 +242,13 @@ def post_asset(
         error response, if it failed to register successfully
     """
     url = f"{server_url(version)}{asset_type}"
-    res = requests.post(
-        url,
-        headers=get_token().headers,
-        json=metadata,
-        timeout=config.request_timeout_seconds,
-    )
-    if res.status_code == HTTPStatus.OK:
-        return res.json()["identifier"]
-    return res
+    res = client.post(url, json=metadata)
+    return res.json()["identifier"]
 
 
-def counts(*, asset_type: str, version: str | None = None, per_platform: bool = False) -> int | dict[str, int]:
+def counts(
+    *, asset_type: str, version: str | None = None, per_platform: bool = False
+) -> int | dict[str, int]:
     """Retrieve the number of ASSET_TYPE assets in the metadata catalogue.
 
     All parameters must be specified by name.
@@ -289,7 +269,7 @@ def counts(*, asset_type: str, version: str | None = None, per_platform: bool = 
         and the number of ASSET_TYPE assets from that platform as values.
     """
     url = url_to_resource_counts(version, per_platform, asset_type)
-    res = requests.get(url, timeout=config.request_timeout_seconds)
+    res = client.get(url)
     return res.json()
 
 
@@ -325,13 +305,12 @@ def get_asset(
         If the asset cannot be found.
     """
     url = url_to_get_asset(asset_type, identifier, version)
-    res = requests.get(
-        url,
-        headers=_get_auth_headers(required=False),
-        timeout=config.request_timeout_seconds,
-    )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
-        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+    try:
+        res = client.get(url)
+    except AiodNotFoundError:
+        raise KeyError(
+            f"No {asset_type} with identifier {identifier!r} found."
+        ) from None
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -365,10 +344,15 @@ def get_asset_from_platform(
     :
         The retrieved metadata for the specified ASSET_TYPE.
     """
-    url = url_to_get_asset_from_platform(asset_type, platform, platform_identifier, version)
-    res = requests.get(url, timeout=config.request_timeout_seconds)
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
-        raise KeyError(f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found.")
+    url = url_to_get_asset_from_platform(
+        asset_type, platform, platform_identifier, version
+    )
+    try:
+        res = client.get(url)
+    except AiodNotFoundError:
+        raise KeyError(
+            f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found."
+        ) from None
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -399,10 +383,7 @@ def get_content(
         The data content for the specified ASSET_TYPE.
     """
     url = url_to_get_content(asset_type, identifier, distribution_idx, version)
-    res = requests.get(
-        url,
-        timeout=config.request_timeout_seconds,
-    )
+    res = client.get(url)
     distribution = res.content
     return distribution
 
@@ -413,7 +394,9 @@ def search(
     platforms: list[str] | None = None,
     offset: int = 0,
     limit: int = 10,
-    search_field: (None | Literal["name", "issn", "description_html", "description_plain"]) = None,
+    search_field: (
+        None | Literal["name", "issn", "description_html", "description_plain"]
+    ) = None,
     get_all: bool = True,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
@@ -460,10 +443,7 @@ def search(
         get_all,
         version,
     )
-    res = requests.get(
-        url,
-        timeout=config.request_timeout_seconds,
-    )
+    res = client.get(url)
     resources = format_response(res.json()["resources"], data_format)
     return resources
 
@@ -494,7 +474,9 @@ async def get_assets_async(
     :
         The retrieved metadata for the specified ASSET_TYPE.
     """
-    urls = [url_to_get_asset(asset_type, identifier, version) for identifier in identifiers]
+    urls = [
+        url_to_get_asset(asset_type, identifier, version) for identifier in identifiers
+    ]
     response_data = await _fetch_resources(urls)
     resources = format_response(response_data, data_format)
     return resources
@@ -533,28 +515,31 @@ async def get_list_async(
         Batch size must be larger than 0.
     """
     if batch_size <= 0:
-        raise ValueError("batch_size must be larger than 0, otherwise you can use the synchronous get_list function!")
+        raise ValueError(
+            "batch_size must be larger than 0, otherwise you can use the synchronous get_list function!"
+        )
 
     offsets = range(offset, offset + limit, batch_size)
     last_batch_size = (limit % batch_size) or batch_size
     batch_sizes = [batch_size] * (len(offsets) - 1) + [last_batch_size]
 
-    urls = [url_to_get_list(asset_type, offset, limit, version) for offset, limit in zip(offsets, batch_sizes, strict=False)]
+    urls = [
+        url_to_get_list(asset_type, offset, limit, version)
+        for offset, limit in zip(offsets, batch_sizes, strict=False)
+    ]
 
     response_data = await _fetch_resources(urls)
-    flattened_response_data = [response for batch in response_data for response in batch]
+    flattened_response_data = [
+        response for batch in response_data for response in batch
+    ]
     resources = format_response(flattened_response_data, data_format)
     return resources
 
 
 async def _fetch_resources(urls) -> list[dict]:
-    async def _fetch_data(session, url) -> dict:
-        async with session.get(url, timeout=config.request_timeout_seconds) as response:
-            return await response.json()
-
-    async with aiohttp.ClientSession() as session:
-        tasks = [_fetch_data(session, url) for url in urls]
-        response_data = await asyncio.gather(*tasks)
+    tasks = [client.aget(url) for url in urls]
+    response_data = await asyncio.gather(*tasks)
+    response_data = [r.json() for r in response_data]
     return response_data
 
 

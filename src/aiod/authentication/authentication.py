@@ -8,7 +8,7 @@ from http import HTTPStatus
 from pathlib import Path
 from typing import NamedTuple
 
-import requests
+import httpx
 import tomlkit
 from keycloak import KeycloakConnectionError, KeycloakOpenID, KeycloakPostError
 
@@ -57,9 +57,13 @@ class Token:
         expires_in_seconds: int = -1,
     ):
         if (client_secret and refresh_token) or not (client_secret or refresh_token):
-            raise ValueError("Must set exactly one of `client_secret` or `refresh_token`.")
+            raise ValueError(
+                "Must set exactly one of `client_secret` or `refresh_token`."
+            )
         if expires_in_seconds > 0 and access_token is None:
-            raise ValueError("If `expires_in_seconds` is set, `access_token` must be set to a valid access_token")
+            raise ValueError(
+                "If `expires_in_seconds` is set, `access_token` must be set to a valid access_token"
+            )
         self._client_secret = client_secret
         self._refresh_token = refresh_token
         self._access_token = access_token or ""
@@ -98,7 +102,9 @@ class Token:
             if self._client_secret:
                 token_info = keycloak_openid().token(grant_type="client_credentials")
         except KeycloakPostError:
-            raise AuthenticationError("Refresh token is not valid. Use `aiod.create_token` to get a new one.") from None
+            raise AuthenticationError(
+                "Refresh token is not valid. Use `aiod.create_token` to get a new one."
+            ) from None
         except KeycloakConnectionError as e:
             e.add_note(f"Could not connect {config.auth_server!r}, try again later.")
             raise
@@ -109,7 +115,9 @@ class Token:
         # response and us processing it, the `expires_in` may not be used directly
         # when calculating expiration time.
         SAFETY_PERIOD_SECONDS = 2  # noqa: N806
-        self._expiration_date = _datetime_utc_in(seconds=token_info["expires_in"] - SAFETY_PERIOD_SECONDS)
+        self._expiration_date = _datetime_utc_in(
+            seconds=token_info["expires_in"] - SAFETY_PERIOD_SECONDS
+        )
         logger.info(f"Renewed access token, it expires {self._expiration_date}.")
 
     def to_file(self, file: Path | None = None):
@@ -260,7 +268,7 @@ def create_token(
     # We do not know when the user finishes their authentication, so we poll the server
     while time.time() - start_time < timeout_seconds:
         time.sleep(poll_interval)
-        token_response = requests.post(
+        token_response = httpx.post(
             token_endpoint,
             data=token_data,
             timeout=config.request_timeout_seconds,
@@ -292,11 +300,17 @@ def create_token(
             case (HTTPStatus.BAD_REQUEST, "expired_token"):
                 raise AuthenticationError("Device code has expired, please try again.")
             case (status, error):
-                raise AuthenticationError(f"Unexpected error, please contact the developers ({status}, {error}).")
-    raise AuthenticationError(f"No successful authentication within {timeout_seconds=} seconds.")
+                raise AuthenticationError(
+                    f"Unexpected error, please contact the developers ({status}, {error})."
+                )
+    raise AuthenticationError(
+        f"No successful authentication within {timeout_seconds=} seconds."
+    )
 
 
-def invalidate_token(token: str | Token | None = None, ignore_errors: bool = False) -> None:
+def invalidate_token(
+    token: str | Token | None = None, ignore_errors: bool = False
+) -> None:
     """Invalidates the current (or provided) API key.
 
     Ends the current keycloak session, invalidating all keys issued.
@@ -339,7 +353,7 @@ def get_current_user() -> User:
     NotAuthenticatedError
         When the user is not authenticated.
     """
-    response = requests.get(
+    response = httpx.get(
         f"{config.api_server}authorization_test",
         headers=get_token().headers,
         timeout=config.request_timeout_seconds,
