@@ -80,16 +80,16 @@ def mock_aiod_get(monkeypatch):
     monkeypatch.setattr(aiod, "get", _mock_get)
 
 
-def test_isinhabitant_with_class(contract, valid_class):
-    assert contract.isinhabitant(valid_class) is True
+def test_istypeof_with_class(contract, valid_class):
+    assert contract.istypeof(valid_class) is True
 
 
-def test_isinhabitant_with_string(contract, mock_aiod_get):
-    assert contract.isinhabitant("ValidEstimator") is True
+def test_istypeof_with_string(contract, mock_aiod_get):
+    assert contract.istypeof("ValidEstimator") is True
 
 
-def test_isinhabitant_invalid_string(contract, mock_aiod_get):
-    assert contract.isinhabitant("UnknownEstimator") is False
+def test_istypeof_invalid_string(contract, mock_aiod_get):
+    assert contract.istypeof("UnknownEstimator") is False
 
 
 def test_runtests_success(contract, valid_class):

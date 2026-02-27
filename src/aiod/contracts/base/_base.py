@@ -5,7 +5,7 @@ from __future__ import annotations
 
 class _BaseContract:
     @classmethod
-    def isinhabitant(cls, identifier: str | type) -> bool:
+    def istypeof(cls, identifier: str | type) -> bool:
         """Return True if object satisfies this contract."""
         try:
             obj = cls._resolve(identifier)
