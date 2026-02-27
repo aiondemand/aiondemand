@@ -34,9 +34,6 @@ class _BaseBenchmark:
     Provides the ``add()`` dispatcher and stores estimator specifications,
     dataset loaders, resampling strategies, and evaluation metrics in
     separate internal lists.
-
-    Subclasses must implement ``run()`` which executes the benchmark and
-    returns a ``pd.DataFrame`` of results.
     """
 
     def __init__(self) -> None:
@@ -65,7 +62,6 @@ class _BaseBenchmark:
         spec = spec.strip()
         name = self._extract_name(spec)
 
-        # Rigorous validation & Type identification via registry
         cls_names = _extract_class_names(spec)
         for cname in cls_names:
             try:
@@ -76,17 +72,14 @@ class _BaseBenchmark:
                     f"to build spec '{spec}', but not found in index class."
                 ) from e
 
-        # Identify component type from index
-        # We query the lookup for the primary component's type
+            
         lookup = _id_lookup()
         adapter = lookup.get(name)
 
         if adapter is not None:
-            # AiodPkg__Sklearn stores specific types in _type_of_objs
             if hasattr(adapter, "_type_of_objs"):
                 types = adapter._type_of_objs.get(name, [])
             else:
-                # Other adapters might store types in get_class_tag("object_types")
                 try:
                     types = adapter.get_class_tag("object_types", [])
                 except Exception:
@@ -105,7 +98,6 @@ class _BaseBenchmark:
                 self._metric_specs.append(spec)
                 return
 
-        # Fallback to estimator list for anything else or unknown
         self._estimator_specs.append(spec)
 
     @abstractmethod

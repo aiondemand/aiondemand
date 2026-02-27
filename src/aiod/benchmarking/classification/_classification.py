@@ -20,16 +20,6 @@ class ClassificationBenchmark(_BaseBenchmark):
     Allows registering estimators, dataset loaders, resampling strategies,
     and evaluation metrics via ``add()``, then running all combinations with
     a single ``run()`` call.
-
-    Examples
-    --------
-    >>> from aiod.benchmarking import ClassificationBenchmark
-    >>> benchmark = ClassificationBenchmark()
-    >>> benchmark.add("RandomForestClassifier(n_estimators=100)")
-    >>> benchmark.add("load_iris(return_X_y=True)")
-    >>> benchmark.add("KFold(n_splits=2, shuffle=True, random_state=42)")
-    >>> benchmark.add("accuracy_score")
-    >>> results = benchmark.run()
     """
 
     def run(self) -> pd.DataFrame:
