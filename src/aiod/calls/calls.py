@@ -238,7 +238,7 @@ def post_asset(
     -------
     identifier: str
         if the asset is registered successfully
-    error response: requests.Response
+    error response: httpx.Response
         error response, if it failed to register successfully
     """
     url = f"{server_url(version)}{asset_type}"

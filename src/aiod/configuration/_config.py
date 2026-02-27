@@ -37,7 +37,7 @@ class Config:
         The client ID used for authentication.
     request_timeout_seconds: int
         If any request remains unresponsive for `request_timeout_seconds` seconds,
-        it will automatically be aborted and raise a `requests.Timeout` error.
+        it will automatically be aborted and raise a `httpx.Timeout` error.
     max_retries: int
         Maximum number of retry attempts for retryable HTTP errors.
     retry_backoff_factor: float

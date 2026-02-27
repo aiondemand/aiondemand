@@ -83,7 +83,7 @@ class Token:
         ```python
         import aiod
         token = aiod.get_token()
-        requests.post(url, headers=token.headers, json=metadata)
+        httpx.post(url, headers=token.headers, json=metadata)
         ```
 
         """
