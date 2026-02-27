@@ -6,7 +6,7 @@ import requests
 
 from aiod.authentication import get_token
 from aiod.calls.urls import server_url
-from aiod.calls.utils import ServerError
+from aiod.exceptions import ServerError, AssetNotFoundError
 from aiod.configuration import config
 
 
@@ -45,7 +45,7 @@ def register(identifier: str) -> Bookmark:
 
     Raises
     ------
-    KeyError
+    AssetNotFoundError
         If the identifier is not recognized by AI-on-Demand.
     ServerError
         If any other server-side error occurs.
@@ -57,7 +57,7 @@ def register(identifier: str) -> Bookmark:
         timeout=config.request_timeout_seconds,
     )
     if res.status_code == HTTPStatus.NOT_FOUND:
-        raise KeyError(f"Could not find asset with identifier {identifier!r}.")
+        raise AssetNotFoundError(res, detail=f"Could not find asset with identifier {identifier!r}.")
     if res.status_code != HTTPStatus.OK:
         raise ServerError(res)
 
