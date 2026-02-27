@@ -1,13 +1,10 @@
 from aiod import bookmarks, taxonomies
 from aiod.authentication import create_token, get_current_user, invalidate_token
 from aiod.configuration import config
-
 from aiod.default.counts import asset_counts as counts
 from aiod.models import get
-
 from aiod.resources import (
     BaseResource,
-    SearchableMixin,
     CaseStudies,
     ComputationalAssets,
     Contacts,
@@ -22,6 +19,7 @@ from aiod.resources import (
     Platforms,
     Projects,
     Publications,
+    SearchableMixin,
     Services,
     Teams,
 )
@@ -56,16 +54,20 @@ __all__ = [
     "__version__",
 ]
 
+
 def __getattr__(name: str):
     """Forward attribute access to resources module for backwards compatibility.
 
     This allows `aiod.datasets.get_list()` to work by forwarding to
     `aiod.resources.datasets` which returns a singleton instance.
     """
-    import aiod.resources as resources
-    if hasattr(resources,name):
-        return getattr(resources, name)
+    from aiod.resources import Resources
+
+    _resources = Resources()
+    if hasattr(_resources, name):
+        return getattr(_resources, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 # def __getattr__(name: str):
 #     if name in __all__:

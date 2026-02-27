@@ -1,12 +1,12 @@
-from collections.abc import Callable
-from functools import partial, update_wrapper
 from typing import Literal
 
 import pandas as pd
 import requests
 
 
-def format_response(response: list | dict, data_format: Literal["pandas", "json"]) -> pd.Series | pd.DataFrame | dict | list:
+def format_response(
+    response: list | dict, data_format: Literal["pandas", "json"]
+) -> pd.Series | pd.DataFrame | dict | list:
     """Format the response data based on the specified format.
 
     Parameters
@@ -28,10 +28,15 @@ def format_response(response: list | dict, data_format: Literal["pandas", "json"
             return pd.Series(response)
         if isinstance(response, list):
             return pd.DataFrame(response)
-    elif data_format == "json" and (isinstance(response, dict) or isinstance(response, list)):
+    elif data_format == "json" and (
+        isinstance(response, dict) or isinstance(response, list)
+    ):
         return response
 
-    raise Exception(f"Format: {data_format} invalid or not supported for responses of {type(response)=}.")
+    raise Exception(
+        f"Format: {data_format} invalid or not supported for responses of {type(response)=}."
+    )
+
 
 class EndpointUndefinedError(Exception):
     """Raised when a function tries to connect to an endpoint that does not exist."""

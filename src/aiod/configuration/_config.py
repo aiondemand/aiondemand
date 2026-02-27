@@ -130,4 +130,6 @@ if _user_config_file.exists() and _user_config_file.is_file():
     load_configuration(_user_config_file)
     logger.info(f"Loaded configuration from {_user_config_file}: {config}.")
 else:
-    logger.info(f"No configuration file detected, using default configuration: {config}.")
+    logger.info(
+        f"No configuration file detected, using default configuration: {config}."
+    )
