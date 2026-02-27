@@ -17,6 +17,7 @@ class _PyTorchTabularBaseAdapter:
     """
 
     _model_config_cls = None
+    _estimator_type = None
     _task = None
 
     def __init__(
@@ -101,6 +102,7 @@ class _PyTorchTabularClassifierAdapter(_PyTorchTabularBaseAdapter):
     """Sklearn-compatible classifier adapter for a pytorch_tabular model."""
 
     _task = "classification"
+    _estimator_type = "classifier"
 
     def fit(self, X, y):
         """Fit the classifier.
@@ -172,6 +174,7 @@ class _PyTorchTabularRegressorAdapter(_PyTorchTabularBaseAdapter):
     """Sklearn-compatible regressor adapter for a pytorch_tabular model."""
 
     _task = "regression"
+    _estimator_type = "regressor"
 
     def fit(self, X, y):
         """Fit the model.
