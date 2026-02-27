@@ -38,6 +38,14 @@ class Config:
     request_timeout_seconds: int
         If any request remains unresponsive for `request_timeout_seconds` seconds,
         it will automatically be aborted and raise a `requests.Timeout` error.
+    max_retries: int
+        Maximum number of retry attempts for retryable HTTP errors.
+    retry_backoff_factor: float
+        Multiplier for exponential back-off between retries.
+    max_backoff: float
+        Maximum back-off delay in seconds.
+    retry_status_codes: list[int]
+        HTTP status codes that trigger a retry.
 
     """
 
@@ -47,6 +55,10 @@ class Config:
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
     request_timeout_seconds: int = 10
+    max_retries: int = 3
+    retry_backoff_factor: float = 0.5
+    max_backoff: float = 30.0
+    retry_status_codes: list[int] = field(default_factory=lambda: [429, 503, 504])
 
     _observers: dict[str, set[AttributeObserver]] = field(
         default_factory=lambda: defaultdict(set),
