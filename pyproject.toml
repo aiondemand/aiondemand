@@ -11,10 +11,9 @@ license = "MIT"
 dynamic = ["version"]
 
 dependencies = [
-    "aiohttp",
+    "httpx",
     "pandas",
     "python-keycloak",
-    "requests",
     "scikit-base",
     "tomlkit",
 ]
@@ -22,10 +21,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pre-commit",
-    "responses",
-    "aioresponses",
     "pytest",
     "pytest-asyncio",
+    "pytest-httpx",
     "ruff",
 ]
 doc = [
