@@ -6,7 +6,6 @@ import requests
 
 import pandas as pd
 from typing import Literal
-from functools import partial
 
 from aiod.authentication.authentication import get_token, _get_auth_headers
 from aiod.configuration import config
@@ -20,7 +19,7 @@ from aiod.calls.urls import (
     url_to_search,
     server_url,
 )
-from aiod.calls.utils import format_response, wrap_calls, ServerError
+from aiod.calls.utils import format_response, ServerError
 
 
 def get_any_asset(
@@ -586,22 +585,3 @@ async def _fetch_resources(urls) -> dict:
         tasks = [_fetch_data(session, url) for url in urls]
         response_data = await asyncio.gather(*tasks)
     return response_data
-
-
-wrap_common_calls = partial(
-    wrap_calls,
-    calls=[
-        get_list,
-        counts,
-        get_asset,
-        post_asset,
-        put_asset,
-        patch_asset,
-        delete_asset,
-        get_asset_from_platform,
-        get_content,
-        get_assets_async,
-        get_list_async,
-    ],
-)
-wrap_search_call = partial(wrap_calls, calls=[search])
