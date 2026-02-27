@@ -116,7 +116,7 @@ def _add_decode_error_note(file: Path, e: tomlkit.exceptions.ParseError) -> None
         textwrap.dedent(
             f"""
                 Error reading configuration at {str(file)!r}: {e}
-                File {str(file)!r}, line {e.line}:
+                File {str(file)!r}, line {e.line}: 
                 {file.read_text().splitlines()[e.line - 1]}
                 {"^".rjust(e.col + 1)}
                 """
@@ -130,4 +130,6 @@ if _user_config_file.exists() and _user_config_file.is_file():
     load_configuration(_user_config_file)
     logger.info(f"Loaded configuration from {_user_config_file}: {config}.")
 else:
-    logger.info(f"No configuration file detected, using default configuration: {config}.")
+    logger.info(
+        f"No configuration file detected, using default configuration: {config}."
+    )
