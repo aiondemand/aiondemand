@@ -35,26 +35,9 @@ class ClassificationBenchmark(_BaseBenchmark):
     def run(self) -> pd.DataFrame:
         """Execute the benchmark across all registered configurations.
 
-        For every (dataset, resampler) task and each estimator, the method:
-
-        1. Loads the dataset via ``craft(dataset_spec)``.
-        2. Iterates over CV folds from the resampler.
-        3. Fits the estimator on the training fold, predicts on the test fold.
-        4. Records fit time, prediction time, and metric scores per fold.
-        5. Aggregates mean and std across folds.
-        6. Records total runtime.
-
         Returns
         -------
-        pd.DataFrame
-            Transposed results table where:
-            - **Index** (``Metric / Metadata``): row labels such as
-              ``task_id``, ``model_id``, ``{metric}_fold_{i}_test``,
-              ``{metric}_mean``, ``{metric}_std``, ``fit_time_fold_{i}_test``,
-              ``fit_time_mean``, ``fit_time_std``, ``pred_time_fold_{i}_test``,
-              ``pred_time_mean``, ``pred_time_std``, ``runtime_secs``.
-            - **Columns**: integer indices (0, 1, 2, ...) — one per
-              estimator × task combination.
+        pd.DataFrame with estimators and metrics as index classes
 
         Raises
         ------
@@ -64,7 +47,7 @@ class ClassificationBenchmark(_BaseBenchmark):
         """
         self._validate()
 
-        from aiod.registry import craft
+        from aiod.models._registry._craft import craft
 
         records: list[dict[str, Any]] = []
 
@@ -75,7 +58,6 @@ class ClassificationBenchmark(_BaseBenchmark):
             resampler_name = self._extract_name(resampler_spec)
             task_id = f"[dataset={dataset_name}]_[cv={resampler_name}]"
 
-            # Materialise dataset and resampler once per task
             X, y = craft(dataset_spec)
             cv = craft(resampler_spec)
 

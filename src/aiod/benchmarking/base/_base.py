@@ -51,40 +51,62 @@ class _BaseBenchmark:
         """Register a component by its specification string.
 
         Dispatches the spec to the appropriate internal list based on
-        heuristic pattern matching.
-
-        Rigorous validation is performed against the aiod registry to ensure
-        all referred class names are available.
+        identification via the aiod registry (index classes).
 
         Parameters
         ----------
         spec : str
             Specification string for the component to add.
         """
-        from aiod.models import get
-        from aiod.registry._craft import _extract_class_names
+        from aiod.models._registry import get
+        from aiod.models._registry._cls_lookup import _id_lookup
+        from aiod.models._registry._craft import _extract_class_names
 
         spec = spec.strip()
+        name = self._extract_name(spec)
 
-        # Rigorous validation against registry
+        # Rigorous validation & Type identification via registry
         cls_names = _extract_class_names(spec)
-        for name in cls_names:
+        for cname in cls_names:
             try:
-                get(name)
+                get(cname)
             except Exception as e:
                 raise ValueError(
-                    f"Error in Benchmark.add. Component '{name}' is required "
-                    f"to build spec '{spec}', but not found in aiod registry."
+                    f"Error in Benchmark.add. Component '{cname}' is required "
+                    f"to build spec '{spec}', but not found in index class."
                 ) from e
 
-        if _DATASET_PATTERN.match(spec):
-            self._dataset_specs.append(spec)
-        elif self._is_resampler(spec):
-            self._resampler_specs.append(spec)
-        elif _METRIC_PATTERN.match(spec):
-            self._metric_specs.append(spec)
-        else:
-            self._estimator_specs.append(spec)
+        # Identify component type from index
+        # We query the lookup for the primary component's type
+        lookup = _id_lookup()
+        adapter = lookup.get(name)
+
+        if adapter is not None:
+            # AiodPkg__Sklearn stores specific types in _type_of_objs
+            if hasattr(adapter, "_type_of_objs"):
+                types = adapter._type_of_objs.get(name, [])
+            else:
+                # Other adapters might store types in get_class_tag("object_types")
+                try:
+                    types = adapter.get_class_tag("object_types", [])
+                except Exception:
+                    types = []
+
+            if isinstance(types, str):
+                types = [types]
+
+            if "dataset" in types:
+                self._dataset_specs.append(spec)
+                return
+            if "resampler" in types:
+                self._resampler_specs.append(spec)
+                return
+            if "metric" in types:
+                self._metric_specs.append(spec)
+                return
+
+        # Fallback to estimator list for anything else or unknown
+        self._estimator_specs.append(spec)
 
     @abstractmethod
     def run(self) -> pd.DataFrame:
@@ -130,11 +152,10 @@ class _BaseBenchmark:
         callable
             The metric function.
         """
-        from aiod.models import get
-
+        from aiod.models._registry import get
         try:
             return get(metric_spec)
         except Exception as e:
             raise ValueError(
-                f"Could not resolve metric '{metric_spec}' via aiod registry. "
+                f"Could not resolve metric '{metric_spec}' via index classes. "
             ) from e

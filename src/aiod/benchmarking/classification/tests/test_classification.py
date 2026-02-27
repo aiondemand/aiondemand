@@ -103,7 +103,7 @@ def test_add_raises_with_invalid_component():
     from aiod.benchmarking import ClassificationBenchmark
 
     b = ClassificationBenchmark()
-    with pytest.raises(ValueError, match="not found in aiod registry"):
+    with pytest.raises(ValueError, match="not found in index class"):
         b.add("NonExistentClassifier()")
 
 
