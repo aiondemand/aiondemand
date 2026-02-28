@@ -54,7 +54,7 @@ pip install -e ".[dev]"
 
 **Quick check**:
 ```bash
-python -c "import aiod; print('aiondemand installed successfully!')"
+python -c 'import aiod; print("aiondemand installed successfully!")'
 ```
 
 ---
