@@ -13,6 +13,8 @@ class _DummyVersionedPkg(_AiodModelPkg):
     }
     _obj_dict = {
         "Bar": "dummy.bar.Bar",
+        "Foo": "dummy.foo.Foo",
+        "Baz": "dummy.baz.Baz",
     }
     _obj_presence = {
         "Foo": ">=1.0,<2.0",
@@ -29,10 +31,19 @@ class _DummyVersionedPkg(_AiodModelPkg):
     }
 
 
-def test_contained_ids_includes_versioned_metadata_ids():
+def test_versioned_metadata_keys_are_subset_of_obj_dict_keys():
+    obj_keys = set(_DummyVersionedPkg._obj_dict.keys())
+    presence_keys = set(_DummyVersionedPkg._obj_presence.keys())
+    location_keys = set(_DummyVersionedPkg._obj_locations.keys())
+
+    assert presence_keys.issubset(obj_keys)
+    assert location_keys.issubset(obj_keys)
+
+
+def test_contained_ids_are_legacy_obj_dict_keys():
     ids = _DummyVersionedPkg.contained_ids()
 
-    assert ids == ["Bar", "Baz", "Foo"]
+    assert ids == ["Bar", "Foo", "Baz"]
 
 
 def test_is_available_uses_pep440_presence_ranges():
