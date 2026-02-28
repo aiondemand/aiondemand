@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from functools import partial
 from http import HTTPStatus
 from typing import Literal
@@ -8,6 +9,8 @@ import pandas as pd
 import requests
 
 from aiod.authentication.authentication import _get_auth_headers, get_token
+
+logger = logging.getLogger(__name__)
 from aiod.calls.urls import (
     server_url,
     url_to_get_asset,
@@ -493,9 +496,22 @@ async def get_assets_async(
     -------
     :
         The retrieved metadata for the specified ASSET_TYPE.
+
+    Notes
+    -----
+    To see progress information, configure logging at INFO level:
+
+    >>> import logging
+    >>> logging.basicConfig(level=logging.INFO)
+    >>> # Now async operations will show progress
     """
+    total = len(identifiers)
+    logger.info(f"Fetching {total} {asset_type} assets...")
+    
     urls = [url_to_get_asset(asset_type, identifier, version) for identifier in identifiers]
-    response_data = await _fetch_resources(urls)
+    response_data = await _fetch_resources(urls, description=f"{asset_type} assets")
+    
+    logger.info(f"Successfully fetched {total} {asset_type} assets")
     resources = format_response(response_data, data_format)
     return resources
 
@@ -531,6 +547,14 @@ async def get_list_async(
     ------
     ValueError
         Batch size must be larger than 0.
+
+    Notes
+    -----
+    To see progress information, configure logging at INFO level:
+
+    >>> import logging
+    >>> logging.basicConfig(level=logging.INFO)
+    >>> # Now async operations will show progress
     """
     if batch_size <= 0:
         raise ValueError("batch_size must be larger than 0, otherwise you can use the synchronous get_list function!")
@@ -538,23 +562,51 @@ async def get_list_async(
     offsets = range(offset, offset + limit, batch_size)
     last_batch_size = (limit % batch_size) or batch_size
     batch_sizes = [batch_size] * (len(offsets) - 1) + [last_batch_size]
+    
+    num_batches = len(offsets)
+    logger.info(f"Fetching {limit} {asset_type} in {num_batches} batches (batch_size={batch_size})...")
 
     urls = [url_to_get_list(asset_type, offset, limit, version) for offset, limit in zip(offsets, batch_sizes, strict=False)]
 
-    response_data = await _fetch_resources(urls)
+    response_data = await _fetch_resources(urls, description=f"{asset_type} batches")
     flattened_response_data = [response for batch in response_data for response in batch]
+    logger.info(f"Successfully fetched {len(flattened_response_data)} {asset_type} items")
+    
     resources = format_response(flattened_response_data, data_format)
     return resources
 
 
-async def _fetch_resources(urls) -> list[dict]:
-    async def _fetch_data(session, url) -> dict:
+async def _fetch_resources(urls: list[str], description: str = "resources") -> list[dict]:
+    """Fetch multiple resources asynchronously with progress logging.
+    
+    Parameters
+    ----------
+    urls
+        List of URLs to fetch
+    description
+        Description for progress messages (e.g., "datasets", "batches")
+    
+    Returns
+    -------
+    :\
+        List of JSON responses
+    """
+    total = len(urls)
+    
+    async def _fetch_data(session, url, idx) -> dict:
         async with session.get(url, timeout=config.request_timeout_seconds) as response:
-            return await response.json()
+            result = await response.json()
+            # Log progress every 10% or every 10 items, whichever is less frequent
+            progress_interval = max(1, min(10, total // 10))
+            if (idx + 1) % progress_interval == 0 or (idx + 1) == total:
+                percentage = 100 * (idx + 1) // total
+                logger.info(f"Progress: {idx + 1}/{total} {description} fetched ({percentage}%)")
+            return result
 
     async with aiohttp.ClientSession() as session:
-        tasks = [_fetch_data(session, url) for url in urls]
+        tasks = [_fetch_data(session, url, idx) for idx, url in enumerate(urls)]
         response_data = await asyncio.gather(*tasks)
+    
     return response_data
 
 
