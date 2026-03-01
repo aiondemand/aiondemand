@@ -31,12 +31,7 @@ _METRIC_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 class _BaseBenchmark:
     """Base class for benchmarks.
 
-    Provides the ``add()`` dispatcher and stores estimator specifications,
-    dataset loaders, resampling strategies, and evaluation metrics in
-    separate internal lists.
-
-    Subclasses must implement ``run()`` which executes the benchmark and
-    returns a ``pd.DataFrame`` of results.
+    ----
     """
 
     def __init__(self) -> None:
@@ -75,8 +70,7 @@ class _BaseBenchmark:
         Returns
         -------
         pd.DataFrame
-            Structured results DataFrame with metrics as index and
-            estimator-task combinations as columns.
+            DataFrame of structured results
         """
         ...
 
