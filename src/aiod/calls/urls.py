@@ -1,22 +1,17 @@
 import urllib
-
-from typing import Literal
 import urllib.parse
+from typing import Literal
 
 from aiod.configuration import config
 
 
-def url_to_get_asset(
-    asset_type: str, identifier: str, version: str | None = None
-) -> str:
+def url_to_get_asset(asset_type: str, identifier: str, version: str | None = None) -> str:
     base_url = server_url(version)
     url = f"{base_url}{asset_type}/{identifier}"
     return url
 
 
-def url_to_get_list(
-    asset_type: str, offset: int = 0, limit: int = 10, version: str | None = None
-) -> str:
+def url_to_get_list(asset_type: str, offset: int = 0, limit: int = 10, version: str | None = None) -> str:
     query = urllib.parse.urlencode({"offset": offset, "limit": limit})
     base_url = server_url(version)
     url = f"{base_url}{asset_type}?{query}"
@@ -29,9 +24,7 @@ def url_to_search(
     platforms: list[str] | None = None,
     offset: int = 0,
     limit: int = 10,
-    search_fields: (
-        None | Literal["name", "issn", "description_html", "description_plain"]
-    ) = None,
+    search_fields: (None | Literal["name", "issn", "description_html", "description_plain"]) = None,
     get_all: bool = True,
     version: str | None = None,
 ) -> str:

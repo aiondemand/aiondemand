@@ -37,8 +37,6 @@ If you access a taxonomy that is not available for your defined version, an
 EndpointUndefinedError is raised.
 """
 
-from __future__ import annotations
-
 import dataclasses
 import functools
 import sys
@@ -47,9 +45,9 @@ from typing import TypedDict
 
 import requests
 
-from aiod.configuration import config
 from aiod.calls.urls import server_url
 from aiod.calls.utils import EndpointUndefinedError
+from aiod.configuration import config
 
 _mod = sys.modules[__name__]
 _TAXONOMIES = [
@@ -110,7 +108,7 @@ def _parse_term(term: _TermDict, taxonomy: str) -> Term:
 def _get_taxonomy(name: str):
     # Since taxonomies rarely change, we cache the result in memory.
     @functools.cache
-    def get_taxonomy() -> list[Term]:
+    def get_taxonomy() -> list["Term"]:
         response = requests.get(
             f"{server_url()}{name}",
             timeout=config.request_timeout_seconds,
@@ -126,8 +124,11 @@ def _get_taxonomy(name: str):
     get_taxonomy.__wrapped__.__doc__ = f"""
     Return the hierarchical taxonomy of {name.replace("_", " ")}.
 
-    This function uses caching, and only the first call will result in a call to the server.
-    The cache does not persist between Python sessions. You can clear the cache anytime by calling
+    This function uses caching, and only the first call will result in a
+    call to the server.
+    The cache does not persist between Python sessions.
+    You can clear the cache anytime by calling
+
     `aiod.taxonomies.{name}.cache_clear()`.
 
     Returns
@@ -136,7 +137,8 @@ def _get_taxonomy(name: str):
         A hierarchical taxonomy, each entry has a 'term', 'definition', and 'subterms'.
         The 'term' is a short unique name representing the entry.
         The 'definition' provides additional text to clarify the meaning for the term.
-        'Subterms' provides terms which are part of this term, and may themselves have subterms as well.
+        'Subterms' provides terms which are part of this term, and may themselves have
+        subterms as well.
 
     Raises
     ------
