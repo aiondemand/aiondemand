@@ -16,10 +16,6 @@ __all__ = ["ClassificationBenchmark"]
 
 class ClassificationBenchmark(_BaseBenchmark):
     """Benchmark for classification estimators.
-
-    Allows registering estimators, dataset loaders, resampling strategies,
-    and evaluation metrics via ``add()``, then running all combinations with
-    a single ``run()`` call.
     """
 
     def run(self) -> pd.DataFrame:
@@ -27,7 +23,7 @@ class ClassificationBenchmark(_BaseBenchmark):
 
         Returns
         -------
-        pd.DataFrame with estimators and metrics as index classes
+        pd.DataFrame with benchmark results
 
         Raises
         ------
@@ -125,10 +121,6 @@ class ClassificationBenchmark(_BaseBenchmark):
         pd.set_option("display.width", None)
 
         return result
-
-    # ------------------------------------------------------------------
-    # Internal helpers
-    # ------------------------------------------------------------------
 
     def _validate(self) -> None:
         """Raise ValueError if any required component list is empty."""

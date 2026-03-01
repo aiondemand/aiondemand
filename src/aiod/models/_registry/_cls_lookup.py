@@ -15,8 +15,8 @@ def _get_class(id: str):
 
     Returns
     -------
-    class or object
-        retrieved class (plain id) or instantiated object (spec string)
+    class
+        retrieved class
 
     Raises
     ------
