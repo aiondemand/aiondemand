@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from skbase.base import BaseObject
 
-class _BaseContract:
+
+class _BaseContract(BaseObject):
     @classmethod
     def istypeof(cls, identifier: str | type) -> bool:
         """Return True if object satisfies this contract."""
