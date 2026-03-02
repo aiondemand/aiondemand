@@ -6,6 +6,12 @@ from aiod.contracts.sklearn._base import _BaseSklearnContract
 
 
 class SklearnClassificationContract(_BaseSklearnContract):
+    _tags = {
+        "scitype_name": "sklearn_classification_contract",
+        "short_descr": "scitype for scikit-learn classification contract",
+        "parent_scitype": "sklearn_contract",
+    }
+
     @classmethod
     def _check_structure(cls, obj: type) -> bool:
         from sklearn.base import ClassifierMixin

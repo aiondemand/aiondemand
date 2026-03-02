@@ -6,6 +6,11 @@ from skbase.base import BaseObject
 
 
 class _BaseContract(BaseObject):
+    _tags = {
+        "scitype_name": "contract",
+        "short_descr": "basic scitype for all contracts",
+    }
+
     @classmethod
     def istypeof(cls, identifier: str | type) -> bool:
         """Return True if object satisfies this contract."""

@@ -6,6 +6,12 @@ from aiod.contracts.base import _BaseContract
 
 
 class _BaseSklearnContract(_BaseContract):
+    _tags = {
+        "scitype_name": "sklearn_contract",
+        "short_descr": "basic scitype for all scikit-learn contracts",
+        "parent_scitype": "contract",
+    }
+
     @classmethod
     def _check_structure(cls, obj: type) -> bool:
         from sklearn.base import BaseEstimator
