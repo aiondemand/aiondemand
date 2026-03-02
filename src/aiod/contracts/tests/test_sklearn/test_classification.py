@@ -1,5 +1,5 @@
 import pytest
-from skbase.utils.dependencies import _safe_import
+from skbase.utils.dependencies import _check_soft_dependencies, _safe_import
 
 import aiod
 from aiod.contracts import SklearnClassificationContract
@@ -64,34 +64,62 @@ def mock_aiod_get(monkeypatch):
     monkeypatch.setattr(aiod, "get", _mock_get)
 
 
+@pytest.mark.skipif(
+    not _check_soft_dependencies("scikit-learn", severity="none"),
+    reason="run only if scikit-learn is installed",
+)
 def test_istypeof_with_class(contract, valid_class):
     assert contract.istypeof(valid_class) is True
 
 
+@pytest.mark.skipif(
+    not _check_soft_dependencies("scikit-learn", severity="none"),
+    reason="run only if scikit-learn is installed",
+)
 def test_istypeof_with_string(contract, mock_aiod_get):
     assert contract.istypeof("LogisticRegression") is True
 
 
+@pytest.mark.skipif(
+    not _check_soft_dependencies("scikit-learn", severity="none"),
+    reason="run only if scikit-learn is installed",
+)
 def test_istypeof_invalid_string(contract, mock_aiod_get):
     assert contract.istypeof("UnknownClassifier") is False
 
 
+@pytest.mark.skipif(
+    not _check_soft_dependencies("scikit-learn", severity="none"),
+    reason="run only if scikit-learn is installed",
+)
 def test_istypeof_not_estimator(contract, not_estimator_class):
     assert contract.istypeof(not_estimator_class) is False
 
 
+@pytest.mark.skipif(
+    not _check_soft_dependencies("scikit-learn", severity="none"),
+    reason="run only if scikit-learn is installed",
+)
 def test_runtests_success(contract, valid_class):
     result = contract.runtests(valid_class)
     assert result["passed"] is True
     assert result["errors"] == []
 
 
+@pytest.mark.skipif(
+    not _check_soft_dependencies("scikit-learn", severity="none"),
+    reason="run only if scikit-learn is installed",
+)
 def test_runtests_structure_failure(contract, missing_fit_class):
     result = contract.runtests(missing_fit_class)
     assert result["passed"] is False
     assert any("Missing required method" in e for e in result["errors"])
 
 
+@pytest.mark.skipif(
+    not _check_soft_dependencies("scikit-learn", severity="none"),
+    reason="run only if scikit-learn is installed",
+)
 def test_runtests_behavior_failure(contract, broken_behavior_class):
     result = contract.runtests(broken_behavior_class)
     assert result["passed"] is False
