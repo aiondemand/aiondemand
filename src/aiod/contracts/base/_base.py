@@ -16,10 +16,6 @@ class _BaseContract(BaseObject):
         """Return True if object satisfies this contract."""
         try:
             obj = cls._resolve(identifier)
-        except Exception:
-            return False
-
-        try:
             return cls._check_structure(obj)
         except Exception:
             return False
@@ -38,11 +34,6 @@ class _BaseContract(BaseObject):
 
         try:
             cls._check_structure(obj)
-        except Exception as e:
-            results["passed"] = False
-            results["errors"].append(str(e))
-
-        try:
             cls._run_behavioral_tests(obj)
         except Exception as e:
             results["passed"] = False
