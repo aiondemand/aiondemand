@@ -10,8 +10,7 @@ class DummyCatalogue(BaseCatalogue):
 
     def _fetch(self):
         return {
-            "dataset": ["LoadIris"],
-            "metric": ["MeanAbsoluteError"],
+            "classifier": ["KNeighborsClassifier(n_neighbors=5)"],
         }
 
 
@@ -23,17 +22,17 @@ def dummy_catalogue():
 
 def test_available_categories(dummy_catalogue):
     """available_categories should return keys from _fetch()."""
-    assert set(dummy_catalogue.available_categories()) == {"dataset", "metric"}
+    assert set(dummy_catalogue.available_categories()) == {"classifier"}
 
 
 def test_fetch_all_and_specific(dummy_catalogue):
     """fetch() should flatten correctly and handle category filters."""
     all_items = dummy_catalogue.fetch("all")
     assert isinstance(all_items, list)
-    assert set(all_items) == {"LoadIris", "MeanAbsoluteError"}
+    assert set(all_items) == {"KNeighborsClassifier(n_neighbors=5)"}
 
-    datasets = dummy_catalogue.fetch("dataset")
-    assert datasets == ["LoadIris"]
+    classifier = dummy_catalogue.fetch("classifier")
+    assert classifier == ["KNeighborsClassifier(n_neighbors=5)"]
 
 
 def test_fetch_invalid_type(dummy_catalogue):
@@ -49,13 +48,14 @@ def test_fetch_as_string(dummy_catalogue):
 
 
 def test_fetch_as_object(dummy_catalogue):
-    """fetch() with as_object=True should return the same items for this dummy."""
+    """fetch() with as_object=True should return instantiated objects."""
     items_as_object = dummy_catalogue.fetch("all", as_object=True)
     assert all(not isinstance(item, str) for item in items_as_object)
+    assert items_as_object[0].__class__.__name__ == "KNeighborsClassifier"
 
 
 def test_len_and_contains(dummy_catalogue):
     """__len__ and __contains__ should behave correctly."""
-    assert len(dummy_catalogue) == 2
-    assert "LoadIris" in dummy_catalogue
-    assert "Longley" not in dummy_catalogue
+    assert len(dummy_catalogue) == 1
+    assert "KNeighborsClassifier(n_neighbors=5)" in dummy_catalogue
+    assert "LogisticRegression()" not in dummy_catalogue
