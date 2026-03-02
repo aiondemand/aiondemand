@@ -36,9 +36,15 @@ class _AiodModelPkg(_BasePkg):
 
         if _obj is None:
             raise ValueError(
+<<<<<<< HEAD
                 "Error in materialize."
                 "Either _materialize must be implemented, or"
                 "the _obj attribute must be not None."
+=======
+                "Error in _AiodModelPkg._materialize. "
+                "Either _materialize must be implemented, or"
+                " the _obj attribute must be not None."
+>>>>>>> main
             )
 
         if pkg_obj == "reference":
@@ -52,7 +58,11 @@ class _AiodModelPkg(_BasePkg):
         if pkg_obj == "code":
             exec(self._obj)
 
+<<<<<<< HEAD
             return obj
+=======
+            return obj  # noqa: F821
+>>>>>>> main
 
         # elif pkg_obj == "craft":
         #    identify and call appropriate craft method

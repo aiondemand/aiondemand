@@ -19,9 +19,16 @@ def serialize_dict(d, mode="eval", name="d"):
     mode : str, "eval" or "exec", default="eval"
         The mode of serialization.
 
+<<<<<<< HEAD
         * If ``"eval"``, the returned code snippet is an expression that evaluates to the dict.
         * If ``"exec"``, the returned code snippet is a series of statements that assign the dict
           to a variable named ``name``.
+=======
+        * If ``"eval"``, the returned code snippet is an expression that evaluates
+          to the dict.
+        * If ``"exec"``, the returned code snippet is a series of statements that
+          assign the dict to a variable named ``name``.
+>>>>>>> main
 
     name : str, default="d"
         The variable name to assign the dict to.
