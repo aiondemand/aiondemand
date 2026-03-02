@@ -15,7 +15,7 @@ class BaseCatalogue(_BasePkg):
     """Base class for catalogue objects.
 
     A catalogue stores collections of object specifications grouped by category.
-    Subclasses implement `_list`, which defines the available items.
+    Subclasses implement `_fetch`, which defines the available items.
 
     Items can be returned either as:
     - specification strings (default), or
@@ -39,7 +39,7 @@ class BaseCatalogue(_BasePkg):
         self._cached_objects: Dict[str, List[Any]] | None = None
 
     @abstractmethod
-    def _list(self) -> Dict[str, List[Union[str, Any]]]:
+    def _fetch(self) -> Dict[str, List[Union[str, Any]]]:
         """Return the default items for this catalogue.
 
         Returns
@@ -50,7 +50,7 @@ class BaseCatalogue(_BasePkg):
         """
         ...
 
-    def list(
+    def fetch(
         self,
         object_type: str = "all",
         as_object: bool = False,
@@ -74,7 +74,7 @@ class BaseCatalogue(_BasePkg):
         list[str] or list[Any]
             List of specification names (default) or instantiated objects.
         """
-        names_dict = self._list()
+        names_dict = self._fetch()
 
         if object_type != "all" and object_type not in names_dict:
             raise KeyError(
@@ -117,13 +117,13 @@ class BaseCatalogue(_BasePkg):
         Returns
         -------
         list[str]
-            Category names defined by `_list()`.
+            Category names defined by `_fetch()`.
         """
-        return list(self._list().keys())
+        return list(self._fetch().keys())
 
     def __len__(self) -> int:
         """Return total number of items across all categories."""
-        return len(self.list("all"))
+        return len(self.fetch("all"))
 
     def __contains__(self, name: str) -> bool:
         """Check whether a specification name exists in the catalogue.
@@ -138,4 +138,4 @@ class BaseCatalogue(_BasePkg):
         bool
             True if present, False otherwise.
         """
-        return name in self.list("all")
+        return name in self.fetch("all")

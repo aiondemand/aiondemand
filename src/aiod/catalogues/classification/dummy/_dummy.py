@@ -26,7 +26,7 @@ class DummyClassificationCatalogue(BaseCatalogue):
         "python_dependencies": ["scikit-learn"],
     }
 
-    def _list(self) -> Dict[str, List[Union[str, Any]]]:
+    def _fetch(self) -> Dict[str, List[Union[str, Any]]]:
         """Return classifier specifications grouped by category.
 
         Returns
