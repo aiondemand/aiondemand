@@ -1,9 +1,18 @@
 import pytest
-from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.linear_model import LogisticRegression
+from skbase.utils.dependencies import _safe_import
 
 import aiod
 from aiod.contracts import SklearnClassificationContract
+
+BaseEstimator = _safe_import(
+    import_path="sklearn.base.BaseEstimator", pkg_name="scikit-learn"
+)
+ClassifierMixin = _safe_import(
+    import_path="sklearn.base.ClassifierMixin", pkg_name="scikit-learn"
+)
+LogisticRegression = _safe_import(
+    import_path="sklearn.linear_model.LogisticRegression", pkg_name="scikit-learn"
+)
 
 
 class NotEstimator:
@@ -49,8 +58,6 @@ def broken_behavior_class():
 def mock_aiod_get(monkeypatch):
     def _mock_get(identifier: str):
         if identifier == "LogisticRegression":
-            from sklearn.linear_model import LogisticRegression
-
             return LogisticRegression
         raise ValueError("not found")
 
