@@ -1,7 +1,7 @@
 """API contract definitions."""
 
-from aiod.contracts.sklearn import SklearnClassifierContract
+from aiod.contracts.sklearn import SklearnClassificationContract
 
 __all__ = [
-    "SklearnClassifierContract",
+    "SklearnClassificationContract",
 ]

@@ -1,7 +1,7 @@
 """Base class for scikit-learn API contracts."""
 
-from aiod.contracts.sklearn.classification import SklearnClassifierContract
+from aiod.contracts.sklearn.classification import SklearnClassificationContract
 
 __all__ = [
-    "SklearnClassifierContract",
+    "SklearnClassificationContract",
 ]

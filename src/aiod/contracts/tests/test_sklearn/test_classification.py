@@ -3,7 +3,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.linear_model import LogisticRegression
 
 import aiod
-from aiod.contracts import SklearnClassifierContract
+from aiod.contracts import SklearnClassificationContract
 
 
 class NotEstimator:
@@ -22,7 +22,7 @@ class BrokenBehaviorClassifier(LogisticRegression):
 
 @pytest.fixture
 def contract():
-    return SklearnClassifierContract
+    return SklearnClassificationContract
 
 
 @pytest.fixture
