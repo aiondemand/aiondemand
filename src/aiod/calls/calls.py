@@ -290,6 +290,8 @@ def counts(*, asset_type: str, version: str | None = None, per_platform: bool = 
     """
     url = url_to_resource_counts(version, per_platform, asset_type)
     res = requests.get(url, timeout=config.request_timeout_seconds)
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     return res.json()
 
 

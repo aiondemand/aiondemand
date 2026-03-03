@@ -28,10 +28,12 @@ def format_response(response: list | dict, data_format: Literal["pandas", "json"
             return pd.Series(response)
         if isinstance(response, list):
             return pd.DataFrame(response)
-    elif data_format == "json" and (isinstance(response, dict) or isinstance(response, list)):
+    elif data_format == "json" and isinstance(response, (dict, list)):
         return response
 
-    raise Exception(f"Format: {data_format} invalid or not supported for responses of {type(response)=}.")
+    raise ValueError(
+        f"Unsupported data_format {data_format!r}. Expected 'pandas' or 'json'."
+    )
 
 
 def wrap_calls(asset_type: str, calls: list[Callable], module: str) -> tuple[Callable, ...]:
@@ -60,3 +62,4 @@ class ServerError(RuntimeError):
         self.detail = response.json().get("detail")
         self.reference = response.json().get("reference")
         self._response = response
+        super().__init__(f"[{self.status_code}] {self.detail}")
