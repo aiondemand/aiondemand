@@ -99,6 +99,8 @@ def get_list(
         url,
         timeout=config.request_timeout_seconds,
     )
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -464,6 +466,8 @@ def search(
         url,
         timeout=config.request_timeout_seconds,
     )
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     resources = format_response(res.json()["resources"], data_format)
     return resources
 
