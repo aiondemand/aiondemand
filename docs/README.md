@@ -4,7 +4,7 @@
 # Connect to [AI-on-Demand](https://aiod.eu) in Python.
 
 The [AI-on-Demand](https://aiod.eu) (AIOD) platform empowers AI research and innovation for industry and academia. 
-At its core if the [metadata catalogue](https://api.aiod.eu) which indexes countless AI resources, such as datasets, papers, and educational material, 
+At its core is the [metadata catalogue](https://api.aiod.eu) which indexes countless AI resources, such as datasets, papers, and educational material, 
 from many different platforms such as [Zenodo](https://www.zenodo.org), [OpenML](https://www.openml.org), and [AIDA](https://https://www.i-aida.org/ai-educational-resources/).
 
 This package is mainly intended for users that want to programmatically access the platform to, e.g., build a service, fetch resources in their scripts, or write a connector that registers metadata of another platform with AI-on-Demand. 
