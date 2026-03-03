@@ -15,7 +15,8 @@ def format_response(
     ----------
         response (list | dict): The response data to format.
         data_format (Literal["pandas", "json"]): The desired format for the response.
-            For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
+            For "json" formats, the returned type is a json decoded type,
+            i.e. a dict or a list.
 
     Returns
     -------
@@ -36,7 +37,8 @@ def format_response(
         return response
 
     raise Exception(
-        f"Format: {data_format} invalid or not supported for responses of {type(response)=}."
+        f"Format: {data_format} invalid or not supported "
+        f"for responses of {type(response)=}."
     )
 
 
@@ -65,7 +67,8 @@ class EndpointUndefinedError(Exception):
 
 
 class ServerError(RuntimeError):
-    """Raised for any server error that does not (yet) have better client-side handling."""
+    """Raised for any server error that does not (yet) have
+    better client-side handling."""
 
     def __init__(self, response: requests.Response):
         self.status_code = response.status_code
