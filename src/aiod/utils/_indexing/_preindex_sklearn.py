@@ -142,7 +142,7 @@ def _all_sklearn_estimators(
     )
 
 
-def _generate_sklearn_types_of_obj() -> dict:
+def _generate_sklearn_types_of_obj(package_name="sklearn") -> dict:
     """
     Generate _type_of_objs dictionary from _all_sklearn_estimators.
 
@@ -153,7 +153,7 @@ def _generate_sklearn_types_of_obj() -> dict:
     -------
         Dictionary mapping object names to their types (as strings or lists of strings).
     """
-    all_est = _all_sklearn_estimators()
+    all_est = _all_sklearn_estimators(package_name)
     type_of_objs: dict[str, list[str] | str] = {}
     mixin_to_type = {
         "RegressorMixin": "regressor",
@@ -166,6 +166,7 @@ def _generate_sklearn_types_of_obj() -> dict:
         "OutlierMixin": "outlier_detector",
         "_VectorizerMixin": "transformer",
         "MetaEstimatorMixin": "meta_estimator",
+        "SamplerMixin": "sampler",
     }
 
     polymorphic_meta = [
@@ -176,7 +177,14 @@ def _generate_sklearn_types_of_obj() -> dict:
     ]
 
     for est_name, est_class in all_est:
-        if est_name in polymorphic_meta:
+        if package_name not in est_class.__module__:
+            continue
+
+        est_type = getattr(est_class, "_estimator_type", None)
+        if est_type is not None:
+            type_of_objs[est_name] = est_type
+
+        elif est_name in polymorphic_meta:
             found_types = [
                 "classifier",
                 "regressor",
@@ -188,11 +196,13 @@ def _generate_sklearn_types_of_obj() -> dict:
                 "outlier_detector",
                 "manifold",
                 "covariance",
+                "sampler",
+                "ranker",
             ]
         else:
             mro = inspect.getmro(est_class)
             found_types = []
-            for base_class in mro[:-4]:
+            for base_class in mro:
                 if base_class.__name__ in mixin_to_type:
                     est_type = mixin_to_type[base_class.__name__]
                     if est_type not in found_types:
