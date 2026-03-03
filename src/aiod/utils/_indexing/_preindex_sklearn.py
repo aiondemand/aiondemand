@@ -181,8 +181,8 @@ def _generate_sklearn_types_of_obj(package_name="sklearn") -> dict:
             continue
 
         est_type = getattr(est_class, "_estimator_type", None)
-        if est_type is not None:
-            type_of_objs[est_name] = est_type
+        if est_type is not None and isinstance(est_type, str):
+            found_types = est_type
 
         elif est_name in polymorphic_meta:
             found_types = [
