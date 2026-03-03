@@ -46,6 +46,8 @@ class Config:
         Maximum back-off delay in seconds.
     retry_status_codes: list[int]
         HTTP status codes that trigger a retry.
+    debug_http: bool
+        If True, log HTTP requests and retries at DEBUG level.
 
     """
 
@@ -59,6 +61,7 @@ class Config:
     retry_backoff_factor: float = 0.5
     max_backoff: float = 30.0
     retry_status_codes: list[int] = field(default_factory=lambda: [429, 503, 504])
+    debug_http: bool = False
 
     _observers: dict[str, set[AttributeObserver]] = field(
         default_factory=lambda: defaultdict(set),

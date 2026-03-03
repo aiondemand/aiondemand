@@ -1,6 +1,7 @@
 """Centralized HTTP client for the AIoD SDK."""
 
 import asyncio
+import logging
 import time
 from dataclasses import dataclass
 from functools import cached_property
@@ -9,6 +10,8 @@ import httpx
 
 from aiod.authentication.authentication import _get_auth_headers
 from aiod.configuration._config import config
+
+logger = logging.getLogger(__name__)
 
 
 class AiodHTTPError(RuntimeError):
@@ -33,6 +36,25 @@ class AiodForbiddenError(AiodHTTPError):
     """Raised when the server returns 403 Forbidden."""
 
 
+class AiodRateLimitError(AiodHTTPError):
+    """Raised when the server returns 429 Too Many Requests.
+
+    Attributes
+    ----------
+    retry_after : float | None
+        Seconds to wait before retrying, parsed from the ``Retry-After``
+        response header.  ``None`` if the header is absent or unparseable.
+    """
+
+    def __init__(self, response: httpx.Response):
+        super().__init__(response)
+        value = response.headers.get("retry-after")
+        try:
+            self.retry_after: float | None = float(value) if value is not None else None
+        except ValueError:
+            self.retry_after = None
+
+
 class AiodServerError(AiodHTTPError):
     """Raised when the server returns a 5xx error."""
 
@@ -55,6 +77,8 @@ def _raise_for_status(response: httpx.Response) -> None:
         raise AiodForbiddenError(response)
     if status == 404:
         raise AiodNotFoundError(response)
+    if status == 429:
+        raise AiodRateLimitError(response)
     if status >= 500:
         raise AiodServerError(response)
     raise AiodHTTPError(response)
@@ -157,12 +181,24 @@ class AiodClient:
         self.__dict__.pop("_async", None)
 
     def request(self, method: str, path: str, **kwargs) -> httpx.Response:
+        t0 = time.monotonic()
         response = self._sync.request(method, path, **kwargs)
+        if config.debug_http:
+            elapsed_ms = (time.monotonic() - t0) * 1000
+            logger.debug(
+                "%s %s → %d (%.0fms)", method, path, response.status_code, elapsed_ms
+            )  # noqa: E501
         _raise_for_status(response)
         return response
 
     async def arequest(self, method: str, path: str, **kwargs) -> httpx.Response:
+        t0 = time.monotonic()
         response = await self._async.request(method, path, **kwargs)
+        if config.debug_http:
+            elapsed_ms = (time.monotonic() - t0) * 1000
+            logger.debug(
+                "%s %s → %d (%.0fms)", method, path, response.status_code, elapsed_ms
+            )  # noqa: E501
         _raise_for_status(response)
         return response
 
