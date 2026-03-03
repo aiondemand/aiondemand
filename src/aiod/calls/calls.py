@@ -448,14 +448,14 @@ def search(
     """Search metadata using the Elasticsearch endpoint.
 
     Search metadata for ASSET_TYPE type using the Elasticsearch endpoint
-    of the AIoD metadata catalogue. All parameters except `query` must be 
+    of the AIoD metadata catalogue. All parameters except `query` must be
     specified by name.
 
     Parameters
     ----------
     search
         The string to be matched against the search fields.
-    platforms  
+    platforms
         The platforms to filter the search results.
         If None, results from all platforms will be returned (default is None).
     offset
