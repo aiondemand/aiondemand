@@ -6,7 +6,7 @@ import requests
 
 from aiod.authentication import get_token
 from aiod.calls.urls import server_url
-from aiod.calls.utils import ServerError
+from aiod.calls.utils import ServerError, _request_with_retry
 from aiod.configuration import config
 
 
@@ -84,7 +84,8 @@ def delete(identifier: str):
     ServerError
         If any other server-side error occurs.
     """
-    res = requests.delete(
+    res = _request_with_retry(
+        "DELETE",
         _bookmarks_url(),
         params={"resource_identifier": identifier},
         headers=get_token().headers,
@@ -103,7 +104,8 @@ def get_list() -> list[Bookmark]:
     :
         The list of bookmarks.
     """
-    res = requests.get(
+    res = _request_with_retry(
+        "GET",
         _bookmarks_url(),
         headers=get_token().headers,
         timeout=config.request_timeout_seconds,

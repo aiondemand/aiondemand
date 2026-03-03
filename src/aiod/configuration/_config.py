@@ -38,6 +38,14 @@ class Config:
     request_timeout_seconds: int
         If any request remains unresponsive for `request_timeout_seconds` seconds,
         it will automatically be aborted and raise a `requests.Timeout` error.
+    max_retries: int
+        Maximum number of retry attempts for transient server errors (429, 500,
+        502, 503, 504) and network errors. Set to 0 to disable retries entirely.
+    retry_backoff_factor: float
+        Multiplier for exponential backoff between retries. Wait time is
+        calculated as ``backoff_factor * 2 ** attempt`` seconds, plus a small
+        random jitter. For example, with the default of 1.0, waits are
+        approximately 1 s, 2 s, 4 s for the first three attempts.
 
     """
 
@@ -47,6 +55,8 @@ class Config:
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
     request_timeout_seconds: int = 10
+    max_retries: int = 3
+    retry_backoff_factor: float = 1.0
 
     _observers: dict[str, set[AttributeObserver]] = field(
         default_factory=lambda: defaultdict(set),
