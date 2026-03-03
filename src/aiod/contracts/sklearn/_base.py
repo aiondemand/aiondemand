@@ -18,10 +18,6 @@ class _BaseSklearnContract(_BaseContract):
         if not issubclass(obj, BaseEstimator):
             raise TypeError("Object is not a sklearn BaseEstimator")
 
-        for method in ["fit", "predict"]:
-            if not hasattr(obj, method):
-                raise TypeError(f"Missing required method: {method}")
-
         return True
 
     @classmethod
