@@ -64,7 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: "develop"  # Necessary to download the latest of develop as this will have been updated on the step before
+          ref: "main"  # Necessary to download the latest of main as this will have been updated on the step before
           fetch-tags: 1
           fetch-depth: 0
       - uses: actions/setup-python@v5
@@ -84,7 +84,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: "develop"  # Necessary to download the latest of develop as this will have been updated on the step before
+          ref: "main"  # Necessary to download the latest of main as this will have been updated on the step before
           fetch-tags: 1
           fetch-depth: 0
       - name: Download the build artifiact
@@ -110,7 +110,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: "develop"  # Necessary to download the latest of develop as this will have been updated on the step before
+          ref: "main"  # Necessary to download the latest of main as this will have been updated on the step before
       - uses: actions/download-artifact@v4
         with:
             name: build-output
