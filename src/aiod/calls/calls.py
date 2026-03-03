@@ -239,7 +239,7 @@ def post_asset(
     asset_type: str,
     metadata: dict,
     version: str | None = None,
-) -> str | requests.Response:
+) -> str:
     """Register ASSET_TYPE in catalogue.
 
     All parameters must be specified by name.
@@ -254,9 +254,12 @@ def post_asset(
     Returns
     -------
     identifier: str
-        if the asset is registered successfully
-    error response: requests.Response
-        error response, if it failed to register successfully
+        The identifier of the newly registered asset.
+
+    Raises
+    ------
+    ServerError
+        If the server returns a non-OK response.
     """
     url = f"{server_url(version)}{asset_type}"
     res = requests.post(
@@ -267,7 +270,7 @@ def post_asset(
     )
     if res.status_code == HTTPStatus.OK:
         return res.json()["identifier"]
-    return res
+    raise ServerError(res)
 
 
 def counts(*, asset_type: str, version: str | None = None, per_platform: bool = False) -> int | dict[str, int]:
