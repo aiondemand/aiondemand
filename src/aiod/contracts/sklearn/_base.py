@@ -7,6 +7,8 @@ from aiod.contracts.base import _BaseContract
 
 class _BaseSklearnContract(_BaseContract):
     _tags = {
+        "python_dependencies": "scikit-learn",
+        "pkg_pypi_name": "scikit-learn",
         "scitype_name": "sklearn",
         "short_descr": "basic scitype for all scikit-learn contracts",
     }
