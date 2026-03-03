@@ -120,85 +120,122 @@ class RetryTransport(httpx.AsyncBaseTransport, httpx.BaseTransport):
         if request.method not in self.METHODS:
             return self._sync_transport.handle_request(request)
 
-        last_response = None
         for attempt in range(config.max_retries + 1):
-            response = self._sync_transport.handle_request(request)
-            if response.status_code not in config.retry_status_codes:
-                return response
-            last_response = response
-            if attempt < config.max_retries:
-                time.sleep(self._backoff(attempt + 1))
-        return last_response  # type: ignore[return-value]
+            try:
+                response = self._sync_transport.handle_request(request)
+                if (
+                    response.status_code not in config.retry_status_codes
+                    or attempt == config.max_retries
+                ):
+                    return response
+                if config.debug_http:
+                    logger.debug(
+                        "retry %d/%d (status=%d)",
+                        attempt + 1,
+                        config.max_retries,
+                        response.status_code,
+                    )
+            except httpx.TransportError as exc:
+                if attempt == config.max_retries:
+                    raise
+                if config.debug_http:
+                    logger.debug(
+                        "retry %d/%d (TransportError: %s)",
+                        attempt + 1,
+                        config.max_retries,
+                        exc,
+                    )
+            time.sleep(self._backoff(attempt + 1))
+        return response  # type: ignore[return-value]
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
         if request.method not in self.METHODS:
             return await self._async_transport.handle_async_request(request)
 
-        last_response = None
         for attempt in range(config.max_retries + 1):
-            response = await self._async_transport.handle_async_request(request)
-            if response.status_code not in config.retry_status_codes:
-                return response
-            last_response = response
-            if attempt < config.max_retries:
-                await asyncio.sleep(self._backoff(attempt + 1))
-        return last_response  # type: ignore[return-value]
+            try:
+                response = await self._async_transport.handle_async_request(request)
+                if (
+                    response.status_code not in config.retry_status_codes
+                    or attempt == config.max_retries
+                ):
+                    return response
+                if config.debug_http:
+                    logger.debug(
+                        "retry %d/%d (status=%d)",
+                        attempt + 1,
+                        config.max_retries,
+                        response.status_code,
+                    )
+            except httpx.TransportError as exc:
+                if attempt == config.max_retries:
+                    raise
+                if config.debug_http:
+                    logger.debug(
+                        "retry %d/%d (TransportError: %s)",
+                        attempt + 1,
+                        config.max_retries,
+                        exc,
+                    )
+            await asyncio.sleep(self._backoff(attempt + 1))
+        return response  # type: ignore[return-value]
 
 
 @dataclass(frozen=True)
 class AiodClient:
-    """Thin wrapper around httpx providing sync and async API access."""
+    """Thin wrapper around httpx providing sync and async API access.
 
-    def _make_auth(self) -> BearerAuth:
-        return BearerAuth(required=False)
+    Notes
+    -----
+    All ``path`` arguments must be **absolute URLs**.
+    Use :func:`aiod.calls.urls.server_url` or the ``url_to_*`` helpers to
+    build them.  Example::
 
-    def _base_url(self) -> str:
         from aiod.calls.urls import server_url
+        client.get(server_url() + "datasets")
 
-        return server_url()
+    Authentication is injected per-request by :class:`BearerAuth`; read
+    methods use an optional token while write methods (``post``, ``put``,
+    ``delete``) require a valid token.
+    Timeout and retry settings are read live from :data:`aiod.configuration.config`
+    so that changes take effect without rebuilding the client.
+    """
 
     @cached_property
     def _sync(self) -> httpx.Client:
         return httpx.Client(
-            auth=self._make_auth(),
+            auth=BearerAuth(required=False),
             transport=RetryTransport(),
-            base_url=self._base_url(),
-            timeout=config.request_timeout_seconds,
         )
 
     @cached_property
     def _async(self) -> httpx.AsyncClient:
         return httpx.AsyncClient(
-            auth=self._make_auth(),
+            auth=BearerAuth(required=False),
             transport=RetryTransport(),
-            base_url=self._base_url(),
-            timeout=config.request_timeout_seconds,
         )
 
-    def _invalidate(self) -> None:
-        """Drop cached clients so they are rebuilt on the next request."""
-        self.__dict__.pop("_sync", None)
-        self.__dict__.pop("_async", None)
-
     def request(self, method: str, path: str, **kwargs) -> httpx.Response:
+        kwargs.setdefault("timeout", config.request_timeout_seconds)
         t0 = time.monotonic()
         response = self._sync.request(method, path, **kwargs)
         if config.debug_http:
             elapsed_ms = (time.monotonic() - t0) * 1000
             logger.debug(
                 "%s %s → %d (%.0fms)", method, path, response.status_code, elapsed_ms
-            )  # noqa: E501
+            )
         _raise_for_status(response)
         return response
 
     async def arequest(self, method: str, path: str, **kwargs) -> httpx.Response:
+        kwargs.setdefault("timeout", config.request_timeout_seconds)
         t0 = time.monotonic()
         response = await self._async.request(method, path, **kwargs)
         if config.debug_http:
             elapsed_ms = (time.monotonic() - t0) * 1000
             logger.debug(
                 "%s %s → %d (%.0fms)", method, path, response.status_code, elapsed_ms
-            )  # noqa: E501
+            )
         _raise_for_status(response)
         return response
 
@@ -219,6 +256,3 @@ class AiodClient:
 
 
 client = AiodClient()
-
-config.subscribe("api_server", on_change=lambda *_: client._invalidate())
-config.subscribe("version", on_change=lambda *_: client._invalidate())
