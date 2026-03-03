@@ -1,20 +1,20 @@
-"""Model retrieval utility."""
+"""Model retrieval utility for classes."""
 
 from functools import lru_cache
 
 
-def get(id: str):
-    """Retrieve model object with unique identifier.
+def _get_class(id: str):
+    """Retrieve model class with unique identifier.
 
     Parameter
     ---------
     id : str
-        unique identifier of object to retrieve
+        unique identifier of class to retrieve
 
     Returns
     -------
     class
-        retrieved object
+        retrieved class
 
     Raises
     ------
