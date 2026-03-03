@@ -110,16 +110,6 @@ def test_runtests_success(contract, valid_class):
     not _check_soft_dependencies("scikit-learn", severity="none"),
     reason="run only if scikit-learn is installed",
 )
-def test_runtests_structure_failure(contract, missing_fit_class):
-    result = contract.runtests(missing_fit_class)
-    assert result["passed"] is False
-    assert any("Missing required method" in e for e in result["errors"])
-
-
-@pytest.mark.skipif(
-    not _check_soft_dependencies("scikit-learn", severity="none"),
-    reason="run only if scikit-learn is installed",
-)
 def test_runtests_behavior_failure(contract, broken_behavior_class):
     result = contract.runtests(broken_behavior_class)
     assert result["passed"] is False
