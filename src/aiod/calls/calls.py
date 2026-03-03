@@ -198,6 +198,11 @@ def patch_asset(
     -----
     This is a best-effort implementation, but is not yet officially supported by the server.
 
+    .. warning::
+        This operation is **not atomic**. It internally performs a GET followed by a PUT,
+        so concurrent edits by another client between those two calls will be silently
+        overwritten. For critical updates, use `put_asset` with a complete metadata payload.
+
     Parameters
     ----------
     identifier
