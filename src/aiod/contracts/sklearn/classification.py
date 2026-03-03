@@ -1,7 +1,5 @@
 """Scikit-learn classification API contract."""
 
-from __future__ import annotations
-
 from aiod.contracts.sklearn._base import _BaseSklearnContract
 
 

@@ -1,7 +1,5 @@
 """Base class for API contracts."""
 
-from __future__ import annotations
-
 from skbase.base import BaseObject
 
 

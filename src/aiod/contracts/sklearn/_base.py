@@ -1,7 +1,5 @@
 """Base class for scikit-learn API contracts."""
 
-from __future__ import annotations
-
 from aiod.contracts.base import _BaseContract
 
 
