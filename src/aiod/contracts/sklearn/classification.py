@@ -5,7 +5,7 @@ from __future__ import annotations
 from aiod.contracts.sklearn._base import _BaseSklearnContract
 
 
-class SklearnClassificationContract(_BaseSklearnContract):
+class classifier(_BaseSklearnContract):  # noqa: N801
     _tags = {
         "scitype_name": "classifier",
         "short_descr": "scitype for scikit-learn classification contract",

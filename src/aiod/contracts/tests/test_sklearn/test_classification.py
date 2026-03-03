@@ -2,7 +2,7 @@ import pytest
 from skbase.utils.dependencies import _check_soft_dependencies, _safe_import
 
 import aiod
-from aiod.contracts import SklearnClassificationContract
+from aiod.contracts import classifier
 
 BaseEstimator = _safe_import(
     import_path="sklearn.base.BaseEstimator", pkg_name="scikit-learn"
@@ -31,7 +31,7 @@ class BrokenBehaviorClassifier(LogisticRegression):
 
 @pytest.fixture
 def contract():
-    return SklearnClassificationContract
+    return classifier
 
 
 @pytest.fixture
