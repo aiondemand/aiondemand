@@ -71,7 +71,7 @@ class ServerError(RuntimeError):
         self.status_code = response.status_code
         try:
             body = response.json()
-        except ValueError:
+        except requests.exceptions.JSONDecodeError:
             body = {}
         self.detail = body.get("detail")
         self.reference = body.get("reference")
