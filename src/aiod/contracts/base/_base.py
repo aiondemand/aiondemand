@@ -1,13 +1,11 @@
 """Base class for API contracts."""
 
-from __future__ import annotations
-
 from skbase.base import BaseObject
 
 
 class _BaseContract(BaseObject):
     _tags = {
-        "scitype_name": "contract",
+        "object_type": "contract",
         "short_descr": "basic scitype for all contracts",
     }
 

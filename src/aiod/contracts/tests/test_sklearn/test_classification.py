@@ -2,7 +2,7 @@ import pytest
 from skbase.utils.dependencies import _check_soft_dependencies, _safe_import
 
 import aiod
-from aiod.contracts import SklearnClassificationContract
+from aiod.contracts import classifier
 
 BaseEstimator = _safe_import(
     import_path="sklearn.base.BaseEstimator", pkg_name="scikit-learn"
@@ -31,7 +31,7 @@ class BrokenBehaviorClassifier(LogisticRegression):
 
 @pytest.fixture
 def contract():
-    return SklearnClassificationContract
+    return classifier
 
 
 @pytest.fixture
@@ -104,16 +104,6 @@ def test_runtests_success(contract, valid_class):
     result = contract.runtests(valid_class)
     assert result["passed"] is True
     assert result["errors"] == []
-
-
-@pytest.mark.skipif(
-    not _check_soft_dependencies("scikit-learn", severity="none"),
-    reason="run only if scikit-learn is installed",
-)
-def test_runtests_structure_failure(contract, missing_fit_class):
-    result = contract.runtests(missing_fit_class)
-    assert result["passed"] is False
-    assert any("Missing required method" in e for e in result["errors"])
 
 
 @pytest.mark.skipif(

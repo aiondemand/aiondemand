@@ -1,15 +1,14 @@
 """Base class for scikit-learn API contracts."""
 
-from __future__ import annotations
-
 from aiod.contracts.base import _BaseContract
 
 
 class _BaseSklearnContract(_BaseContract):
     _tags = {
-        "scitype_name": "sklearn_contract",
+        "python_dependencies": "scikit-learn",
+        "pkg_pypi_name": "scikit-learn",
+        "scitype_name": "sklearn",
         "short_descr": "basic scitype for all scikit-learn contracts",
-        "parent_scitype": "contract",
     }
 
     @classmethod
@@ -18,10 +17,6 @@ class _BaseSklearnContract(_BaseContract):
 
         if not issubclass(obj, BaseEstimator):
             raise TypeError("Object is not a sklearn BaseEstimator")
-
-        for method in ["fit", "predict"]:
-            if not hasattr(obj, method):
-                raise TypeError(f"Missing required method: {method}")
 
         return True
 

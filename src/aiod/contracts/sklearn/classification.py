@@ -1,15 +1,13 @@
 """Scikit-learn classification API contract."""
 
-from __future__ import annotations
-
 from aiod.contracts.sklearn._base import _BaseSklearnContract
 
 
-class SklearnClassificationContract(_BaseSklearnContract):
+class classifier(_BaseSklearnContract):  # noqa: N801
     _tags = {
-        "scitype_name": "sklearn_classification_contract",
+        "scitype_name": "classifier",
         "short_descr": "scitype for scikit-learn classification contract",
-        "parent_scitype": "sklearn_contract",
+        "parent_scitype": "sklearn",
     }
 
     @classmethod
