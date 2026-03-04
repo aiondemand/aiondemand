@@ -7,7 +7,7 @@ __author__ = ["fkiraly"]
 
 import inspect
 
-from skbase.lookup import all_objects
+from aiod.utils._indexing._generic import get_contract_inhabitants
 
 
 def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
@@ -163,7 +163,7 @@ def _all_sklearn_estimators(
         "conftest",
     ]
 
-    return all_objects(
+    return get_contract_inhabitants(
         object_types=BaseEstimator,
         package_name=package_name,
         modules_to_ignore=MODULES_TO_IGNORE_SKLEARN,
