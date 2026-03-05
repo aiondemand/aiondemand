@@ -11,12 +11,28 @@ class classifier(_BaseSklearnContract):  # noqa: N801
     }
 
     @classmethod
-    def _check_structure(cls, obj: type) -> bool:
+    def _deeper_check(cls, obj: type) -> bool:
         from sklearn.base import ClassifierMixin
 
-        super()._check_structure(obj)
+        is_cls = isinstance(obj, type)
 
-        if not issubclass(obj, ClassifierMixin):
-            raise TypeError("Object is not a sklearn ClassifierMixin")
+        if is_cls and issubclass(obj, ClassifierMixin):
+            return True
 
-        return True
+        if not is_cls and isinstance(obj, ClassifierMixin):
+            return True
+
+        return False
+
+
+"""
+conditions for a classifier
+(
+    ( is_cls and issubclass(obj, ClassifierMixin) )
+    or
+    ( not is_cls and isinstance(obj, ClassifierMixin) )
+)
+and
+super().check_estimator
+
+"""

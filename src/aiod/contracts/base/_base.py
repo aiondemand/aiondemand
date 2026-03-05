@@ -1,5 +1,7 @@
 """Base class for API contracts."""
 
+from typing import Any
+
 from skbase.base import BaseObject
 
 
@@ -10,13 +12,12 @@ class _BaseContract(BaseObject):
     }
 
     @classmethod
-    def istypeof(cls, identifier: str | type) -> bool:
+    def istypeof(cls, obj: Any) -> bool:
         """Return True if object satisfies this contract."""
-        try:
-            obj = cls._resolve(identifier)
-            return cls._check_structure(obj)
-        except Exception:
-            return False
+        if isinstance(obj, str):
+            obj = cls._resolve(obj)
+
+        return cls._check_structure(obj)
 
     @classmethod
     def runtests(cls, identifier: str | type) -> dict:
