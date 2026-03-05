@@ -25,9 +25,9 @@ from aiod.contracts.base import _BaseContract
 from aiod.contracts.sktime.contracts import (
     aligner,
     catalogue,
-    classification_dataset,
     classifier,
     clusterer,
+    dataset_classification,
     dataset_forecasting,
     dataset_regression,
     detector,
@@ -68,7 +68,7 @@ ALL_CONTRACTS = [
     metric_forecasting,
     metric_forecasting_probabilistic,
     metric_detection,
-    classification_dataset,
+    dataset_classification,
     dataset_forecasting,
     dataset_regression,
     catalogue,
@@ -91,7 +91,7 @@ VALIDATION_PAIRS = [
     (reconciler, TopdownReconciler),
     (metric_forecasting, MeanAbsolutePercentageError),
     (metric_detection, DetectionCount),
-    (classification_dataset, ACSF1),
+    (dataset_classification, ACSF1),
 ]
 
 

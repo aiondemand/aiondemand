@@ -3,9 +3,9 @@
 from aiod.contracts.sktime._base import _BaseSktimeContract
 
 
-class classification_dataset(_BaseSktimeContract):  # noqa: N801
+class dataset_classification(_BaseSktimeContract):  # noqa: N801
     _tags = {
-        "scitype_name": "classification_dataset",
+        "scitype_name": "dataset_classification",
         "short_descr": "scitype for sktime classification datasets",
         "parent_scitype": "sktime",
     }
@@ -396,7 +396,7 @@ class dataset_regression(_BaseSktimeContract):  # noqa: N801
 
 
 __all__ = [
-    "classification_dataset",
+    "dataset_classification",
     "forecaster",
     "classifier",
     "regressor",
