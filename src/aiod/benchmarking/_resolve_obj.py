@@ -13,7 +13,10 @@ def _resolve_obj(spec):
 
     Returns
     -------
-    str
+    obj : Object
+        Object resolved from spec string.
+    obj_type : type
+        Type of object resolved from spec string.
     """
     base_name = spec.split("(")[0].strip()
     obj = craft(spec)
@@ -29,6 +32,7 @@ def _resolve_obj(spec):
             f"Cannot resolve type for '{spec}': "
             f"'{base_name}' has no _type_of_objs entry."
         )
+    #if object belongs to one or more types, return the first, for assignment purposes.
     if isinstance(obj_type, list):
         obj_type = obj_type[0]
     return obj, obj_type
