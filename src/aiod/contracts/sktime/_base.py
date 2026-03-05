@@ -24,7 +24,6 @@ class _BaseSktimeContract(_BaseContract):
     def _run_behavioral_tests(cls, obj: type):
         from sktime.utils.estimator_checks import check_estimator
 
-        # sktime's check_estimator usually takes the class directly or an instance
         results = check_estimator(obj, return_exceptions=False)
         return results
 

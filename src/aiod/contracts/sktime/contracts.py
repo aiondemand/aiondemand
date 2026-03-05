@@ -12,7 +12,7 @@ class classification_dataset(_BaseSktimeContract):  # noqa: N801
 
     @classmethod
     def _check_structure(cls, obj: type) -> bool:
-        from sktime.datasets.base import BaseClassificationDataset
+        from sktime.datasets.classification._base import BaseClassificationDataset
 
         super()._check_structure(obj)
 
