@@ -6,14 +6,18 @@ import pandas as pd
 import requests
 
 
-def format_response(response: list | dict, data_format: Literal["pandas", "json"]) -> pd.Series | pd.DataFrame | dict | list:
+def format_response(
+    response: list | dict,
+    data_format: Literal["pandas", "json"],
+) -> pd.Series | pd.DataFrame | dict | list:
     """Format the response data based on the specified format.
 
     Parameters
     ----------
         response (list | dict): The response data to format.
-        data_format (Literal["pandas", "json"]): The desired format for the response.
-            For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
+        data_format (Literal["pandas", "json"]): The desired output format.
+            For "json" formats, the returned type is a json decoded type,
+            i.e. a dict or a list.
 
     Returns
     -------
@@ -28,18 +32,31 @@ def format_response(response: list | dict, data_format: Literal["pandas", "json"
             return pd.Series(response)
         if isinstance(response, list):
             return pd.DataFrame(response)
-    elif data_format == "json" and (isinstance(response, dict) or isinstance(response, list)):
+    elif data_format == "json" and (
+        isinstance(response, dict) or isinstance(response, list)
+    ):
         return response
 
-    raise Exception(f"Format: {data_format} invalid or not supported for responses of {type(response)=}.")
+    raise Exception(
+        f"Format: {data_format} invalid or not supported for"
+        f" responses of {type(response)=}."
+    )
 
 
-def wrap_calls(asset_type: str, calls: list[Callable], module: str) -> tuple[Callable, ...]:
+def wrap_calls(
+    asset_type: str,
+    calls: list[Callable],
+    module: str,
+) -> tuple[Callable, ...]:
     wrapper_list = []
     for wrapped in calls:
         wrapper: Callable = partial(wrapped, asset_type=asset_type)
         wrapper = update_wrapper(wrapper, wrapped)
-        wrapper.__doc__ = wrapped.__doc__.replace("ASSET_TYPE", asset_type) if wrapped.__doc__ is not None else ""
+        wrapper.__doc__ = (
+            wrapped.__doc__.replace("ASSET_TYPE", asset_type)
+            if wrapped.__doc__ is not None
+            else ""
+        )
         wrapper.__module__ = module
         wrapper_list.append(wrapper)
 
@@ -53,10 +70,16 @@ class EndpointUndefinedError(Exception):
 
 
 class ServerError(RuntimeError):
-    """Raised for any server error that does not (yet) have better client-side handling."""
+    """Raised for server errors without better client-side handling."""
 
     def __init__(self, response: requests.Response):
         self.status_code = response.status_code
-        self.detail = response.json().get("detail")
-        self.reference = response.json().get("reference")
+        try:
+            body = response.json()
+        except (ValueError, requests.exceptions.JSONDecodeError):
+            body = {}
+        self.detail = body.get("detail")
+        self.reference = body.get("reference")
         self._response = response
+        detail_msg = self.detail or response.text
+        super().__init__(f"Server returned {self.status_code}: {detail_msg}")
