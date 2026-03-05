@@ -27,9 +27,10 @@ class BrokenBehavior:
 
 class DummyContract(_BaseContract):
     _tags = {
-        "contract_type": "dummy",
         "python_dependencies": None,
-        "pkg_id": "DummyContract",
+        "pkg_pypi_name": None,
+        "scitype_name": "dummy",
+        "short_descr": "basic scitype for all dummy DummyContract",
     }
 
     @classmethod
@@ -51,60 +52,58 @@ class DummyContract(_BaseContract):
 
 
 @pytest.fixture
-def contract():
-    return DummyContract
-
-
-@pytest.fixture
-def valid_class():
-    return ValidEstimator
-
-
-@pytest.fixture
-def missing_class():
-    return MissingPredict
-
-
-@pytest.fixture
-def broken_class():
-    return BrokenBehavior
-
-
-@pytest.fixture
 def mock_aiod_get(monkeypatch):
     def _mock_get(identifier: str):
         if identifier == "ValidEstimator":
             return ValidEstimator
+        elif identifier == "ValidEstimator()":
+            return ValidEstimator()
+        elif identifier == "MissingPredict":
+            return MissingPredict
+        elif identifier == "MissingPredict()":
+            return MissingPredict()
+        elif identifier == "BrokenBehavior":
+            return BrokenBehavior
+        elif identifier == "BrokenBehavior()":
+            return BrokenBehavior()
         raise ValueError("not found")
 
     monkeypatch.setattr(aiod, "get", _mock_get)
 
 
-def test_istypeof_with_class(contract, valid_class):
-    assert contract.istypeof(valid_class) is True
+@pytest.mark.parametrize(
+    "obj,expected",
+    [
+        (ValidEstimator, True),
+        ("ValidEstimator", True),
+        (ValidEstimator(), True),
+        ("ValidEstimator()", True),
+        (MissingPredict, False),
+        ("MissingPredict", False),
+        (MissingPredict(), False),
+        ("MissingPredict()", False),
+        (BrokenBehavior, True),
+        ("BrokenBehavior", True),
+        (BrokenBehavior(), True),
+        ("BrokenBehavior()", True),
+        ("UnknownEstimator", False),
+        ("UnknownEstimator()", False),
+    ],
+)
+def test_istypeof_with_class(mock_aiod_get, obj, expected):
+    assert DummyContract.istypeof(obj) is expected
 
 
-def test_istypeof_with_string(contract, mock_aiod_get):
-    assert contract.istypeof("ValidEstimator") is True
-
-
-def test_istypeof_invalid_string(contract, mock_aiod_get):
-    assert contract.istypeof("UnknownEstimator") is False
-
-
-def test_runtests_success(contract, valid_class):
-    result = contract.runtests(valid_class)
-    assert result["passed"] is True
-    assert result["errors"] == []
-
-
-def test_runtests_structure_failure(contract, missing_class):
-    result = contract.runtests(missing_class)
-    assert result["passed"] is False
-    assert any("Missing required method" in e for e in result["errors"])
-
-
-def test_runtests_behavior_failure(contract, broken_class):
-    result = contract.runtests(broken_class)
-    assert result["passed"] is False
-    assert any("behavior failure" in e for e in result["errors"])
+@pytest.mark.parametrize(
+    "obj,passed,errors",
+    [
+        (ValidEstimator, True, None),
+        (MissingPredict, False, "Missing required method"),
+        (BrokenBehavior, False, "behavior failure"),
+    ],
+)
+def test_runtests(obj, passed, errors):
+    result = DummyContract.runtests(obj)
+    assert result["passed"] is passed
+    if errors is not None:
+        assert any(errors in e for e in result["errors"])

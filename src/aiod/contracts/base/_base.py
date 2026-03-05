@@ -14,10 +14,11 @@ class _BaseContract(BaseObject):
     @classmethod
     def istypeof(cls, obj: Any) -> bool:
         """Return True if object satisfies this contract."""
-        if isinstance(obj, str):
+        try:
             obj = cls._resolve(obj)
-
-        return cls._check_structure(obj)
+            return cls._check_structure(obj)
+        except Exception:
+            return False
 
     @classmethod
     def runtests(cls, identifier: str | type) -> dict:
