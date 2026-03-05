@@ -5,8 +5,12 @@ from sktime.alignment.dtw_python import AlignerDTW
 from sktime.classification.distance_based import KNeighborsTimeSeriesClassifier
 from sktime.classification.early_classification import TEASER
 from sktime.clustering.dbscan import TimeSeriesDBSCAN
+from sktime.datasets import Airline
 from sktime.datasets.classification.acsf1 import ACSF1
+from sktime.datasets.regression.tecator import Tecator
 from sktime.detection.bs import BinarySegmentation
+from sktime.detection.igts import InformationGainSegmentation
+from sktime.dists_kernels import AggrDist
 from sktime.dists_kernels.scipy_dist import ScipyDist
 from sktime.forecasting.naive import NaiveForecaster
 from sktime.forecasting.reconcile import TopdownReconciler
@@ -15,6 +19,7 @@ from sktime.networks.cnn import CNNNetwork
 from sktime.param_est.fixed import FixedParams
 from sktime.performance_metrics.detection._count import DetectionCount
 from sktime.performance_metrics.forecasting import MeanAbsolutePercentageError
+from sktime.performance_metrics.forecasting.probabilistic._classes import CRPS
 from sktime.regression.distance_based import KNeighborsTimeSeriesRegressor
 from sktime.split import SingleWindowSplitter
 from sktime.transformations.series.boxcox import BoxCoxTransformer
@@ -85,11 +90,16 @@ VALIDATION_PAIRS = [
     (param_est, FixedParams),
     (early_classifier, TEASER),
     (transformer_pairwise, ScipyDist),
+    (transformer_pairwise_panel, AggrDist),
     (global_forecaster, TimeMoEForecaster),
+    (estimator, InformationGainSegmentation),
     (reconciler, TopdownReconciler),
     (metric_forecasting, MeanAbsolutePercentageError),
+    (metric_forecasting_probabilistic, CRPS),
     (metric_detection, DetectionCount),
     (dataset_classification, ACSF1),
+    (dataset_forecasting, Airline),
+    (dataset_regression, Tecator),
 ]
 
 
