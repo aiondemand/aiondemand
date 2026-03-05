@@ -13,7 +13,8 @@ def format_response(response: list | dict, data_format: Literal["pandas", "json"
     ----------
         response (list | dict): The response data to format.
         data_format (Literal["pandas", "json"]): The desired format for the response.
-            For "json" formats, the returned type is a json decoded type, i.e. a dict or a list.
+            For "json" formats, the returned type is a json decoded type,
+            i.e. a dict or a list.
 
     Returns
     -------
@@ -31,7 +32,10 @@ def format_response(response: list | dict, data_format: Literal["pandas", "json"
     elif data_format == "json" and (isinstance(response, dict) or isinstance(response, list)):
         return response
 
-    raise Exception(f"Format: {data_format} invalid or not supported for responses of {type(response)=}.")
+    raise Exception(
+        f"Format: {data_format} invalid or not supported "
+        f"for responses of {type(response)=}."
+    )
 
 
 def wrap_calls(asset_type: str, calls: list[Callable], module: str) -> tuple[Callable, ...]:
@@ -53,10 +57,18 @@ class EndpointUndefinedError(Exception):
 
 
 class ServerError(RuntimeError):
-    """Raised for any server error that does not (yet) have better client-side handling."""
+    """Raised for any server error that does not (yet) have
+    better client-side handling."""
 
     def __init__(self, response: requests.Response):
         self.status_code = response.status_code
-        self.detail = response.json().get("detail")
-        self.reference = response.json().get("reference")
+        try:
+            body = response.json()
+        except requests.exceptions.JSONDecodeError:
+            body = {}
+        self.detail = body.get("detail")
+        self.reference = body.get("reference")
         self._response = response
+        super().__init__(
+            f"Server returned {self.status_code}: {self.detail or response.text[:200]}"
+        )
