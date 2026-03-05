@@ -6,6 +6,8 @@ import pandas as pd
 import requests
 
 
+
+
 def format_response(response: list | dict, data_format: Literal["pandas", "json"]) -> pd.Series | pd.DataFrame | dict | list:
     """Format the response data based on the specified format.
 

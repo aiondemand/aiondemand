@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import time
 from functools import partial
 from http import HTTPStatus
 from typing import Literal
@@ -20,6 +22,14 @@ from aiod.calls.urls import (
 )
 from aiod.calls.utils import ServerError, format_response, wrap_calls
 from aiod.configuration import config
+
+logger = logging.getLogger(__name__)
+
+
+def _log_request(method: str, url: str, status_code: int, elapsed_ms: float) -> None:
+    """Log HTTP request details at DEBUG level if debug_http is enabled."""
+    if config.debug_http and logger.isEnabledFor(logging.DEBUG):
+        logger.debug("%s %s → %d (%.0fms)", method, url, status_code, elapsed_ms)
 
 
 def get_any_asset(
@@ -45,11 +55,14 @@ def get_any_asset(
     KeyError
         If the asset cannot be found.
     """
+    url = server_url() + f"assets/{identifier}"
+    _t0 = time.monotonic()
     res = requests.get(
-        server_url() + f"assets/{identifier}",
+        url,
         headers=_get_auth_headers(required=False),
         timeout=config.request_timeout_seconds,
     )
+    _log_request("GET", url, res.status_code, (time.monotonic() - _t0) * 1000)
 
     if res.status_code == HTTPStatus.NOT_FOUND:
         raise KeyError(f"Asset with identifier {identifier!r} not found.")
@@ -95,10 +108,12 @@ def get_list(
         if platform is not None
         else url_to_get_list(asset_type, offset, limit, version)
     )
+    _t0 = time.monotonic()
     res = requests.get(
         url,
         timeout=config.request_timeout_seconds,
     )
+    _log_request("GET", url, res.status_code, (time.monotonic() - _t0) * 1000)
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -124,11 +139,13 @@ def delete_asset(
         The server response.
     """
     url = url_to_get_asset(asset_type, identifier, version)
+    _t0 = time.monotonic()
     res = requests.delete(
         url,
         headers=get_token().headers,
         timeout=config.request_timeout_seconds,
     )
+    _log_request("DELETE", url, res.status_code, (time.monotonic() - _t0) * 1000)
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     return res
@@ -170,12 +187,14 @@ def put_asset(
         KeyError if the identifier is not known by the server.
     """
     url = url_to_get_asset(asset_type, identifier, version)
+    _t0 = time.monotonic()
     res = requests.put(
         url,
         headers=get_token().headers,
         json=metadata,
         timeout=config.request_timeout_seconds,
     )
+    _log_request("PUT", url, res.status_code, (time.monotonic() - _t0) * 1000)
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     return res
@@ -221,12 +240,14 @@ def patch_asset(
     for attribute, value in metadata.items():
         asset[attribute] = value
 
+    _t0 = time.monotonic()
     res = requests.put(
         url,
         headers=get_token().headers,
         json=asset,
         timeout=config.request_timeout_seconds,
     )
+    _log_request("PUT", url, res.status_code, (time.monotonic() - _t0) * 1000)
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     return res
@@ -257,12 +278,14 @@ def post_asset(
         error response, if it failed to register successfully
     """
     url = f"{server_url(version)}{asset_type}"
+    _t0 = time.monotonic()
     res = requests.post(
         url,
         headers=get_token().headers,
         json=metadata,
         timeout=config.request_timeout_seconds,
     )
+    _log_request("POST", url, res.status_code, (time.monotonic() - _t0) * 1000)
     if res.status_code == HTTPStatus.OK:
         return res.json()["identifier"]
     return res
@@ -289,7 +312,9 @@ def counts(*, asset_type: str, version: str | None = None, per_platform: bool = 
         and the number of ASSET_TYPE assets from that platform as values.
     """
     url = url_to_resource_counts(version, per_platform, asset_type)
+    _t0 = time.monotonic()
     res = requests.get(url, timeout=config.request_timeout_seconds)
+    _log_request("GET", url, res.status_code, (time.monotonic() - _t0) * 1000)
     return res.json()
 
 
@@ -325,11 +350,13 @@ def get_asset(
         If the asset cannot be found.
     """
     url = url_to_get_asset(asset_type, identifier, version)
+    _t0 = time.monotonic()
     res = requests.get(
         url,
         headers=_get_auth_headers(required=False),
         timeout=config.request_timeout_seconds,
     )
+    _log_request("GET", url, res.status_code, (time.monotonic() - _t0) * 1000)
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     resources = format_response(res.json(), data_format)
@@ -366,7 +393,9 @@ def get_asset_from_platform(
         The retrieved metadata for the specified ASSET_TYPE.
     """
     url = url_to_get_asset_from_platform(asset_type, platform, platform_identifier, version)
+    _t0 = time.monotonic()
     res = requests.get(url, timeout=config.request_timeout_seconds)
+    _log_request("GET", url, res.status_code, (time.monotonic() - _t0) * 1000)
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
         raise KeyError(f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found.")
     resources = format_response(res.json(), data_format)
@@ -399,10 +428,12 @@ def get_content(
         The data content for the specified ASSET_TYPE.
     """
     url = url_to_get_content(asset_type, identifier, distribution_idx, version)
+    _t0 = time.monotonic()
     res = requests.get(
         url,
         timeout=config.request_timeout_seconds,
     )
+    _log_request("GET", url, res.status_code, (time.monotonic() - _t0) * 1000)
     distribution = res.content
     return distribution
 
@@ -460,10 +491,12 @@ def search(
         get_all,
         version,
     )
+    _t0 = time.monotonic()
     res = requests.get(
         url,
         timeout=config.request_timeout_seconds,
     )
+    _log_request("GET", url, res.status_code, (time.monotonic() - _t0) * 1000)
     resources = format_response(res.json()["resources"], data_format)
     return resources
 
@@ -549,7 +582,9 @@ async def get_list_async(
 
 async def _fetch_resources(urls) -> list[dict]:
     async def _fetch_data(session, url) -> dict:
+        _t0 = time.monotonic()
         async with session.get(url, timeout=config.request_timeout_seconds) as response:
+            _log_request("GET", str(url), response.status, (time.monotonic() - _t0) * 1000)
             return await response.json()
 
     async with aiohttp.ClientSession() as session:

@@ -47,6 +47,7 @@ class Config:
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
     request_timeout_seconds: int = 10
+    debug_http: bool = False
 
     _observers: dict[str, set[AttributeObserver]] = field(
         default_factory=lambda: defaultdict(set),
