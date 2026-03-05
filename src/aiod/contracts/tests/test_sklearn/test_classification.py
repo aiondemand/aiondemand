@@ -125,17 +125,17 @@ def test_istypeof(obj, expected):
     not _check_soft_dependencies("scikit-learn", severity="none"),
     reason="run only if scikit-learn is installed",
 )
-def test_runtests_success():
-    result = classifier.runtests(LogisticRegression)
-    assert result["passed"] is True
-    assert result["errors"] == []
-
-
-@pytest.mark.skipif(
-    not _check_soft_dependencies("scikit-learn", severity="none"),
-    reason="run only if scikit-learn is installed",
+@pytest.mark.parametrize(
+    "obj,passed,errors",
+    [
+        (LogisticRegression, True, None),
+        (BrokenBehaviorClassifier, False, "behavior failure"),
+    ],
 )
-def test_runtests_behavior_failure():
-    result = classifier.runtests(BrokenBehaviorClassifier)
-    assert result["passed"] is False
-    assert any("behavior failure" in e for e in result["errors"])
+def test_runtests(obj, passed, errors):
+    result = classifier.runtests(obj)
+    assert result["passed"] is passed
+    if passed:
+        assert result["errors"] == []
+    else:
+        assert any(errors in e for e in result["errors"])
