@@ -36,6 +36,11 @@ doc = [
 tests_integrations = [
     "scikit-learn",
 ]
+linkage = [
+    "pypdf",
+    "litellm",
+    "beautifulsoup4",
+]
 
 [build-system]
 requires = ["hatchling >= 1.26"]
