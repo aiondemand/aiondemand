@@ -273,13 +273,13 @@ class metric_forecasting_probabilistic(_BaseSktimeContract):  # noqa: N801
 
     @classmethod
     def _check_structure(cls, obj: type) -> bool:
-        from sktime.performance_metrics.forecasting._base import (
-            BaseForecastingErrorMetric,
+        from sktime.performance_metrics.forecasting.probabilistic._classes import (
+            _BaseDistrForecastingMetric,
         )
 
         super()._check_structure(obj)
-        if not issubclass(obj, BaseForecastingErrorMetric):
-            raise TypeError("Object is not a sktime BaseForecastingErrorMetric")
+        if not issubclass(obj, _BaseDistrForecastingMetric):
+            raise TypeError("Object is not a sktime _BaseDistrForecastingMetric")
         return True
 
 
@@ -289,12 +289,12 @@ class metric_forecasting(_BaseSktimeContract):  # noqa: N801
     @classmethod
     def _check_structure(cls, obj: type) -> bool:
         from sktime.performance_metrics.forecasting._base import (
-            BaseForecastingErrorMetricFunc,
+            BaseForecastingErrorMetric,
         )
 
         super()._check_structure(obj)
-        if not issubclass(obj, BaseForecastingErrorMetricFunc):
-            raise TypeError("Object is not a sktime BaseForecastingErrorMetricFunc")
+        if not issubclass(obj, BaseForecastingErrorMetric):
+            raise TypeError("Object is not a sktime BaseForecastingErrorMetric")
         return True
 
 

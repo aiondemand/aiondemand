@@ -7,7 +7,7 @@ from sktime.classification.early_classification import TEASER
 from sktime.clustering.dbscan import TimeSeriesDBSCAN
 from sktime.datasets.classification.acsf1 import ACSF1
 from sktime.detection.bs import BinarySegmentation
-from sktime.dists_kernels.compose_tab_to_panel import AggrDist
+from sktime.dists_kernels.scipy_dist import ScipyDist
 from sktime.forecasting.naive import NaiveForecaster
 from sktime.forecasting.reconcile import TopdownReconciler
 from sktime.forecasting.timemoe import TimeMoEForecaster
@@ -20,8 +20,6 @@ from sktime.split import SingleWindowSplitter
 from sktime.transformations.series.boxcox import BoxCoxTransformer
 
 from aiod.contracts.base import _BaseContract
-
-# Import the sktime contracts
 from aiod.contracts.sktime.contracts import (
     aligner,
     catalogue,
@@ -86,7 +84,7 @@ VALIDATION_PAIRS = [
     (network, CNNNetwork),
     (param_est, FixedParams),
     (early_classifier, TEASER),
-    (transformer_pairwise, AggrDist),
+    (transformer_pairwise, ScipyDist),
     (global_forecaster, TimeMoEForecaster),
     (reconciler, TopdownReconciler),
     (metric_forecasting, MeanAbsolutePercentageError),
