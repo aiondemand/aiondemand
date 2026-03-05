@@ -3,10 +3,29 @@ import re
 from http import HTTPStatus
 
 import pytest
+import requests as http_requests
 import responses
 
 from aiod import config
 import aiod.authentication.authentication as authentication
+
+_HEALTH_CHECK_URL = "https://api.aiod.eu/v2/counts/datasets?detailed=false"
+_HEALTH_CHECK_TIMEOUT = 5  # seconds
+
+
+@pytest.fixture(autouse=True)
+def skip_if_server_unreachable(request):
+    """Auto-skip @pytest.mark.server tests when the AIoD API is unreachable."""
+    if "server" not in request.keywords:
+        return
+    try:
+        resp = http_requests.get(_HEALTH_CHECK_URL, timeout=_HEALTH_CHECK_TIMEOUT)
+        resp.raise_for_status()
+    except (http_requests.ConnectionError, http_requests.Timeout, http_requests.HTTPError):
+        pytest.skip(
+            f"AIoD server unreachable ({_HEALTH_CHECK_URL}). "
+            "Skipping live integration test."
+        )
 
 
 @pytest.fixture(autouse=True)
