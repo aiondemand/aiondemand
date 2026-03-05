@@ -10,6 +10,10 @@ from many different platforms such as [Zenodo](https://www.zenodo.org), [OpenML]
 This package is mainly intended for users that want to programmatically access the platform to, e.g., build a service, fetch resources in their scripts, or write a connector that registers metadata of another platform with AI-on-Demand. 
 A web interface for browsing and registering assets is available on AI-on-Demand, through [MyLibrary](https://mylibrary.aiod.eu) and the Metadata Catalogue Editor services (to be deployed), respectively.
 
+## Server Status
+
+> **Note**: The AIoD platform is currently undergoing migration to DeployAI infrastructure. During this transition, some services may be temporarily unavailable. The Python SDK will continue to work once the migration is complete.
+
 ## Installation
 The `aiondemand` package is on [PyPI](https://pypi.org/project/aiondemand/):
 
