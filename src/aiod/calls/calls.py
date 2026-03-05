@@ -99,6 +99,8 @@ def get_list(
         url,
         timeout=config.request_timeout_seconds,
     )
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -195,6 +197,8 @@ def patch_asset(
     Notes
     -----
     This is a best-effort implementation, but is not yet officially supported by the server.
+    Therefore, the operation is NOT atomic (it uses multiple HTTP calls: GET followed by PUT).
+    Concurrent modifications by other clients might be overwritten.
 
     Parameters
     ----------
@@ -252,9 +256,12 @@ def post_asset(
     Returns
     -------
     identifier: str
-        if the asset is registered successfully
-    error response: requests.Response
-        error response, if it failed to register successfully
+        the identifier of the registered asset.
+
+    Raises
+    ------
+    ServerError
+        If the server fails to register the asset.
     """
     url = f"{server_url(version)}{asset_type}"
     res = requests.post(
@@ -263,9 +270,9 @@ def post_asset(
         json=metadata,
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.OK:
-        return res.json()["identifier"]
-    return res
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
+    return res.json()["identifier"]
 
 
 def counts(*, asset_type: str, version: str | None = None, per_platform: bool = False) -> int | dict[str, int]:
@@ -464,6 +471,8 @@ def search(
         url,
         timeout=config.request_timeout_seconds,
     )
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     resources = format_response(res.json()["resources"], data_format)
     return resources
 
