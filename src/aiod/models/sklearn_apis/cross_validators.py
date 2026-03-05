@@ -1,14 +1,14 @@
-"""Adapters for scikit-learn resamplers."""
+"""Adapters for scikit-learn cv splitters."""
 
 from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
-class AiodPkg__SklearnResamplers(_ModelPkgSklearnEstimator):
+class AiodPkg__SklearnCV(_ModelPkgSklearnEstimator):
     _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "scikit-learn",
         "pkg_pypi_name": "scikit-learn",
-        "object_types": ["resampler"],
+        "object_types": ["cross_validator"],
     }
 
     _obj_dict = {
@@ -17,10 +17,10 @@ class AiodPkg__SklearnResamplers(_ModelPkgSklearnEstimator):
     }
 
     _type_of_objs = {
-        "KFold": "resampler",
-        "StratifiedKFold": "resampler",
+        "KFold": "cross_validator",
+        "StratifiedKFold": "cross_validator",
     }
 
     _objs_by_type = {
-        "resampler": ["KFold", "StratifiedKFold"],
+        "cross_validator": ["KFold", "StratifiedKFold"],
     }
