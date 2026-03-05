@@ -1,12 +1,10 @@
-import json
-import re
-from http import HTTPStatus
+from unittest.mock import patch
 
 import pytest
-import responses
+from keycloak import KeycloakPostError
 
-from aiod import config
 import aiod.authentication.authentication as authentication
+from aiod import config
 
 
 @pytest.fixture(autouse=True)
@@ -22,44 +20,25 @@ def setup_test_configuration(request):
 
 
 @pytest.fixture(autouse=True)
-def mocked_keycloak_server():
-    url = "http://not.set/realms/not_set/protocol/openid-connect/token"
+def mocked_keycloak_server(setup_test_configuration):
+    """Mock Token._refresh() at the Python level so no HTTP is needed."""
 
-    def validate_refresh_token(request):
-        match = re.match(
-            r"client_id=(\w+)&grant_type=(\w+)&refresh_token=(\w+)", request.body
-        )
-        assert match, "Request type not yet added to mock."
-        client, grant_type, token = match.groups()
-        match (client, grant_type, token):
-            case _, "refresh_token", "invalid":
-                error = {
-                    "error": "invalid_grant",
-                    "error_description": "Invalid refresh token",
-                }
-                return HTTPStatus.BAD_REQUEST, {}, json.dumps(error)
-            case _, "refresh_token", "expired":
-                error = {
-                    "error": "invalid_grant",
-                    "error_description": "Offline user session not found",
-                }
-                return HTTPStatus.BAD_REQUEST, {}, json.dumps(error)
-            case _, "refresh_token", "valid":
-                body = {
-                    "access_token": "valid_access",
-                    "refresh_token": "valid",
-                    "expires_in": 30,
-                }
-                return HTTPStatus.OK, {}, json.dumps(body)
-            case unknown:
-                raise RuntimeError(f"Unknown request payload: {unknown}")
+    def mock_refresh(refresh_token):
+        if refresh_token in ("invalid", "expired"):
+            raise KeycloakPostError(
+                error_message="invalid_grant",
+                response_code=400,
+                response_body=b'{"error": "invalid_grant"}',
+            )
+        return {
+            "access_token": "valid_access",
+            "refresh_token": "valid",
+            "expires_in": 30,
+        }
 
-    responses.add_callback(
-        responses.POST,
-        url,
-        callback=validate_refresh_token,
-    )
-    yield
+    kc = authentication.keycloak_openid()
+    with patch.object(kc, "refresh_token", side_effect=mock_refresh):
+        yield
 
 
 @pytest.fixture(autouse=True)

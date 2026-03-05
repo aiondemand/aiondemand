@@ -1,13 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from http import HTTPStatus
 
-import requests
-
-from aiod.authentication import get_token
+from aiod._client import AiodNotFoundError, client
 from aiod.calls.urls import server_url
-from aiod.calls.utils import ServerError
-from aiod.configuration import config
 
 
 @dataclass
@@ -50,20 +45,19 @@ def register(identifier: str) -> Bookmark:
     ServerError
         If any other server-side error occurs.
     """
-    res = requests.post(
-        _bookmarks_url(),
-        params={"resource_identifier": identifier},
-        headers=get_token().headers,
-        timeout=config.request_timeout_seconds,
-    )
-    if res.status_code == HTTPStatus.NOT_FOUND:
+    try:
+        res = client.post(
+            _bookmarks_url(),
+            params={"resource_identifier": identifier},
+        )
+    except AiodNotFoundError:
         raise KeyError(f"Could not find asset with identifier {identifier!r}.")
-    if res.status_code != HTTPStatus.OK:
-        raise ServerError(res)
 
     return Bookmark(
         identifier=res.json()["resource_identifier"],
-        created=datetime.fromisoformat(res.json()["created_at"]).replace(tzinfo=timezone.utc),
+        created=datetime.fromisoformat(res.json()["created_at"]).replace(
+            tzinfo=timezone.utc
+        ),
     )
 
 
@@ -84,15 +78,11 @@ def delete(identifier: str):
     ServerError
         If any other server-side error occurs.
     """
-    res = requests.delete(
+    client.delete(
         _bookmarks_url(),
         params={"resource_identifier": identifier},
-        headers=get_token().headers,
-        timeout=config.request_timeout_seconds,
     )
     # The delete endpoint does not error if the bookmark does not exist
-    if res.status_code != HTTPStatus.OK:
-        raise ServerError(res)
 
 
 def get_list() -> list[Bookmark]:
@@ -103,17 +93,13 @@ def get_list() -> list[Bookmark]:
     :
         The list of bookmarks.
     """
-    res = requests.get(
-        _bookmarks_url(),
-        headers=get_token().headers,
-        timeout=config.request_timeout_seconds,
-    )
-    if res.status_code != HTTPStatus.OK:
-        raise ServerError(res)
+    res = client.get(_bookmarks_url())
     return [
         Bookmark(
             identifier=bookmark["resource_identifier"],
-            created=datetime.fromisoformat(bookmark["created_at"]).replace(tzinfo=timezone.utc),
+            created=datetime.fromisoformat(bookmark["created_at"]).replace(
+                tzinfo=timezone.utc
+            ),
         )
         for bookmark in res.json()
     ]
