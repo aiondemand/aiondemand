@@ -11,7 +11,7 @@ def _get_class(id: str, obj_type=None):
     Parameter
     ---------
     id : str
-        unique identifier of object to retrieve
+        The unique identifier of the object to retrieve.
     obj_type : class, default=None
         The base class or contract to filter objects by.
 
@@ -23,7 +23,7 @@ def _get_class(id: str, obj_type=None):
     Raises
     ------
     ModuleNotFoundError
-        if dependencies of object to retrieve are not satisfied
+        If dependencies of the object to retrieve are not satisfied.
     """
     id_lookup = _id_lookup(obj_type=obj_type)
 
