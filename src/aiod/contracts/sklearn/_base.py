@@ -1,5 +1,7 @@
 """Base class for scikit-learn API contracts."""
 
+from typing import Any
+
 from aiod.contracts.base import _BaseContract
 
 
@@ -12,34 +14,42 @@ class _BaseSklearnContract(_BaseContract):
     }
 
     @classmethod
-    def _check_structure(cls, obj: type) -> bool:
-        # True: only after making sure there was no problem with obj
-        # to comply with scikit-learn
-        # False: if any problem is detected
+    def _resolve(cls, obj: Any) -> Any:
+        """Resolve identifier to class."""
+        obj = super()._resolve(obj)
 
         from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
         from sklearn.pipeline import Pipeline
 
         is_cls = isinstance(obj, type)
 
-        if is_cls and issubclass(obj, (Pipeline, GridSearchCV, RandomizedSearchCV)):
-            return False
-
         if isinstance(obj, Pipeline):
             if not obj.steps:
-                return False
-            return cls._check_structure(obj.steps[-1][1])
+                raise TypeError(f"Pipeline has not steps, obj.steps={obj.steps}")
+
+            return cls._resolve(obj.steps[-1][1])
 
         if isinstance(obj, (GridSearchCV, RandomizedSearchCV)):
             if obj.estimator is None:
-                return False
-            return cls._check_structure(obj.estimator)
+                raise TypeError(
+                    f"{obj} has no estimator, obj.estimator={obj.estimator}"
+                )
 
-        return cls._deeper_check(obj)
+            return cls._resolve(obj.estimator)
+
+        obj = obj if is_cls else type(obj)
+
+        return obj
 
     @classmethod
-    def _deeper_check(cls, obj: type) -> bool:
-        raise RuntimeError("abstract method")
+    def _check_structure(cls, obj: type) -> bool:
+        from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+        from sklearn.pipeline import Pipeline
+
+        if issubclass(obj, (Pipeline, GridSearchCV, RandomizedSearchCV)):
+            raise TypeError(f"found class {obj}, object should be passed here instead")
+
+        return True
 
     @classmethod
     def _run_behavioral_tests(cls, obj: type):
