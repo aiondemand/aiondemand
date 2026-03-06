@@ -71,39 +71,48 @@ def mock_aiod_get(monkeypatch):
     monkeypatch.setattr(aiod, "get", _mock_get)
 
 
+@pytest.fixture
+def contract():
+    return DummyContract
+
+
+def _generate_cases(obj, *args):
+    return [
+        (obj, *args),
+        (obj(), *args),
+        (obj.__name__, *args),
+        (obj.__name__ + "()", *args),
+    ]
+
+
 @pytest.mark.parametrize(
     "obj,expected",
     [
-        (ValidEstimator, True),
-        ("ValidEstimator", True),
-        (ValidEstimator(), True),
-        ("ValidEstimator()", True),
-        (MissingPredict, False),
-        ("MissingPredict", False),
-        (MissingPredict(), False),
-        ("MissingPredict()", False),
-        (BrokenBehavior, True),
-        ("BrokenBehavior", True),
-        (BrokenBehavior(), True),
-        ("BrokenBehavior()", True),
+        *_generate_cases(ValidEstimator, True),
+        *_generate_cases(MissingPredict, False),
+        *_generate_cases(BrokenBehavior, True),
         ("UnknownEstimator", False),
         ("UnknownEstimator()", False),
     ],
 )
-def test_istypeof_with_class(mock_aiod_get, obj, expected):
-    assert DummyContract.istypeof(obj) is expected
+def test_istypeof(obj, contract, expected, mock_aiod_get):
+    assert contract.istypeof(obj) is expected
 
 
 @pytest.mark.parametrize(
     "obj,passed,errors",
     [
-        (ValidEstimator, True, None),
-        (MissingPredict, False, "Missing required method"),
-        (BrokenBehavior, False, "behavior failure"),
+        *_generate_cases(ValidEstimator, True, None),
+        *_generate_cases(MissingPredict, False, "Missing required method"),
+        *_generate_cases(BrokenBehavior, False, "behavior failure"),
+        ("UnknownEstimator", False, ""),
+        ("UnknownEstimator()", False, ""),
     ],
 )
-def test_runtests(obj, passed, errors):
-    result = DummyContract.runtests(obj)
+def test_runtests(obj, contract, passed, errors, mock_aiod_get):
+    result = contract.runtests(obj)
     assert result["passed"] is passed
-    if errors is not None:
+    if passed:
+        assert result["errors"] == []
+    else:
         assert any(errors in e for e in result["errors"])
