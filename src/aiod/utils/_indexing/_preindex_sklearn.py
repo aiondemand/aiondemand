@@ -5,6 +5,7 @@
 __author__ = ["fkiraly"]
 # all_estimators is also based on the sklearn utility of the same name
 
+import importlib
 import inspect
 
 from skbase.lookup import all_objects
@@ -132,7 +133,13 @@ def _all_sklearn_estimators(
         "conftest",
     ]
 
-    return all_objects(
+    if package_name == "sktime":
+        from sktime.registry import all_estimators
+
+        all_est = all_estimators(return_names=True, as_dataframe=False)
+        return all_est
+
+    found = all_objects(
         object_types=BaseEstimator,
         package_name=package_name,
         modules_to_ignore=MODULES_TO_IGNORE_SKLEARN,
@@ -140,6 +147,21 @@ def _all_sklearn_estimators(
         return_names=return_names,
         suppress_import_stdout=suppress_import_stdout,
     )
+
+    if not found:
+        try:
+            pkg = importlib.import_module(package_name)
+            for name, obj in inspect.getmembers(pkg, inspect.isclass):
+                has_est_type = hasattr(obj, "_estimator_type")
+                if has_est_type:
+                    if return_names:
+                        found.append((name, obj))
+                    else:
+                        found.append(obj)
+        except ImportError:
+            pass
+
+    return found
 
 
 def _generate_sklearn_types_of_obj(package_name="sklearn") -> dict:
@@ -155,6 +177,20 @@ def _generate_sklearn_types_of_obj(package_name="sklearn") -> dict:
     """
     all_est = _all_sklearn_estimators(package_name)
     type_of_objs: dict[str, list[str] | str] = {}
+
+    polymorphic_meta = [
+        "classifier",
+        "regressor",
+        "transformer",
+        "cluster",
+        "meta_estimator",
+        "bicluster",
+        "density",
+        "outlier_detector",
+        "manifold",
+        "covariance",  # need to add all
+    ]
+
     mixin_to_type = {
         "RegressorMixin": "regressor",
         "ClassifierMixin": "classifier",
@@ -167,14 +203,11 @@ def _generate_sklearn_types_of_obj(package_name="sklearn") -> dict:
         "_VectorizerMixin": "transformer",
         "MetaEstimatorMixin": "meta_estimator",
         "SamplerMixin": "sampler",
+        "Pipeline": polymorphic_meta,
+        "GridSearchCV": polymorphic_meta,
+        "RandomizedSearchCV": polymorphic_meta,
+        "FrozenEstimator": polymorphic_meta,
     }
-
-    polymorphic_meta = [
-        "Pipeline",
-        "GridSearchCV",
-        "RandomizedSearchCV",
-        "FrozenEstimator",
-    ]
 
     for est_name, est_class in all_est:
         if package_name not in est_class.__module__:
@@ -183,22 +216,8 @@ def _generate_sklearn_types_of_obj(package_name="sklearn") -> dict:
         est_type = getattr(est_class, "_estimator_type", None)
         if est_type is not None and isinstance(est_type, str):
             found_types = est_type
-
-        elif est_name in polymorphic_meta:
-            found_types = [
-                "classifier",
-                "regressor",
-                "transformer",
-                "cluster",
-                "meta_estimator",
-                "bicluster",
-                "density",
-                "outlier_detector",
-                "manifold",
-                "covariance",
-                "sampler",
-                "ranker",
-            ]
+        elif hasattr(est_class, "get_class_tag"):
+            found_types = est_class.get_class_tag("object_type", tag_value_default=[])
         else:
             mro = inspect.getmro(est_class)
             found_types = []
