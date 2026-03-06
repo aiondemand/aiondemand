@@ -3,6 +3,25 @@
 from aiod.contracts.sklearn._base import _BaseSklearnContract
 
 
+class estimator(_BaseSklearnContract):  # noqa: N801
+    _tags = {
+        "scitype_name": "estimator",
+        "short_descr": "scitype for scikit-learn estimator contract",
+        "parent_scitype": "sklearn",
+    }
+
+    @classmethod
+    def _check_structure(cls, obj: type) -> bool:
+        from sklearn.base import BaseEstimator
+
+        super()._check_structure(obj)
+
+        if not issubclass(obj, BaseEstimator):
+            raise TypeError(f"{obj} is not a subclass of BaseEstimator")
+
+        return True
+
+
 class classifier(_BaseSklearnContract):  # noqa: N801
     _tags = {
         "scitype_name": "classifier",
@@ -23,5 +42,6 @@ class classifier(_BaseSklearnContract):  # noqa: N801
 
 
 __all__ = [
+    "estimator",
     "classifier",
 ]
