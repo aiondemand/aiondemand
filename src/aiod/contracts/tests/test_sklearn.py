@@ -1,7 +1,7 @@
 import pytest
 from skbase.utils.dependencies import _check_soft_dependencies, _safe_import
 
-from aiod.contracts import classifier
+from aiod.contracts.sklearn import classifier
 
 LinearRegression = _safe_import(
     import_path="sklearn.ensemble.LinearRegression", pkg_name="scikit-learn"
