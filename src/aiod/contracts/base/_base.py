@@ -23,16 +23,15 @@ class _BaseContract(BaseObject):
     @classmethod
     def runtests(cls, identifier: str | type) -> dict:
         """Run contract tests and return summary."""
-        obj = cls._resolve(identifier)
-
         results = {
             "contract": cls.__name__,
-            "target": getattr(obj, "__name__", str(obj)),
+            "target": str(identifier),
             "passed": True,
             "errors": [],
         }
 
         try:
+            obj = cls._resolve(identifier)
             cls._check_structure(obj)
             cls._run_behavioral_tests(obj)
         except Exception as e:
