@@ -42,13 +42,13 @@ class _BaseContract(BaseObject):
         return results
 
     @classmethod
-    def _resolve(cls, identifier: str | type):
+    def _resolve(cls, obj: Any) -> Any:
         """Resolve identifier to class."""
-        if isinstance(identifier, str):
+        if isinstance(obj, str):
             from aiod import get
 
-            return get(identifier)
-        return identifier
+            return get(obj)
+        return obj
 
     @classmethod
     def _check_structure(cls, obj: type) -> bool:
