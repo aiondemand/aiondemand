@@ -47,6 +47,9 @@ class Config:
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
     request_timeout_seconds: int = 10
+    retry_total: int = 3
+    retry_backoff_factor: float = 0.1
+    retry_status_forcelist: list[int] = field(default_factory=lambda: [500, 502, 503, 504])
 
     _observers: dict[str, set[AttributeObserver]] = field(
         default_factory=lambda: defaultdict(set),
