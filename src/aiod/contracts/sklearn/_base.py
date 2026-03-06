@@ -21,8 +21,6 @@ class _BaseSklearnContract(_BaseContract):
         from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
         from sklearn.pipeline import Pipeline
 
-        is_cls = isinstance(obj, type)
-
         if isinstance(obj, Pipeline):
             if not obj.steps:
                 raise TypeError(f"Pipeline has not steps, obj.steps={obj.steps}")
@@ -37,7 +35,7 @@ class _BaseSklearnContract(_BaseContract):
 
             return cls._resolve(obj.estimator)
 
-        obj = obj if is_cls else type(obj)
+        obj = obj if isinstance(obj, type) else type(obj)
 
         return obj
 
