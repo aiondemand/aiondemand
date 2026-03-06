@@ -1,4 +1,4 @@
-"""Scikit-learn classification API contract."""
+"""Scikit-learn API contracts."""
 
 from aiod.contracts.sklearn._base import _BaseSklearnContract
 
@@ -14,10 +14,27 @@ class estimator(_BaseSklearnContract):  # noqa: N801
     def _check_structure(cls, obj: type) -> bool:
         from sklearn.base import BaseEstimator
 
-        super()._check_structure(obj)
-
         if not issubclass(obj, BaseEstimator):
             raise TypeError(f"{obj} is not a subclass of BaseEstimator")
+
+        return True
+
+
+class regressor(_BaseSklearnContract):  # noqa: N801
+    _tags = {
+        "scitype_name": "regressor",
+        "short_descr": "scitype for scikit-learn regressor contract",
+        "parent_scitype": "sklearn",
+    }
+
+    @classmethod
+    def _check_structure(cls, obj: type) -> bool:
+        from sklearn.base import RegressorMixin
+
+        super()._check_structure(obj)
+
+        if not issubclass(obj, RegressorMixin):
+            raise TypeError(f"{obj} is not a subclass of RegressorMixin")
 
         return True
 
@@ -25,7 +42,7 @@ class estimator(_BaseSklearnContract):  # noqa: N801
 class classifier(_BaseSklearnContract):  # noqa: N801
     _tags = {
         "scitype_name": "classifier",
-        "short_descr": "scitype for scikit-learn classification contract",
+        "short_descr": "scitype for scikit-learn classifier contract",
         "parent_scitype": "sklearn",
     }
 
@@ -41,7 +58,108 @@ class classifier(_BaseSklearnContract):  # noqa: N801
         return True
 
 
+class transformer(_BaseSklearnContract):  # noqa: N801
+    _tags = {
+        "scitype_name": "transformer",
+        "short_descr": "scitype for scikit-learn transformer contract",
+        "parent_scitype": "sklearn",
+    }
+
+    @classmethod
+    def _check_structure(cls, obj: type) -> bool:
+        from sklearn.base import TransformerMixin
+
+        super()._check_structure(obj)
+
+        if not issubclass(obj, TransformerMixin):
+            raise TypeError(f"{obj} is not a subclass of TransformerMixin")
+
+        return True
+
+
+class clusterer(_BaseSklearnContract):  # noqa: N801
+    _tags = {
+        "scitype_name": "clusterer",
+        "short_descr": "scitype for scikit-learn clusterer contract",
+        "parent_scitype": "sklearn",
+    }
+
+    @classmethod
+    def _check_structure(cls, obj: type) -> bool:
+        from sklearn.base import ClusterMixin
+
+        super()._check_structure(obj)
+
+        if not issubclass(obj, ClusterMixin):
+            raise TypeError(f"{obj} is not a subclass of ClusterMixin")
+
+        return True
+
+
+class biclusterer(_BaseSklearnContract):  # noqa: N801
+    _tags = {
+        "scitype_name": "biclusterer",
+        "short_descr": "scitype for scikit-learn biclusterer contract",
+        "parent_scitype": "sklearn",
+    }
+
+    @classmethod
+    def _check_structure(cls, obj: type) -> bool:
+        from sklearn.base import BiclusterMixin
+
+        super()._check_structure(obj)
+
+        if not issubclass(obj, BiclusterMixin):
+            raise TypeError(f"{obj} is not a subclass of BiclusterMixin")
+
+        return True
+
+
+class density(_BaseSklearnContract):  # noqa: N801
+    _tags = {
+        "scitype_name": "density",
+        "short_descr": "scitype for scikit-learn density contract",
+        "parent_scitype": "sklearn",
+    }
+
+    @classmethod
+    def _check_structure(cls, obj: type) -> bool:
+        from sklearn.base import DensityMixin
+
+        super()._check_structure(obj)
+
+        if not issubclass(obj, DensityMixin):
+            raise TypeError(f"{obj} is not a subclass of DensityMixin")
+
+        return True
+
+
+class outlier_detector(_BaseSklearnContract):  # noqa: N801
+    _tags = {
+        "scitype_name": "outlier_detector",
+        "short_descr": "scitype for scikit-learn outlier_detector contract",
+        "parent_scitype": "sklearn",
+    }
+
+    @classmethod
+    def _check_structure(cls, obj: type) -> bool:
+        from sklearn.base import OutlierMixin
+
+        super()._check_structure(obj)
+
+        if not issubclass(obj, OutlierMixin):
+            raise TypeError(f"{obj} is not a subclass of OutlierMixin")
+
+        return True
+
+
 __all__ = [
     "estimator",
+    "regressor",
     "classifier",
+    "transformer",
+    "clusterer",
+    "biclusterer",
+    "density",
+    "outlier_detector",
 ]
