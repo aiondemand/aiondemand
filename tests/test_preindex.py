@@ -10,49 +10,55 @@ from aiod.utils._indexing._preindex_sklearn import (
     _generate_sklearn_types_of_obj,
 )
 from aiod.utils._indexing._preindex import _generate_objs_by_type
-from aiod.models.sklearn_apis.scikit_learn import AiodPkg__Sklearn
 
+#part 1
+from aiod.models.apis import _ModelPkgSklearnEstimator
+import aiod.models.sklearn_apis
 
-class TestCommonIndexing:
-    """Test the common preindex utility."""
+@pytest.mark.skipif(
+    sys.version_info < (3, 11),
+    reason="ClassicalMDS sklearn estimator not available in Python 3.10",
+)
+class TestPreindex:
+    # new apis added here
+    _API_BASE_CLASSES = [_ModelPkgSklearnEstimator]
 
-    @pytest.mark.parametrize("package", [
-        AiodPkg__Sklearn(),
-    ])
-    def test_generation_object_by_types(self, package):
-        """Test generation of object by types."""
-        assert hasattr(package, '_type_of_objs')
-        result = _generate_objs_by_type(package._type_of_objs)
-        assert result.keys() == package._objs_by_type.keys()
+    _all_subclasses = []
+    for base in _API_BASE_CLASSES:
+        _all_subclasses.extend(base.__subclasses__())
 
-        for obj_type in package._objs_by_type:
-            expected_set = set(package._objs_by_type[obj_type])
-            actual_set = set(result[obj_type])
+    _all_packages = [cls() for cls in _all_subclasses]
 
-            assert expected_set == actual_set
+    """Test sklearn-specific preindex generation utilities."""
 
-@pytest.mark.skipif(sys.version_info < (3, 11), reason="ClassicalMDS sklearn estimator not available in Python 3.10")
-class TestSklearnPreIndex:
-    """Test sklearn indexing utilities."""
+    @pytest.mark.parametrize(
+        "package",
+        _all_packages,
+        ids=[pkg.__class__.__name__ for pkg in _all_packages],
 
-    def test_sklearn_obj_dict(self):
-        """Test generation of sklearn object dict."""
-        loc_dict = _all_sklearn_estimators_locdict()
-        assert AiodPkg__Sklearn()._obj_dict == loc_dict
+    )
+    def test_generated_objs_by_type(self, package):
+        """Test that generated sklearn objs by type matches the package _objs_by_type."""
+        objs_by_type = _generate_objs_by_type(package._type_of_objs)
+        assert package._objs_by_type == objs_by_type
 
-    def test_sklearn_types_of_obj(self):
-        """Test generation of sklearn types of object."""
-        type_dict = _generate_sklearn_types_of_obj()
-        assert AiodPkg__Sklearn()._type_of_objs == type_dict
-    
-    def test_all_estimators_are_indexed(self):
-        """Test that all sklearn estimators are indexed in the object dict."""
-        all_est= _all_sklearn_estimators()
-        obj_dict = AiodPkg__Sklearn()._obj_dict
-        for est in all_est:
-            est_name = est[0]
-            assert est_name in obj_dict, f"{est_name} not indexed"
-            est_path = obj_dict[est_name]
-            module_name, class_name = est_path.rsplit('.', 1)
-            module = importlib.import_module(module_name)
-            assert hasattr(module, class_name), f"{class_name} not found in {module_name}"
+    @pytest.mark.parametrize(
+        "package",
+        _all_packages,
+        ids=[pkg.__class__.__name__ for pkg in _all_packages],
+
+    )
+    def test_sklearn_obj_dict(self, package):
+        """Test that generated sklearn loc dict matches the package _obj_dict."""
+        loc_dict = _all_sklearn_estimators_locdict(package._tags['pkg_pypi_name'])
+        assert package._obj_dict.keys() == loc_dict.keys()
+
+    @pytest.mark.parametrize(
+        "package",
+        _all_packages,
+        ids=[pkg.__class__.__name__ for pkg in _all_packages],
+    )
+    def test_sklearn_types_of_obj(self, package):
+        """Test that generated sklearn types dict matches the package _type_of_objs."""
+        type_dict = _generate_sklearn_types_of_obj(package._tags['pkg_pypi_name'])
+        assert package._type_of_objs.keys() == type_dict.keys()
