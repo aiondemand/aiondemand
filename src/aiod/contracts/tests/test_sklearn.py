@@ -1,10 +1,12 @@
 import pytest
 from skbase.utils.dependencies import _check_soft_dependencies, _safe_import
 
-from aiod.contracts.sklearn import classifier
+from aiod.contracts.sklearn import (
+    classifier,
+)
 
 LinearRegression = _safe_import(
-    import_path="sklearn.ensemble.LinearRegression", pkg_name="scikit-learn"
+    import_path="sklearn.linear_model.LinearRegression", pkg_name="scikit-learn"
 )
 
 LogisticRegression = _safe_import(
@@ -12,7 +14,7 @@ LogisticRegression = _safe_import(
 )
 
 LinearDiscriminantAnalysis = _safe_import(
-    import_path="sklearn.discriminant_analysis.LinearDiscriminantAnalysis",
+    import_path=("sklearn.discriminant_analysis.LinearDiscriminantAnalysis"),
     pkg_name="scikit-learn",
 )
 
@@ -30,95 +32,31 @@ class BrokenBehaviorClassifier(LogisticRegression):
         raise RuntimeError("behavior failure")
 
 
-@pytest.mark.skipif(
-    not _check_soft_dependencies("scikit-learn", severity="none"),
-    reason="run only if scikit-learn is installed",
-)
-@pytest.mark.parametrize(
-    "obj,expected",
-    [
-        # Regressor -> False
-        (LinearRegression, False),
-        ("LinearRegression", False),
-        (LinearRegression(), False),
-        ("LinearRegression()", False),
-        # Classifiers -> True
-        (LogisticRegression, True),
-        ("LogisticRegression", True),
-        (LogisticRegression(), True),
-        ("LogisticRegression()", True),
-        # Trransformers + Classifiers -> True
-        (LinearDiscriminantAnalysis, True),
-        ("LinearDiscriminantAnalysis", True),
-        (LinearDiscriminantAnalysis(), True),
-        ("LinearDiscriminantAnalysis()", True),
-        # Pipeline class itself -> False
-        (Pipeline, False),
-        ("Pipeline", False),
-        # Pipeline wrapping regressor -> False
-        (Pipeline(steps=(("_", LinearRegression()),)), False),
-        ("Pipeline(steps=(('_', LinearRegression()),))", False),
-        # Pipeline wrapping classifier -> True
-        (Pipeline(steps=(("_", LogisticRegression()),)), True),
-        ("Pipeline(steps=(('_', LogisticRegression()),))", True),
-        # Pipeline wrapping transformers+classifier -> True
-        (Pipeline(steps=(("_", LinearDiscriminantAnalysis()),)), True),
-        ("Pipeline(steps=(('_', LinearDiscriminantAnalysis()),))", True),
-        # GridSearch wrapping regressor -> False
+def _generate_cases(obj, *args):
+    return [
+        (obj, *args),
+        (obj(), *args),
+        (obj.__name__, *args),
+        (obj.__name__ + "()", *args),
+        (Pipeline(steps=(("_", obj()),)), *args),
+        (f"Pipeline(steps=(('_', {obj.__name__}()),))", *args),
         (
             GridSearchCV(
-                estimator=LinearRegression(),
+                estimator=obj(),
                 param_grid={"n_estimators": [50, 100]},
             ),
-            False,
+            *args,
         ),
         (
             (
                 "GridSearchCV("
-                "    estimator=LinearRegression(),"
-                "    param_grid={'n_estimators':[50,100]}"
+                f"    estimator={obj.__name__}(),"
+                "    param_grid={'n_estimators': [50, 100]},"
                 ")"
             ),
-            False,
+            *args,
         ),
-        # GridSearch wrapping classifier -> True
-        (
-            GridSearchCV(
-                estimator=LogisticRegression(),
-                param_grid={"n_estimators": [50, 100]},
-            ),
-            True,
-        ),
-        (
-            (
-                "GridSearchCV("
-                "    estimator=LogisticRegression(),"
-                "    param_grid={'n_estimators':[50,100]}"
-                ")"
-            ),
-            True,
-        ),
-        # GridSearch wrapping transformer+classifier -> True
-        (
-            GridSearchCV(
-                estimator=LinearDiscriminantAnalysis(),
-                param_grid={"n_estimators": [50, 100]},
-            ),
-            True,
-        ),
-        (
-            (
-                "GridSearchCV("
-                "    estimator=LinearDiscriminantAnalysis(),"
-                "    param_grid={'n_estimators':[50,100]}"
-                ")"
-            ),
-            True,
-        ),
-    ],
-)
-def test_istypeof(obj, expected):
-    assert classifier.istypeof(obj) is expected
+    ]
 
 
 @pytest.mark.skipif(
@@ -126,14 +64,30 @@ def test_istypeof(obj, expected):
     reason="run only if scikit-learn is installed",
 )
 @pytest.mark.parametrize(
-    "obj,passed,errors",
+    "obj,contract,expected",
     [
-        (LogisticRegression, True, None),
-        (BrokenBehaviorClassifier, False, "behavior failure"),
+        *_generate_cases(LogisticRegression, classifier, True),
+        *_generate_cases(LinearDiscriminantAnalysis, classifier, True),
+        *_generate_cases(LinearRegression, classifier, False),
     ],
 )
-def test_runtests(obj, passed, errors):
-    result = classifier.runtests(obj)
+def test_istypeof(obj, contract, expected):
+    assert contract.istypeof(obj) is expected
+
+
+@pytest.mark.skipif(
+    not _check_soft_dependencies("scikit-learn", severity="none"),
+    reason="run only if scikit-learn is installed",
+)
+@pytest.mark.parametrize(
+    "obj,contract,passed,errors",
+    [
+        (LogisticRegression, classifier, True, None),
+        (BrokenBehaviorClassifier, classifier, False, "behavior failure"),
+    ],
+)
+def test_runtests(obj, contract, passed, errors):
+    result = contract.runtests(obj)
     assert result["passed"] is passed
     if passed:
         assert result["errors"] == []
