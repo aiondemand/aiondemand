@@ -140,3 +140,10 @@ class TestArbitraryAPIContracts:
         result = contract_class._check_structure(valid_model)
         assert result is True, f"""{contract_class.__name__} failed to 
         validate {valid_model.__name__}"""
+
+    @pytest.mark.parametrize("contract_class, valid_model", VALIDATION_PAIRS)
+    def test_istypeof_with_class(self, contract_class, valid_model):
+        """Test that istypeof correctly identifies valid model classes."""
+        result = contract_class.istypeof(valid_model)
+        assert result is True, f"""{contract_class.__name__}.istypeof() failed to 
+        identify {valid_model.__name__} as valid"""
