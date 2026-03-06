@@ -20,3 +20,8 @@ class classifier(_BaseSklearnContract):  # noqa: N801
             raise TypeError(f"{obj} is not a subclass of ClassifierMixin")
 
         return True
+
+
+__all__ = [
+    "classifier",
+]
