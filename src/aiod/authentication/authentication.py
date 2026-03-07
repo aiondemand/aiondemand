@@ -1,6 +1,7 @@
 import functools
 import http.client
 import logging
+import os
 import time
 from collections.abc import Sequence
 from datetime import datetime, timedelta, timezone
@@ -125,6 +126,14 @@ class Token:
         file = file or _user_token_file
         file.parent.mkdir(parents=True, exist_ok=True)
         file.write_text(tomlkit.dumps(doc))
+
+        try:
+            os.chmod(file, 0o600)
+        except (OSError, NotImplementedError):
+            logger.warning(
+                f"Could not set restrictive permissions on {file}. "
+                "Ensure the file is not accessible to other users."
+            )
 
     @classmethod
     def from_file(cls, file: Path | None = None) -> "Token":
