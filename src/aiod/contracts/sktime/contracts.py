@@ -214,25 +214,6 @@ class splitter(_BaseSktimeContract):  # noqa: N801
         return True
 
 
-class catalogue(_BaseSktimeContract):  # noqa: N801
-    _tags = {
-        "scitype_name": "catalogue",
-        "short_descr": "scitype for sktime catalogues",
-        "parent_scitype": "sktime",
-    }
-
-    @classmethod
-    def _check_structure(cls, obj: type) -> bool:
-        from sktime.catalogues.base import BaseCatalogue
-
-        super()._check_structure(obj)
-
-        if not issubclass(obj, BaseCatalogue):
-            raise TypeError("Object is not a sktime BaseCatalogue")
-
-        return True
-
-
 class network(_BaseSktimeContract):  # noqa: N801
     _tags = {
         "scitype_name": "network",
@@ -407,7 +388,6 @@ __all__ = [
     "detector",
     "reconciler",
     "splitter",
-    "catalogue",
     "network",
     "param_est",
     "metric_forecasting_probabilistic",

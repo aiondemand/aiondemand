@@ -27,7 +27,6 @@ from sktime.transformations.series.boxcox import BoxCoxTransformer
 from aiod.contracts.base import _BaseContract
 from aiod.contracts.sktime.contracts import (
     aligner,
-    catalogue,
     classifier,
     clusterer,
     dataset_classification,
@@ -74,7 +73,6 @@ ALL_CONTRACTS = [
     dataset_classification,
     dataset_forecasting,
     dataset_regression,
-    catalogue,
 ]
 
 VALIDATION_PAIRS = [
