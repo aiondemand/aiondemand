@@ -1,5 +1,7 @@
 """Base class for sktime API contracts."""
 
+from typing import Any
+
 from aiod.contracts.base import _BaseContract
 
 
@@ -10,6 +12,12 @@ class _BaseSktimeContract(_BaseContract):
         "scitype_name": "sktime",
         "short_descr": "basic scitype for all sktime contracts",
     }
+
+    @classmethod
+    def _resolve(cls, obj: Any) -> Any:
+        """Resolve identifier (str) or instance (obj) to a class (type)."""
+        obj = super()._resolve(obj)
+        return obj if isinstance(obj, type) else type(obj)
 
     @classmethod
     def _check_structure(cls, obj: type) -> bool:
