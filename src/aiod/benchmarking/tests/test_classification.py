@@ -3,7 +3,7 @@
 from aiod.benchmarking.classification import ClassificationBenchmark
 from pathlib import Path
 
-def test_full_benchmark_run(tmp_path="."):
+def test_full_benchmark_run(tmp_path="./src/aiod/benchmarking/tests/"):
     print("Beginning benchmark run...")
     
     benchmark = ClassificationBenchmark()
@@ -16,8 +16,6 @@ def test_full_benchmark_run(tmp_path="."):
     benchmark.add("KFold(n_splits=2)")
 
     print("Components added successfully. Running benchmark...")
-    
-    # Run the benchmark
     results_df = benchmark.run()
     
     print("\nBenchmark completed successfully!\n")
@@ -26,6 +24,4 @@ def test_full_benchmark_run(tmp_path="."):
 
     results_file = Path(tmp_path) / "results.csv"
     results_df.to_csv(results_file)
-
-if __name__ == "__main__":
-    test_full_benchmark_run()
+    assert results_file.exists()

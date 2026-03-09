@@ -1,8 +1,8 @@
 import pandas as pd
 import pytest
 
-from sktime.benchmarking._benchmarking_dataclasses import FoldResults, ResultObject
-from sktime.benchmarking._storage_handlers import (
+from aiod.benchmarking._benchmarking_dataclasses import FoldResults, ResultObject
+from aiod.benchmarking._storage_handlers import (
     CSVStorageHandler,
     JSONStorageHandler,
 )
