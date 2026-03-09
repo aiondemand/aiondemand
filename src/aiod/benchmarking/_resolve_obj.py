@@ -1,9 +1,10 @@
 """Provides class resolution from spec string via the registry."""
 
-from aiod.models._registry._cls_lookup import _id_lookup, _get_class
+from aiod.models._registry._cls_lookup import _id_lookup
 from aiod.models._registry._craft import craft
 
-def _resolve_obj(spec):
+
+def _resolve_obj(spec : str):
     """Resolve the object type for a spec string via the registry.
 
     Parameters
@@ -15,7 +16,7 @@ def _resolve_obj(spec):
     -------
     obj : Object
         Object resolved from spec string.
-    obj_type : type
+    obj_type : str
         Type of object resolved from spec string.
     """
     base_name = spec.split("(")[0].strip()

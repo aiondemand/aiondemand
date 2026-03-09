@@ -10,7 +10,7 @@ import pandas as pd
 
 
 def _coerce_data_for_evaluate(dataset_loader, task_type=None):
-    """Coerce data input object to a dict to pass to forecasting evaluate."""
+    """Coerce data input object to a dict for evaluation."""
     if callable(dataset_loader) and not hasattr(dataset_loader, "load"):
         # Case 1: Loader function
         data = dataset_loader()

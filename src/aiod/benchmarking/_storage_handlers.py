@@ -311,7 +311,6 @@ class NullStorageHandler(BaseStorageHandler):
 STORAGE_HANDLERS = [
     NullStorageHandler,
     JSONStorageHandler,
-    ParquetStorageHandler,
     CSVStorageHandler,
 ]
 

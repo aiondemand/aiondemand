@@ -272,28 +272,11 @@ class BaseBenchmark:
                 exps.append((task_id, estimator_id, task, estimator))
         return exps
 
-    @staticmethod
-    def _format_results(df: pd.DataFrame) -> pd.DataFrame:
-        """miscellaneous formatting for benchmark results."""
-        if df.empty:
-            return df
-        
-        if "validation_id" in df.columns:
-            df = df.rename(columns={"validation_id": "task_id"})
-
-        cols = ["model_id", "task_id"] + [c for c in df.columns if c not in ["model_id", "task_id"]]
-        df = df[cols]
-            
-        final_df = df.T
-        final_df.index.name = "Metric / Metadata"
-        pd.set_option("display.max_columns", None)
-        pd.set_option("display.max_rows", None)
-        pd.set_option("display.width", None)
-        pd.set_option("display.max_colwidth", None)
-
-        return final_df
+    def _format_and_rank_results(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Ranking and misc. formatting should be implemented by benchmark child classes"""
+        return df
 
     def run(self, output_file: str = None, force_rerun: str | list[str] = "none"):
         """Run the benchmarking for all tasks and estimators."""
-        df = len(self._run(output_file, force_rerun)) if False else self._run(output_file, force_rerun) # avoid unused logic
-        return self._format_results(df)
+        df = self._run(output_file, force_rerun)
+        return self._format_and_rank_results(df)

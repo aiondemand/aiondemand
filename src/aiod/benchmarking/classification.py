@@ -4,12 +4,13 @@ __all__ = ["ClassificationBenchmark"]
 
 from collections.abc import Callable
 from typing import Any
+import pandas as pd
 
 from aiod.benchmarking._benchmarking_dataclasses import (
     FoldResults,
     TaskObject,
 )
-from aiod.benchmarking._base import BaseBenchmark
+from aiod.benchmarking.base import BaseBenchmark
 from aiod.benchmarking.evaluation import evaluate
 
 
@@ -90,3 +91,29 @@ class ClassificationBenchmark(BaseBenchmark):
             else:
                 folds[ix] = FoldResults(scores)
         return folds
+    
+    def _format_and_rank_results(self, df: pd.DataFrame) -> pd.DataFrame:
+        """misc. formatting for the classification benchmark"""
+        if df.empty:
+            return df
+
+        if "validation_id" in df.columns:
+            df = df.rename(columns={"validation_id": "task_id"})
+
+
+        # extract metric name from object
+        metrics = [getattr(m, "__name__", str(m)) for m in self._metrics]
+        for metric in metrics:
+            col = f"{metric}_mean"
+            if col in df.columns:
+                # invert when ranking loss and error metrics
+                ascending = "loss" in metric.lower() or "error" in metric.lower()
+                df[f"{col}_rank"] = df.groupby("task_id")[col].rank(ascending=ascending, method="min").astype(int)
+
+        final_df = df.T
+        final_df.index.name = "Metric / Metadata"
+
+        pd.set_option("display.max_columns", None)
+        pd.set_option("display.width", None)
+
+        return final_df
