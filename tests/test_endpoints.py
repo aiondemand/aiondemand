@@ -13,7 +13,7 @@ from typing import Callable
 
 import aiod
 from aiod.calls.urls import server_url
-from aiod.calls.utils import EndpointUndefinedError
+from aiod.calls.utils import EndpointUndefinedError, ServerError
 from aiod.taxonomies import Term
 
 resources_path = Path(__file__).parent / "resources"
@@ -386,3 +386,40 @@ def test_taxonomy_not_found():
     with pytest.raises(EndpointUndefinedError):
         # Accessing through __wrapped__ to ensure the cache isn't hit.
         aiod.taxonomies.industrial_sectors.__wrapped__()
+
+
+@responses.activate
+def test_search_server_error(asset_with_search):
+    search_query = "test"
+    query = (
+        f"?search_query={search_query}&offset=0&limit=10&get_all=true"
+    )
+    responses.get(
+        f"{server_url()}search/{asset_with_search}{query}",
+        json={
+            "detail": "Internal Server Error",
+            "reference": "abc123",
+        },
+        status=HTTPStatus.INTERNAL_SERVER_ERROR,
+    )
+    endpoint = getattr(aiod, asset_with_search)
+    with pytest.raises(ServerError) as e:
+        endpoint.search(query=search_query)
+    assert e.value.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+    assert e.value.detail == "Internal Server Error"
+
+
+@responses.activate
+def test_asset_counts_server_error():
+    responses.get(
+        f"{server_url()}counts",
+        json={
+            "detail": "Internal Server Error",
+            "reference": "abc123",
+        },
+        status=HTTPStatus.INTERNAL_SERVER_ERROR,
+    )
+    with pytest.raises(ServerError) as e:
+        aiod.counts()
+    assert e.value.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+    assert e.value.detail == "Internal Server Error"
