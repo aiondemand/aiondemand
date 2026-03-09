@@ -1,5 +1,7 @@
 """Base class for API contracts."""
 
+from typing import Any
+
 from skbase.base import BaseObject
 
 
@@ -10,10 +12,10 @@ class _BaseContract(BaseObject):
     }
 
     @classmethod
-    def istypeof(cls, identifier: str | type) -> bool:
+    def istypeof(cls, obj: Any) -> bool:
         """Return True if object satisfies this contract."""
         try:
-            obj = cls._resolve(identifier)
+            obj = cls._resolve(obj)
             return cls._check_structure(obj)
         except Exception:
             return False
@@ -21,16 +23,15 @@ class _BaseContract(BaseObject):
     @classmethod
     def runtests(cls, identifier: str | type) -> dict:
         """Run contract tests and return summary."""
-        obj = cls._resolve(identifier)
-
         results = {
             "contract": cls.__name__,
-            "target": getattr(obj, "__name__", str(obj)),
+            "target": str(identifier),
             "passed": True,
             "errors": [],
         }
 
         try:
+            obj = cls._resolve(identifier)
             cls._check_structure(obj)
             cls._run_behavioral_tests(obj)
         except Exception as e:
@@ -40,13 +41,13 @@ class _BaseContract(BaseObject):
         return results
 
     @classmethod
-    def _resolve(cls, identifier: str | type):
+    def _resolve(cls, obj: Any) -> Any:
         """Resolve identifier to class."""
-        if isinstance(identifier, str):
+        if isinstance(obj, str):
             from aiod import get
 
-            return get(identifier)
-        return identifier
+            return get(obj)
+        return obj
 
     @classmethod
     def _check_structure(cls, obj: type) -> bool:

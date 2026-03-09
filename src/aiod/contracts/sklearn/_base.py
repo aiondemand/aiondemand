@@ -1,5 +1,7 @@
 """Base class for scikit-learn API contracts."""
 
+from typing import Any
+
 from aiod.contracts.base import _BaseContract
 
 
@@ -12,11 +14,38 @@ class _BaseSklearnContract(_BaseContract):
     }
 
     @classmethod
-    def _check_structure(cls, obj: type) -> bool:
-        from sklearn.base import BaseEstimator
+    def _resolve(cls, obj: Any) -> Any:
+        """Resolve identifier to class."""
+        obj = super()._resolve(obj)
 
-        if not issubclass(obj, BaseEstimator):
-            raise TypeError("Object is not a sklearn BaseEstimator")
+        from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+        from sklearn.pipeline import Pipeline
+
+        if isinstance(obj, Pipeline):
+            if not obj.steps:
+                raise TypeError(f"Pipeline has not steps, obj.steps={obj.steps}")
+
+            return cls._resolve(obj.steps[-1][1])
+
+        if isinstance(obj, (GridSearchCV, RandomizedSearchCV)):
+            if obj.estimator is None:
+                raise TypeError(
+                    f"{obj} has no estimator, obj.estimator={obj.estimator}"
+                )
+
+            return cls._resolve(obj.estimator)
+
+        obj = obj if isinstance(obj, type) else type(obj)
+
+        return obj
+
+    @classmethod
+    def _check_structure(cls, obj: type) -> bool:
+        from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+        from sklearn.pipeline import Pipeline
+
+        if issubclass(obj, (Pipeline, GridSearchCV, RandomizedSearchCV)):
+            raise TypeError(f"found class {obj}, object should be passed here instead")
 
         return True
 
