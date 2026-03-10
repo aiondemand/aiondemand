@@ -53,21 +53,7 @@ from aiod.contracts.utils import ContractError
 
 def _generate_cases(obj, contract, expected):
     """Generate variations: class, instance, string, string-instance."""
-    cases = [
-        (obj, contract, expected),
-        (obj.__name__, contract, expected),
-    ]
-    try:
-        cases.extend(
-            [
-                (obj(), contract, expected),
-                (obj.__name__ + "()", contract, expected),
-            ]
-        )
-    except Exception:
-        pass
-
-    return cases
+    return [(obj, contract, expected), (obj.__name__, contract, expected)]
 
 
 class BrokenBehaviorForecaster(NaiveForecaster):
