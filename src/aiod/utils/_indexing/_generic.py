@@ -37,7 +37,7 @@ def get_contract_inhabitants(
     list, tuple, or pd.DataFrame
         Objects satisfying the contract in the requested format.
     """
-    # 1. Fetch all objects from the package
+    # Fetch all objects from the package
     all_package_objects = all_objects(
         package_name=package_name,
         object_types=object_types,
@@ -46,12 +46,12 @@ def get_contract_inhabitants(
         modules_to_ignore=modules_to_ignore,
         suppress_import_stdout=suppress_import_stdout,
     )
-    # 2. Filter the objects using the contract
+    # Filter the objects using the contract
     if as_dataframe:
         mask = all_package_objects["object"].apply(contract_class.istypeof)
         return all_package_objects[mask]
 
-    # 3. Filter for list/tuple return
+    # Filter for list/tuple return
     valid_inhabitants = [
         (name, obj) if return_names else obj
         for name, obj in all_package_objects
