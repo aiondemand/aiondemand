@@ -4,6 +4,8 @@ from typing import Any
 
 from skbase.base import BaseObject
 
+from aiod.contracts.utils import ContractError
+
 
 class _BaseContract(BaseObject):
     _tags = {
@@ -12,16 +14,19 @@ class _BaseContract(BaseObject):
     }
 
     @classmethod
-    def istypeof(cls, obj: Any) -> bool:
+    def istypeof(cls, obj: Any, raise_error: bool = False) -> bool:
         """Return True if object satisfies this contract."""
+        obj = cls._resolve(obj)
+
         try:
-            obj = cls._resolve(obj)
             return cls._check_structure(obj)
-        except Exception:
+        except ContractError:
+            if raise_error:
+                raise
             return False
 
     @classmethod
-    def runtests(cls, identifier: str | type) -> dict:
+    def runtests(cls, identifier: str | type, raise_error: bool = False) -> dict:
         """Run contract tests and return summary."""
         results = {
             "contract": cls.__name__,
@@ -29,12 +34,14 @@ class _BaseContract(BaseObject):
             "passed": True,
             "errors": [],
         }
+        obj = cls._resolve(identifier)
 
         try:
-            obj = cls._resolve(identifier)
             cls._check_structure(obj)
             cls._run_behavioral_tests(obj)
         except Exception as e:
+            if raise_error:
+                raise
             results["passed"] = False
             results["errors"].append(str(e))
 

@@ -1,6 +1,7 @@
 """Scikit-learn API contracts."""
 
 from aiod.contracts.sklearn._base import _BaseSklearnContract
+from aiod.contracts.utils import ContractError
 
 
 class estimator(_BaseSklearnContract):  # noqa: N801
@@ -15,7 +16,7 @@ class estimator(_BaseSklearnContract):  # noqa: N801
         from sklearn.base import BaseEstimator
 
         if not issubclass(obj, BaseEstimator):
-            raise TypeError(f"{obj} is not a subclass of BaseEstimator")
+            raise ContractError(f"{obj} is not a subclass of BaseEstimator")
 
         return True
 
@@ -34,7 +35,7 @@ class regressor(_BaseSklearnContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, RegressorMixin):
-            raise TypeError(f"{obj} is not a subclass of RegressorMixin")
+            raise ContractError(f"{obj} is not a subclass of RegressorMixin")
 
         return True
 
@@ -53,7 +54,7 @@ class classifier(_BaseSklearnContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, ClassifierMixin):
-            raise TypeError(f"{obj} is not a subclass of ClassifierMixin")
+            raise ContractError(f"{obj} is not a subclass of ClassifierMixin")
 
         return True
 
@@ -72,7 +73,7 @@ class transformer(_BaseSklearnContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, TransformerMixin):
-            raise TypeError(f"{obj} is not a subclass of TransformerMixin")
+            raise ContractError(f"{obj} is not a subclass of TransformerMixin")
 
         return True
 
@@ -91,7 +92,7 @@ class clusterer(_BaseSklearnContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, ClusterMixin):
-            raise TypeError(f"{obj} is not a subclass of ClusterMixin")
+            raise ContractError(f"{obj} is not a subclass of ClusterMixin")
 
         return True
 
@@ -110,7 +111,7 @@ class biclusterer(_BaseSklearnContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BiclusterMixin):
-            raise TypeError(f"{obj} is not a subclass of BiclusterMixin")
+            raise ContractError(f"{obj} is not a subclass of BiclusterMixin")
 
         return True
 
@@ -129,7 +130,7 @@ class density(_BaseSklearnContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, DensityMixin):
-            raise TypeError(f"{obj} is not a subclass of DensityMixin")
+            raise ContractError(f"{obj} is not a subclass of DensityMixin")
 
         return True
 
@@ -148,7 +149,7 @@ class outlier_detector(_BaseSklearnContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, OutlierMixin):
-            raise TypeError(f"{obj} is not a subclass of OutlierMixin")
+            raise ContractError(f"{obj} is not a subclass of OutlierMixin")
 
         return True
 
