@@ -11,6 +11,7 @@ from aiod.contracts.sklearn import (
     regressor,
     transformer,
 )
+from aiod.contracts.utils import ContractError
 
 LinearRegression = _safe_import(
     import_path="sklearn.linear_model.LinearRegression", pkg_name="scikit-learn"
@@ -126,7 +127,13 @@ def _generate_cases(obj, *args):
     ],
 )
 def test_istypeof(obj, contract, expected):
-    assert contract.istypeof(obj) is expected
+    if expected is True:
+        assert contract.istypeof(obj, raise_error=True) is True
+    else:
+        with pytest.raises(ContractError):
+            contract.istypeof(obj, raise_error=True)
+
+        assert contract.istypeof(obj) is False
 
 
 @pytest.mark.skipif(
@@ -141,9 +148,15 @@ def test_istypeof(obj, contract, expected):
     ],
 )
 def test_runtests(obj, contract, passed, errors):
-    result = contract.runtests(obj)
-    assert result["passed"] is passed
-    if passed:
+    if passed is True:
+        result = contract.runtests(obj, raise_error=True)
+        assert result["passed"] is True
         assert result["errors"] == []
+
     else:
+        with pytest.raises(Exception, match=errors):
+            result = contract.runtests(obj, raise_error=True)
+
+        result = contract.runtests(obj)
+        assert result["passed"] is False
         assert any(errors in e for e in result["errors"])
