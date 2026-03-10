@@ -21,9 +21,13 @@ extra_css:
 nav:
   - Introduction: 'README.md'
   - 'Developer Setup': 'developer_setup.md'
+  - Guides:
+    - 'Using Models': 'guides/using-models.md'
+    - 'Sharing Models': 'guides/sharing-models.md'
   - Examples:
     - 'Getting Started': 'examples/getting-started.ipynb'
     - Sharing: 'examples/sharing.ipynb'
+    - 'Models': 'examples/models.ipynb'
   - API Reference:
       - 'api/configuration.md'
       - 'api/authentication.md'
