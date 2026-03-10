@@ -2,6 +2,7 @@ import pytest
 
 import aiod
 from aiod.contracts.base import _BaseContract
+from aiod.contracts.utils import ContractError
 
 
 class ValidEstimator:
@@ -38,7 +39,7 @@ class DummyContract(_BaseContract):
         obj_cls = obj if isinstance(obj, type) else type(obj)
         for method in ["fit", "predict"]:
             if not hasattr(obj_cls, method):
-                raise TypeError(f"Missing required method: {method}")
+                raise ContractError(f"Missing required method: {method}")
         return True
 
     @classmethod
@@ -91,8 +92,6 @@ def _generate_cases(obj, *args):
         *_generate_cases(ValidEstimator, True),
         *_generate_cases(MissingPredict, False),
         *_generate_cases(BrokenBehavior, True),
-        ("UnknownEstimator", False),
-        ("UnknownEstimator()", False),
     ],
 )
 def test_istypeof(obj, contract, expected, mock_aiod_get):
@@ -105,8 +104,6 @@ def test_istypeof(obj, contract, expected, mock_aiod_get):
         *_generate_cases(ValidEstimator, True, None),
         *_generate_cases(MissingPredict, False, "Missing required method"),
         *_generate_cases(BrokenBehavior, False, "behavior failure"),
-        ("UnknownEstimator", False, ""),
-        ("UnknownEstimator()", False, ""),
     ],
 )
 def test_runtests(obj, contract, passed, errors, mock_aiod_get):

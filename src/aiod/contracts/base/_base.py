@@ -4,6 +4,8 @@ from typing import Any
 
 from skbase.base import BaseObject
 
+from aiod.contracts.utils import ContractError
+
 
 class _BaseContract(BaseObject):
     _tags = {
@@ -14,10 +16,11 @@ class _BaseContract(BaseObject):
     @classmethod
     def istypeof(cls, obj: Any) -> bool:
         """Return True if object satisfies this contract."""
+        obj = cls._resolve(obj)
+
         try:
-            obj = cls._resolve(obj)
             return cls._check_structure(obj)
-        except Exception:
+        except ContractError:
             return False
 
     @classmethod
@@ -29,9 +32,9 @@ class _BaseContract(BaseObject):
             "passed": True,
             "errors": [],
         }
+        obj = cls._resolve(identifier)
 
         try:
-            obj = cls._resolve(identifier)
             cls._check_structure(obj)
             cls._run_behavioral_tests(obj)
         except Exception as e:

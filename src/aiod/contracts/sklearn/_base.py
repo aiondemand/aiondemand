@@ -3,6 +3,7 @@
 from typing import Any
 
 from aiod.contracts.base import _BaseContract
+from aiod.contracts.utils import ContractError
 
 
 class _BaseSklearnContract(_BaseContract):
@@ -23,13 +24,13 @@ class _BaseSklearnContract(_BaseContract):
 
         if isinstance(obj, Pipeline):
             if not obj.steps:
-                raise TypeError(f"Pipeline has not steps, obj.steps={obj.steps}")
+                raise ContractError(f"Pipeline has not steps, obj.steps={obj.steps}")
 
             return cls._resolve(obj.steps[-1][1])
 
         if isinstance(obj, (GridSearchCV, RandomizedSearchCV)):
             if obj.estimator is None:
-                raise TypeError(
+                raise ContractError(
                     f"{obj} has no estimator, obj.estimator={obj.estimator}"
                 )
 
@@ -45,7 +46,9 @@ class _BaseSklearnContract(_BaseContract):
         from sklearn.pipeline import Pipeline
 
         if issubclass(obj, (Pipeline, GridSearchCV, RandomizedSearchCV)):
-            raise TypeError(f"found class {obj}, object should be passed here instead")
+            raise ContractError(
+                f"found class {obj}, object should be passed here instead"
+            )
 
         return True
 
