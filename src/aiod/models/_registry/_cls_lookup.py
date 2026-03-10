@@ -2,14 +2,18 @@
 
 from functools import lru_cache
 
+from aiod.models.apis._sklearn_apis import _ModelPkgSklearnEstimator
 
-def _get_class(id: str):
+
+def _get_class(id: str, obj_type=None):
     """Retrieve model class with unique identifier.
 
     Parameter
     ---------
     id : str
-        unique identifier of class to retrieve
+        The unique identifier of the object to retrieve.
+    obj_type : class, default=None
+        The base class or contract to filter objects by.
 
     Returns
     -------
@@ -19,9 +23,10 @@ def _get_class(id: str):
     Raises
     ------
     ModuleNotFoundError
-        if dependencies of object to retrieve are not satisfied
+        If dependencies of the object to retrieve are not satisfied.
     """
-    id_lookup = _id_lookup()
+    id_lookup = _id_lookup(obj_type=obj_type)
+
     obj = id_lookup.get(id)
     if obj is None:
         raise ValueError(
@@ -57,8 +62,7 @@ def _id_lookup_cached(obj_type=None):
 def _all_objects(obj_type=None):
     from skbase.lookup import all_objects
 
-    from aiod.models.apis._sklearn_apis import _ModelPkgSklearnEstimator
+    if obj_type is None:
+        obj_type = _ModelPkgSklearnEstimator
 
-    return all_objects(
-        object_types=_ModelPkgSklearnEstimator, package_name="aiod", return_names=False
-    )
+    return all_objects(object_types=obj_type, package_name="aiod", return_names=False)
