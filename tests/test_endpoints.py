@@ -75,6 +75,7 @@ def test_common_endpoints_are_created(asset_name: str):
 def test_search_endpoints_are_created(asset_with_search: str):
     asset = getattr(aiod, asset_with_search)
     assert isinstance(getattr(asset, "search"), Callable)
+    assert isinstance(getattr(asset, "search_async"), Callable)
 
 
 def test_endpoint_get_list(asset_name):
@@ -423,3 +424,95 @@ def test_asset_counts_server_error():
         aiod.counts()
     assert e.value.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
     assert e.value.detail == "Internal Server Error"
+
+
+def test_search_async(asset_with_search):
+    """search_async merges and deduplicates results from multiple queries."""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    query_a = "alpha"
+    query_b = "beta"
+    url_base = f"{server_url()}search/{asset_with_search}"
+    url_a = f"{url_base}?search_query={query_a}&offset=0&limit=10&get_all=true"
+    url_b = f"{url_base}?search_query={query_b}&offset=0&limit=10&get_all=true"
+
+    with aioresponses() as mocked:
+        mocked.get(
+            url_a,
+            payload={
+                "total_hits": 2,
+                "resources": [
+                    {"identifier": "id_1", "name": "Resource A"},
+                    {"identifier": "id_2", "name": "Resource B"},
+                ],
+                "limit": 10,
+                "offset": 0,
+            },
+            status=200,
+        )
+        mocked.get(
+            url_b,
+            payload={
+                "total_hits": 2,
+                "resources": [
+                    {"identifier": "id_2", "name": "Resource B"},
+                    {"identifier": "id_3", "name": "Resource C"},
+                ],
+                "limit": 10,
+                "offset": 0,
+            },
+            status=200,
+        )
+
+        endpoint = getattr(aiod, asset_with_search)
+        results = loop.run_until_complete(
+            endpoint.search_async(
+                queries=[query_a, query_b],
+                data_format="json",
+            )
+        )
+
+    assert len(results) == 3, f"Expected 3 deduplicated results, got {len(results)}"
+    ids = [r["identifier"] for r in results]
+    assert ids == ["id_1", "id_2", "id_3"]
+
+
+def test_search_async_empty_queries(asset_with_search):
+    """search_async with an empty query list returns an empty result."""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    endpoint = getattr(aiod, asset_with_search)
+    results = loop.run_until_complete(
+        endpoint.search_async(queries=[], data_format="json")
+    )
+    assert results == []
+
+
+def test_search_async_server_error(asset_with_search):
+    """search_async raises ServerError when the API returns a non-200 status."""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    query = "failing"
+    url = f"{server_url()}search/{asset_with_search}?search_query={query}&offset=0&limit=10&get_all=true"
+
+    with aioresponses() as mocked:
+        mocked.get(
+            url,
+            payload={
+                "detail": "Internal Server Error",
+                "reference": "xyz789",
+            },
+            status=500,
+        )
+
+        endpoint = getattr(aiod, asset_with_search)
+        with pytest.raises(ServerError):
+            loop.run_until_complete(
+                endpoint.search_async(
+                    queries=[query],
+                    data_format="json",
+                )
+            )

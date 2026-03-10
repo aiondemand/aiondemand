@@ -14,4 +14,4 @@ from aiod.calls import calls
     get_list_async,
 ) = calls.wrap_common_calls(asset_type="datasets", module=__name__)
 
-(search,) = calls.wrap_search_call(asset_type="datasets", module=__name__)
+(search, search_async) = calls.wrap_search_call(asset_type="datasets", module=__name__)

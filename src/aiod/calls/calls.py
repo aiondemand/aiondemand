@@ -469,6 +469,108 @@ def search(
     resources = format_response(res.json()["resources"], data_format)
     return resources
 
+async def _fetch_search_results(urls: list[str]) -> list[dict]:
+    async def _fetch_one(session: aiohttp.ClientSession, url: str) -> dict:
+        async with session.get(url, timeout=config.request_timeout_seconds) as resp:
+            body = await resp.json(content_type=None)
+            if resp.status != 200:
+                class _FakeResponse:
+                    status_code = resp.status
+                    def json(self_):  # noqa: N805
+                        return body
+                raise ServerError(_FakeResponse())
+            return body
+
+    async with aiohttp.ClientSession() as session:
+        tasks = [_fetch_one(session, url) for url in urls]
+        return list(await asyncio.gather(*tasks))
+
+
+async def search_async(
+    queries: list[str],
+    *,
+    platforms: list[str] | None = None,
+    offset: int = 0,
+    limit: int = 10,
+    search_field: (
+        None | Literal["name", "issn", "description_html", "description_plain"]
+    ) = None,
+    get_all: bool = True,
+    version: str | None = None,
+    data_format: Literal["pandas", "json"] = "pandas",
+    asset_type: str,
+) -> pd.DataFrame | list[dict]:
+    """Search metadata for ASSET_TYPE using multiple queries concurrently.
+
+    Executes every query in `queries` against the Elasticsearch endpoint in
+    parallel, then merges and deduplicates the results by ``identifier``.
+
+    All parameters except `queries` must be specified by name.
+
+    Parameters
+    ----------
+    queries
+        A list of search strings to execute concurrently.
+    platforms
+        Platforms to filter results (default is None, meaning all platforms).
+    offset
+        Pagination offset applied to every individual query (default is 0).
+    limit
+        Maximum results returned per query (default is 10).
+    search_field
+        Specific metadata field to match against.
+        If None the query is matched against all indexed fields (default is None).
+    get_all
+        If True, full asset data is fetched from the database for every hit.
+        If False, only the indexed (partial) data is returned (default is True).
+    version
+        API version override. If None, ``config.version`` is used (default is None).
+    data_format
+        Response format: ``"pandas"`` returns a ``pd.DataFrame``;
+        ``"json"`` returns a ``list[dict]`` (default is ``"pandas"``).
+
+    Returns
+    -------
+    :
+        Merged, deduplicated results across all queries in the specified format.
+        Deduplication is performed on the ``identifier`` field; the first
+        occurrence of a duplicated asset is kept.
+
+    Raises
+    ------
+    ServerError
+        If any individual search request returns a non-200 response.
+
+    Examples
+    --------
+```python
+    import asyncio
+    import aiod
+
+    results = asyncio.run(
+        aiod.datasets.search_async(["climate change", "carbon emissions"])
+    )
+```
+    """
+    if not queries:
+        return format_response([], data_format)
+
+    urls = [
+        url_to_search(asset_type, query, platforms, offset, limit, search_field, get_all, version)
+        for query in queries
+    ]
+    raw_responses = await _fetch_search_results(urls)
+
+    seen_ids: set[str] = set()
+    merged: list[dict] = []
+    for response in raw_responses:
+        for item in response.get("resources", []):
+            item_id = item.get("identifier")
+            if item_id not in seen_ids:
+                seen_ids.add(item_id)
+                merged.append(item)
+
+    return format_response(merged, data_format)
 
 async def get_assets_async(
     identifiers: list[str],
@@ -576,4 +678,4 @@ wrap_common_calls = partial(
         get_list_async,
     ],
 )
-wrap_search_call = partial(wrap_calls, calls=[search])
+wrap_search_call = partial(wrap_calls, calls=[search, search_async])
