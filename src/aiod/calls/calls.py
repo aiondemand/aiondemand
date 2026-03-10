@@ -467,6 +467,7 @@ def search(
     resources = format_response(res.json()["resources"], data_format)
     return resources
 
+
 async def _fetch_search_results(urls: list[str]) -> list[dict]:
     async def _fetch_one(session: aiohttp.ClientSession, url: str) -> dict:
         async with session.get(url, timeout=config.request_timeout_seconds) as resp:
@@ -541,14 +542,14 @@ async def search_async(
 
     Examples
     --------
-```python
+    ```python
     import asyncio
     import aiod
 
     results = asyncio.run(
         aiod.datasets.search_async(["climate change", "carbon emissions"])
     )
-```
+    ```
     """
     if not queries:
         return format_response([], data_format)
@@ -569,6 +570,7 @@ async def search_async(
                 merged.append(item)
 
     return format_response(merged, data_format)
+
 
 async def get_assets_async(
     identifiers: list[str],
