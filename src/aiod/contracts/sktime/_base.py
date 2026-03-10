@@ -3,6 +3,7 @@
 from typing import Any
 
 from aiod.contracts.base import _BaseContract
+from aiod.contracts.utils import ContractError
 
 
 class _BaseSktimeContract(_BaseContract):
@@ -24,7 +25,7 @@ class _BaseSktimeContract(_BaseContract):
         from sktime.base import BaseObject
 
         if not issubclass(obj, BaseObject):
-            raise TypeError("Object is not a sktime BaseObject")
+            raise ContractError(f"Object {obj} is not a sktime BaseObject")
 
         return True
 
@@ -32,7 +33,7 @@ class _BaseSktimeContract(_BaseContract):
     def _run_behavioral_tests(cls, obj: type):
         from sktime.utils.estimator_checks import check_estimator
 
-        results = check_estimator(obj, return_exceptions=False)
+        results = check_estimator(obj, raise_exceptions=True)
         return results
 
 

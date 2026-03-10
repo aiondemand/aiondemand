@@ -1,6 +1,7 @@
 """Sktime API contracts."""
 
 from aiod.contracts.sktime._base import _BaseSktimeContract
+from aiod.contracts.utils import ContractError
 
 
 class dataset_classification(_BaseSktimeContract):  # noqa: N801
@@ -17,7 +18,7 @@ class dataset_classification(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BaseClassificationDataset):
-            raise TypeError("Object is not a sktime BaseClassificationDataset")
+            raise ContractError("Object is not a sktime BaseClassificationDataset")
 
         return True
 
@@ -36,7 +37,7 @@ class forecaster(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BaseForecaster):
-            raise TypeError("Object is not a sktime BaseForecaster")
+            raise ContractError("Object is not a sktime BaseForecaster")
 
         return True
 
@@ -55,7 +56,7 @@ class classifier(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BaseClassifier):
-            raise TypeError("Object is not a sktime BaseClassifier")
+            raise ContractError("Object is not a sktime BaseClassifier")
 
         return True
 
@@ -74,7 +75,7 @@ class regressor(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BaseRegressor):
-            raise TypeError("Object is not a sktime BaseRegressor")
+            raise ContractError("Object is not a sktime BaseRegressor")
 
         return True
 
@@ -93,7 +94,7 @@ class transformer(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BaseTransformer):
-            raise TypeError("Object is not a sktime BaseTransformer")
+            raise ContractError("Object is not a sktime BaseTransformer")
 
         return True
 
@@ -112,7 +113,7 @@ class clusterer(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BaseClusterer):
-            raise TypeError("Object is not a sktime BaseClusterer")
+            raise ContractError("Object is not a sktime BaseClusterer")
 
         return True
 
@@ -131,7 +132,7 @@ class aligner(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BaseAligner):
-            raise TypeError("Object is not a sktime BaseAligner")
+            raise ContractError("Object is not a sktime BaseAligner")
 
         return True
 
@@ -150,7 +151,7 @@ class metric_detection(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BaseDetectionMetric):
-            raise TypeError("Object is not a sktime BaseDetectionMetric")
+            raise ContractError("Object is not a sktime BaseDetectionMetric")
 
         return True
 
@@ -169,7 +170,7 @@ class detector(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BaseDetector):
-            raise TypeError("Object is not a sktime BaseDetector")
+            raise ContractError("Object is not a sktime BaseDetector")
 
         return True
 
@@ -190,7 +191,7 @@ class reconciler(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, _ReconcilerTransformer):
-            raise TypeError("Object is not a sktime _ReconcilerTransformer")
+            raise ContractError("Object is not a sktime _ReconcilerTransformer")
 
         return True
 
@@ -209,7 +210,7 @@ class splitter(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BaseSplitter):
-            raise TypeError("Object is not a sktime BaseSplitter")
+            raise ContractError("Object is not a sktime BaseSplitter")
 
         return True
 
@@ -228,7 +229,7 @@ class network(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, BaseDeepNetwork):
-            raise TypeError("Object is not a sktime BaseDeepNetwork")
+            raise ContractError("Object is not a sktime BaseDeepNetwork")
 
         return True
 
@@ -242,7 +243,7 @@ class param_est(_BaseSktimeContract):  # noqa: N801
 
         super()._check_structure(obj)
         if not issubclass(obj, BaseParamFitter):
-            raise TypeError("Object is not a sktime BaseParamFitter")
+            raise ContractError("Object is not a sktime BaseParamFitter")
         return True
 
 
@@ -260,7 +261,7 @@ class metric_forecasting_probabilistic(_BaseSktimeContract):  # noqa: N801
 
         super()._check_structure(obj)
         if not issubclass(obj, _BaseDistrForecastingMetric):
-            raise TypeError("Object is not a sktime _BaseDistrForecastingMetric")
+            raise ContractError("Object is not a sktime _BaseDistrForecastingMetric")
         return True
 
 
@@ -275,7 +276,7 @@ class metric_forecasting(_BaseSktimeContract):  # noqa: N801
 
         super()._check_structure(obj)
         if not issubclass(obj, BaseForecastingErrorMetric):
-            raise TypeError("Object is not a sktime BaseForecastingErrorMetric")
+            raise ContractError("Object is not a sktime BaseForecastingErrorMetric")
         return True
 
 
@@ -288,7 +289,7 @@ class estimator(_BaseSktimeContract):  # noqa: N801
 
         super()._check_structure(obj)
         if not issubclass(obj, BaseEstimator):
-            raise TypeError("Object is not a sktime BaseEstimator")
+            raise ContractError("Object is not a sktime BaseEstimator")
         return True
 
 
@@ -301,7 +302,7 @@ class global_forecaster(_BaseSktimeContract):  # noqa: N801
 
         super()._check_structure(obj)
         if not issubclass(obj, _BaseGlobalForecaster):
-            raise TypeError("Object is not a sktime _BaseGlobalForecaster")
+            raise ContractError("Object is not a sktime _BaseGlobalForecaster")
         return True
 
 
@@ -314,7 +315,7 @@ class early_classifier(_BaseSktimeContract):  # noqa: N801
 
         super()._check_structure(obj)
         if not issubclass(obj, BaseEarlyClassifier):
-            raise TypeError("Object is not a sktime BaseEarlyClassifier")
+            raise ContractError("Object is not a sktime BaseEarlyClassifier")
         return True
 
 
@@ -327,7 +328,7 @@ class transformer_pairwise(_BaseSktimeContract):  # noqa: N801
 
         super()._check_structure(obj)
         if not issubclass(obj, BasePairwiseTransformer):
-            raise TypeError("Object is not a sktime BasePairwiseTransformer")
+            raise ContractError("Object is not a sktime BasePairwiseTransformer")
         return True
 
 
@@ -340,7 +341,7 @@ class dataset_forecasting(_BaseSktimeContract):  # noqa: N801
 
         super()._check_structure(obj)
         if not issubclass(obj, BaseForecastingDataset):
-            raise TypeError("Object is not a sktime BaseForecastingDataset")
+            raise ContractError("Object is not a sktime BaseForecastingDataset")
         return True
 
 
@@ -353,7 +354,7 @@ class transformer_pairwise_panel(_BaseSktimeContract):  # noqa: N801
 
         super()._check_structure(obj)
         if not issubclass(obj, BasePairwiseTransformerPanel):
-            raise TypeError("Object is not a sktime BasePairwiseTransformerPanel")
+            raise ContractError("Object is not a sktime BasePairwiseTransformerPanel")
         return True
 
 
@@ -371,7 +372,7 @@ class dataset_regression(_BaseSktimeContract):  # noqa: N801
         super()._check_structure(obj)
 
         if not issubclass(obj, _RegressionDatasetFromLoader):
-            raise TypeError("Object is not a sktime _RegressionDatasetFromLoader")
+            raise ContractError("Object is not a sktime _RegressionDatasetFromLoader")
 
         return True
 
