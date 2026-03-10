@@ -22,6 +22,7 @@ jobs:
   test-code:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
         os: [ubuntu-latest, windows-latest]
@@ -31,12 +32,18 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-      - run: python -m pip install ".[dev]"
+      - run: python -m pip install ".[dev,tests_integrations]"
         name: Install Dependencies
       - run: python -m pytest tests
         name: Run local tests
-      - run: python -m pytest -m server tests
-        name: Run integration tests
+      - run: python -m pytest src/aiod
+        name: Run tests in package
+      # Temporarily disabled: AIoD API is currently not responding
+      # See issue: https://github.com/aiondemand/AIOD-rest-api/issues/717
+      # These integration tests depend on the live server and
+      # are causing CI to fail. Re-enable once the API is back up and stable.
+      # - run: python -m pytest -m server tests
+      #   name: Run integration tests
 
   code-quality:
     name: code-quality
