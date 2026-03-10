@@ -6,6 +6,7 @@ class AiodPkg__CatBoost(_ModelPkgSklearnEstimator):
         "pkg_id": "__multiple",
         "python_dependencies": "catboost",
         "pkg_pypi_name": "catboost",
+        "object_types": ["classifier", "regressor", "ranker"],
     }
 
     _obj_dict = {
