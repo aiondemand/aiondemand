@@ -471,7 +471,10 @@ def search(
 async def _fetch_search_results(urls: list[str]) -> list[dict]:
     async def _fetch_one(session: aiohttp.ClientSession, url: str) -> dict:
         async with session.get(url, timeout=config.request_timeout_seconds) as resp:
-            body = await resp.json(content_type=None)
+            try:
+                body = await resp.json(content_type=None)
+            except Exception:
+                body = {"detail": await resp.text()}
             if resp.status != 200:
                 class _FakeResponse:
                     status_code = resp.status
