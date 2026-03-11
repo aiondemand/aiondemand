@@ -57,9 +57,10 @@ class EndpointUndefinedError(Exception):
 
 
 class ServerError(RuntimeError):
-    """Raised for any server error that does not (yet) have
-    better client-side handling."""
+    """Raised for any server error that does not (yet) have.
 
+    Better client-side handling.
+    """
     def __init__(self, response: requests.Response):
         self.status_code = response.status_code
         try:
