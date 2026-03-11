@@ -15,8 +15,8 @@ class openml_dataset(_BaseOpenMLContract):  # noqa: N801
     def _check_structure(cls, obj: type) -> bool:
         from openml.datasets import OpenMLDataset
 
-        if not issubclass(obj, OpenMLDataset):
-            raise ContractError(f"{obj} is not a subclass of OpenMLDataset")
+        if not isinstance(obj, OpenMLDataset):
+            raise ContractError(f"{obj} is not an instance of OpenMLDataset")
 
         return True
 
