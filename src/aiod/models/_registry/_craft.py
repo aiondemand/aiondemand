@@ -21,15 +21,19 @@ import re
 from aiod.models._registry._cls_lookup import _get_class
 
 
+
 def _extract_class_names(spec):
-    """Get all maximal alphanumeric substrings that start with a capital."""
-    pattern = r"\b([A-Z][A-Za-z0-9_]*)\b"
+    """Get all maximal alphanumeric substrings that are valid identifiers."""
+    import keyword
+
+    # pick up all words that are not followed by = (keyword arguments)
+    pattern = r"\b([A-Za-z_][A-Za-z0-9_]*)\b(?!\s*=)"
     cls_name_list = re.findall(pattern, spec)
 
-    EXCLUDE_LIST = ["True", "False", "None"]
+    EXCLUDE_LIST = ["True", "False", "None"] + list(keyword.kwlist)
     cls_name_list = [x for x in cls_name_list if x not in EXCLUDE_LIST]
 
-    return cls_name_list
+    return list(set(cls_name_list))
 
 
 def craft(spec):
