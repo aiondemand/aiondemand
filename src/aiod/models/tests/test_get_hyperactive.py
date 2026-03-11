@@ -62,7 +62,7 @@ def test_get_hyperactive_class(cls_name, expected_module):
     reason="run only if hyperactive is installed",
 )
 def test_get_all_hyperactive_classes_importable():
-    """All indexed hyperactive classes must be importable without error."""
+    """All indexed hyperactive classes must be importable without any error."""
     import importlib
 
     for cls_name, module_path in _HYPERACTIVE_GFO_CLASSES:
@@ -80,10 +80,9 @@ def test_get_all_hyperactive_classes_importable():
     reason="run only if hyperactive is NOT installed",
 )
 def test_get_hyperactive_softdep_not_present():
-    """get() must raise ModuleNotFoundError when hyperactive is not installed.
+    """get() must raise a ModuleNotFoundError when hyperactive is not installed.
 
-    The error message must mention 'hyperactive' so the user knows which
-    package to install.
+    The error message must mention 'hyperactive' so the user knows basically which package to install.
     """
     from aiod.models import get
 
