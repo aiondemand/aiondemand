@@ -4,6 +4,7 @@ from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
 class AiodPkg__XGB(_ModelPkgSklearnEstimator):
+    _CLASSES_TO_IGNORE = ["XGBModel"]  # core model
     _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "xgboost",
@@ -12,17 +13,15 @@ class AiodPkg__XGB(_ModelPkgSklearnEstimator):
     }
 
     _obj_dict = {
-        "DaskScikitLearnBase": "xgboost.dask.DaskScikitLearnBase",
         "DaskXGBClassifier": "xgboost.dask.DaskXGBClassifier",
         "DaskXGBRFClassifier": "xgboost.dask.DaskXGBRFClassifier",
         "DaskXGBRFRegressor": "xgboost.dask.DaskXGBRFRegressor",
         "DaskXGBRanker": "xgboost.dask.DaskXGBRanker",
         "DaskXGBRegressor": "xgboost.dask.DaskXGBRegressor",
         "XGBClassifier": "xgboost.sklearn.XGBClassifier",
-        "XGBModel": "xgboost.sklearn.XGBModel",
+        "XGBRanker": "xgboost.sklearn.XGBRanker",
         "XGBRFClassifier": "xgboost.sklearn.XGBRFClassifier",
         "XGBRFRegressor": "xgboost.sklearn.XGBRFRegressor",
-        "XGBRanker": "xgboost.sklearn.XGBRanker",
         "XGBRegressor": "xgboost.sklearn.XGBRegressor",
     }
 
@@ -33,9 +32,9 @@ class AiodPkg__XGB(_ModelPkgSklearnEstimator):
         "DaskXGBRanker": "ranker",
         "DaskXGBRegressor": "regressor",
         "XGBClassifier": "classifier",
+        "XGBRanker": "ranker",
         "XGBRFClassifier": "classifier",
         "XGBRFRegressor": "regressor",
-        "XGBRanker": "ranker",
         "XGBRegressor": "regressor",
     }
 
