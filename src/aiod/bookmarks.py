@@ -30,6 +30,13 @@ def _bookmarks_url() -> str:
     return server_url() + "bookmarks"
 
 
+def _parse_created_at(value: str) -> datetime:
+    dt = datetime.fromisoformat(value)
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
 def register(identifier: str) -> Bookmark:
     """Bookmark the asset with `identifier` for the user.
 
@@ -63,15 +70,16 @@ def register(identifier: str) -> Bookmark:
 
     return Bookmark(
         identifier=res.json()["resource_identifier"],
-        created=datetime.fromisoformat(res.json()["created_at"]).replace(tzinfo=timezone.utc),
+        created=_parse_created_at(res.json()["created_at"]),
     )
 
 
 def delete(identifier: str):
     """Remove the bookmark for the asset with `identifier` for the user.
 
-    This method does not raise an error if the identifier is not recognized by AI-on-Demand,
-    or if the identifier is valid but the user has not bookmarked it.
+    This method does not raise an error if the identifier is not recognized
+    by AI-on-Demand, or if the identifier is valid but the user has not
+    bookmarked it.
 
     Parameters
     ----------
@@ -113,7 +121,7 @@ def get_list() -> list[Bookmark]:
     return [
         Bookmark(
             identifier=bookmark["resource_identifier"],
-            created=datetime.fromisoformat(bookmark["created_at"]).replace(tzinfo=timezone.utc),
+            created=_parse_created_at(bookmark["created_at"]),
         )
         for bookmark in res.json()
     ]
