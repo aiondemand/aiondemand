@@ -3,6 +3,7 @@
 from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
+# outdated package
 class AiodPkg__AutoSklearn(_ModelPkgSklearnEstimator):
     _tags = {
         "pkg_id": "__multiple",

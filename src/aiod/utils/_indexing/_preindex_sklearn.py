@@ -7,11 +7,10 @@ __author__ = ["fkiraly"]
 
 import importlib
 import inspect
+import pkgutil
 
-from skbase.lookup import all_objects
 
-
-def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
+def _all_sklearn_estimators_locdict(package, serialized=False):
     """Return dictionary of all scikit-learn estimators in sktime and sklearn.
 
     Parameters
@@ -36,7 +35,7 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
           ``sklearn.ensemble.RandomForestClassifier``
     """
     all_ests = _all_sklearn_estimators(
-        package_name=package_name,
+        package=package,
         return_names=False,
     )
 
@@ -56,7 +55,7 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
 
 
 def _all_sklearn_estimators(
-    package_name="sklearn",
+    package,
     return_names=True,
     as_dataframe=False,
     suppress_import_stdout=True,
@@ -126,6 +125,11 @@ def _all_sklearn_estimators(
     """
     from sklearn.base import BaseEstimator
 
+    package_name = package._tags[
+        "pkg_pypi_name"
+    ]  # should be upated after get_object_tags is implemented
+    pkg = importlib.import_module(package_name)
+
     MODULES_TO_IGNORE_SKLEARN = [
         "array_api_compat",
         "tests",
@@ -133,38 +137,35 @@ def _all_sklearn_estimators(
         "conftest",
     ]
 
-    if package_name == "sktime":
-        from sktime.registry import all_estimators
+    found = []
+    for _, mod_name, _ in pkgutil.walk_packages(pkg.__path__, pkg.__name__ + "."):
+        if any(ignored in mod_name for ignored in MODULES_TO_IGNORE_SKLEARN):
+            continue
+        module = importlib.import_module(mod_name)
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+            if not obj.__module__.startswith(package_name):
+                continue
+            if name.startswith("_") or "Base" in name or "mixin" in name.lower():
+                continue
+            if name in package._CLASSES_TO_IGNORE:
+                continue
+            if (
+                issubclass(obj, BaseEstimator) or hasattr(obj, "_estimator_type")
+            ) and not inspect.isabstract(obj):
+                found.append((name, obj))
 
-        all_est = all_estimators(return_names=True, as_dataframe=False)
-        return all_est
+    if not return_names:
+        return [item[1] for item in found]
 
-    found = all_objects(
-        object_types=BaseEstimator,
-        package_name=package_name,
-        modules_to_ignore=MODULES_TO_IGNORE_SKLEARN,
-        as_dataframe=as_dataframe,
-        return_names=return_names,
-        suppress_import_stdout=suppress_import_stdout,
-    )
+    if as_dataframe:
+        import pandas as pd
 
-    if not found:
-        try:
-            pkg = importlib.import_module(package_name)
-            for name, obj in inspect.getmembers(pkg, inspect.isclass):
-                has_est_type = hasattr(obj, "_estimator_type")
-                if has_est_type:
-                    if return_names:
-                        found.append((name, obj))
-                    else:
-                        found.append(obj)
-        except ImportError:
-            pass
+        return pd.DataFrame(found, columns=["name", "object"])
 
     return found
 
 
-def _generate_sklearn_types_of_obj(package_name="sklearn") -> dict:
+def _generate_sklearn_types_of_obj(package) -> dict:
     """
     Generate _type_of_objs dictionary from _all_sklearn_estimators.
 
@@ -175,7 +176,7 @@ def _generate_sklearn_types_of_obj(package_name="sklearn") -> dict:
     -------
         Dictionary mapping object names to their types (as strings or lists of strings).
     """
-    all_est = _all_sklearn_estimators(package_name)
+    all_est = _all_sklearn_estimators(package)
     type_of_objs: dict[str, list[str] | str] = {}
 
     polymorphic_meta = [
@@ -208,7 +209,9 @@ def _generate_sklearn_types_of_obj(package_name="sklearn") -> dict:
         "RandomizedSearchCV": polymorphic_meta,
         "FrozenEstimator": polymorphic_meta,
     }
-
+    package_name = package._tags[
+        "pkg_pypi_name"
+    ]  # should be upated after get_object_tags is implemented
     for est_name, est_class in all_est:
         if package_name not in est_class.__module__:
             continue
@@ -225,7 +228,9 @@ def _generate_sklearn_types_of_obj(package_name="sklearn") -> dict:
                 if base_class.__name__ in mixin_to_type:
                     est_type = mixin_to_type[base_class.__name__]
                     if est_type not in found_types:
-                        found_types.append(est_type)
+                        found_types.append(est_type) if isinstance(
+                            est_type, str
+                        ) else found_types.extend(est_type)
 
             for module in ["manifold", "covariance"]:
                 if module in est_class.__module__:
