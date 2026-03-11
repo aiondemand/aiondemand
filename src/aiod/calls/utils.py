@@ -60,11 +60,12 @@ class ServerError(RuntimeError):
         self._response = response
 
         # Parse JSON body once to avoid redundant calls and to handle
-        # non-JSON responses (e.g., HTML 502 error pages) gracefully,
-        # which would otherwise raise JSONDecodeError inside this handler.
+        # non-JSON responses (e.g., HTML 502 error pages) gracefully.
+        # Catch ValueError as well since Response.json() may raise
+        # different decode exceptions depending on JSON backend/version.
         try:
             body = response.json()
-        except requests.exceptions.JSONDecodeError:
+        except (requests.exceptions.JSONDecodeError, ValueError):
             body = {}
 
         self.detail = body.get("detail")
