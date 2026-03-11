@@ -1,4 +1,5 @@
 import pytest
+
 from aiod.benchmarking._resolve_obj import _resolve_obj
 
 
