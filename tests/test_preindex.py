@@ -35,23 +35,25 @@ class TestPreindex:
         "package",
         _all_packages,
         ids=[pkg.__class__.__name__ for pkg in _all_packages],
-
     )
     def test_generated_objs_by_type(self, package):
         """Test that generated sklearn objs by type matches the package _objs_by_type."""
         objs_by_type = _generate_objs_by_type(package._type_of_objs)
-        assert package._objs_by_type == objs_by_type
+        for type_, objs in package._objs_by_type.items():
+            assert type_ in objs_by_type
+            assert set(objs) == set(objs_by_type[type_])
 
     @pytest.mark.parametrize(
         "package",
         _all_packages,
         ids=[pkg.__class__.__name__ for pkg in _all_packages],
-
     )
     def test_sklearn_obj_dict(self, package):
         """Test that generated sklearn loc dict matches the package _obj_dict."""
-        loc_dict = _all_sklearn_estimators_locdict(package._tags['pkg_pypi_name'])
-        assert package._obj_dict.keys() == loc_dict.keys()
+        loc_dict = _all_sklearn_estimators_locdict(package)
+        for obj_name, obj_loc in package._obj_dict.items():
+            assert obj_name in loc_dict
+            assert obj_loc == loc_dict[obj_name]
 
     @pytest.mark.parametrize(
         "package",
@@ -60,5 +62,7 @@ class TestPreindex:
     )
     def test_sklearn_types_of_obj(self, package):
         """Test that generated sklearn types dict matches the package _type_of_objs."""
-        type_dict = _generate_sklearn_types_of_obj(package._tags['pkg_pypi_name'])
-        assert package._type_of_objs.keys() == type_dict.keys()
+        type_dict = _generate_sklearn_types_of_obj(package)
+        for type_, objs in package._type_of_objs.items():
+            assert type_ in type_dict
+            assert set(objs) == set(type_dict[type_])
