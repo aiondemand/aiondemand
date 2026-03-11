@@ -50,6 +50,58 @@ def test_get_user_endpoint(mocked_token: Mock):
         assert user.roles == ("a_role",), user
 
 
+def test_get_user_endpoint_non_200_non_401_raises_authentication_error(mocked_token: Mock):
+    keycloak_openid().token = mocked_token
+
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{config.api_server}authorization_test",
+            json={"detail": "service unavailable"},
+            status=503,
+        )
+        set_token(
+            Token(refresh_token="fake_refresh", access_token="fake_token", expires_in_seconds=300)
+        )
+        with pytest.raises(AuthenticationError):
+            aiod.get_current_user()
+
+
+def test_get_user_endpoint_non_json_error_response_raises_authentication_error(mocked_token: Mock):
+    keycloak_openid().token = mocked_token
+
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{config.api_server}authorization_test",
+            body="service unavailable",
+            status=503,
+            content_type="text/plain",
+        )
+        set_token(
+            Token(refresh_token="fake_refresh", access_token="fake_token", expires_in_seconds=300)
+        )
+        with pytest.raises(AuthenticationError):
+            aiod.get_current_user()
+
+
+def test_get_user_endpoint_missing_fields_raises_authentication_error(mocked_token: Mock):
+    keycloak_openid().token = mocked_token
+
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{config.api_server}authorization_test",
+            json={"detail": "ok-but-shape-is-wrong"},
+            status=200,
+        )
+        set_token(
+            Token(refresh_token="fake_refresh", access_token="fake_token", expires_in_seconds=300)
+        )
+        with pytest.raises(AuthenticationError):
+            aiod.get_current_user()
+
+
 def test_device_flow_success(monkeypatch):
     kc = keycloak_openid()
     kc.device = Mock(

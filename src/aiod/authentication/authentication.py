@@ -345,13 +345,34 @@ def get_current_user() -> User:
         timeout=config.request_timeout_seconds,
     )
 
-    content = response.json()
+    try:
+        content = response.json()
+    except ValueError:
+        content = response.text
+
     if response.status_code == http.client.UNAUTHORIZED:
         raise NotAuthenticatedError(content)
-    return User(
-        name=content["name"],
-        roles=tuple(content["roles"]),
-    )
+
+    if response.status_code != http.client.OK:
+        raise AuthenticationError(
+            f"Unexpected response while fetching current user: "
+            f"status={response.status_code}, content={content!r}"
+        )
+
+    if not isinstance(content, dict):
+        raise AuthenticationError(
+            f"Unexpected response format while fetching current user: {type(content).__name__}"
+        )
+
+    try:
+        return User(
+            name=content["name"],
+            roles=tuple(content["roles"]),
+        )
+    except KeyError as e:
+        raise AuthenticationError(
+            f"Missing expected field in current user response: {e.args[0]!r}"
+        ) from e
 
 
 class AuthenticationError(Exception):
