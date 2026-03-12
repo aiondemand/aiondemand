@@ -67,6 +67,8 @@ Ready to contribute? Here's how to set up `aiondemand` for local development.
 
 ### Setting up the Development Environment 
 
+For a detailed setup guide, please refer to the [Developer Setup Guide](developer_setup.md).
+
 1. Fork the repository from GitHub by clicking the `fork` button on the webpage.
 1. Clone the fork: `git clone https://github.com/USERNAME/aiondemand.git`. Remember to substitute your username.
 1. Install the project locally (after moving to the new directory). 
@@ -98,6 +100,21 @@ and add a reference to the GitHub issue number as a comment. When adding a featu
 Finally, you can open a pull request with the proposed changes. A core contributor will have a look at the changes,
 and possibly request some changes. After all concerns have been addressed, the contributor will merge the change
 and it will be included in the next release.
+
+### Before Submitting a Pull Request
+
+Ensure your changes pass all checks:
+
+**Run tests:**
+```bash
+python -m pytest -v
+```
+**Run linting:**
+```bash
+ruff check .
+ruff check --fix .
+pre-commit run --all-files
+```
 
 ## Pull Request Guidelines
 
