@@ -5,11 +5,6 @@ from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
 class AiodPkg__Sklearn(_ModelPkgSklearnEstimator):
-    _CLASSES_TO_IGNORE = [
-        "NearestNeighbors",
-        "NoSampleWeightWrapper",
-    ]  # object type not clear
-
     _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "scikit-learn",

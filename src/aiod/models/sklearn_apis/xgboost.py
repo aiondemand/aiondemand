@@ -4,7 +4,6 @@ from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
 class AiodPkg__XGB(_ModelPkgSklearnEstimator):
-    _CLASSES_TO_IGNORE = ["XGBModel"]  # core model
     _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "xgboost",

@@ -5,11 +5,6 @@ from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
 class AiodPkg__Mlxtend(_ModelPkgSklearnEstimator):
-    _CLASSES_TO_IGNORE = [
-        "ColumnSelector",
-        "CopyTransformer",
-        "DenseTransformer",
-    ]  # no clear inheritance/ tags referring to obj types
     _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "mlxtend",
