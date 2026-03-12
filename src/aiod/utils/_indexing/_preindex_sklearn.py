@@ -8,7 +8,7 @@ __author__ = ["fkiraly"]
 import inspect
 
 
-def _all_sklearn_estimators_locdict(package, serialized=False):
+def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
     """Return dictionary of all scikit-learn estimators in sktime and sklearn.
 
     Parameters
@@ -33,7 +33,7 @@ def _all_sklearn_estimators_locdict(package, serialized=False):
           ``sklearn.ensemble.RandomForestClassifier``
     """
     all_ests = _all_sklearn_estimators(
-        package=package,
+        package=package_name,
         return_names=False,
     )
 
@@ -53,7 +53,7 @@ def _all_sklearn_estimators_locdict(package, serialized=False):
 
 
 def _all_sklearn_estimators(
-    package,
+    package_name="sklearn",
     return_names=True,
     as_dataframe=False,
     suppress_import_stdout=True,
@@ -124,10 +124,6 @@ def _all_sklearn_estimators(
     from skbase.lookup import all_objects
     from sklearn.base import BaseEstimator
 
-    package_name = package._tags[
-        "pkg_pypi_name"
-    ]  # should be upated after get_object_tags is implemented
-
     MODULES_TO_IGNORE_SKLEARN = [
         "array_api_compat",
         "tests",
@@ -157,7 +153,7 @@ def _all_sklearn_estimators(
     return result
 
 
-def _generate_sklearn_types_of_obj(package) -> dict:
+def _generate_sklearn_types_of_obj(package_name) -> dict:
     """
     Generate _type_of_objs dictionary from _all_sklearn_estimators.
 
@@ -168,7 +164,7 @@ def _generate_sklearn_types_of_obj(package) -> dict:
     -------
         Dictionary mapping object names to their types (as strings or lists of strings).
     """
-    all_est = _all_sklearn_estimators(package)
+    all_est = _all_sklearn_estimators(package_name)
     type_of_objs: dict[str, list[str] | str] = {}
 
     polymorphic_meta = [
@@ -201,9 +197,6 @@ def _generate_sklearn_types_of_obj(package) -> dict:
         "RandomizedSearchCV": polymorphic_meta,
         "FrozenEstimator": polymorphic_meta,
     }
-    package_name = package._tags[
-        "pkg_pypi_name"
-    ]  # should be upated after get_object_tags is implemented
     for est_name, est_class in all_est:
         if package_name not in est_class.__module__:
             continue
