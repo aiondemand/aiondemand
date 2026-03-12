@@ -63,7 +63,9 @@ def register(identifier: str) -> Bookmark:
 
     return Bookmark(
         identifier=res.json()["resource_identifier"],
-        created=datetime.fromisoformat(res.json()["created_at"]).replace(tzinfo=timezone.utc),
+        created=datetime.fromisoformat(res.json()["created_at"]).replace(
+            tzinfo=timezone.utc
+        ),
     )
 
 
@@ -113,7 +115,9 @@ def get_list() -> list[Bookmark]:
     return [
         Bookmark(
             identifier=bookmark["resource_identifier"],
-            created=datetime.fromisoformat(bookmark["created_at"]).replace(tzinfo=timezone.utc),
+            created=datetime.fromisoformat(bookmark["created_at"]).replace(
+                tzinfo=timezone.utc
+            ),
         )
         for bookmark in res.json()
     ]

@@ -1,15 +1,5 @@
-from aiod.calls import calls
+from aiod.resources.base_resource import BaseResource
 
-(
-    get_list,
-    counts,
-    get_asset,
-    register,
-    replace,
-    update,
-    delete,
-    get_asset_from_platform,
-    get_content,
-    get_assets_async,
-    get_list_async,
-) = calls.wrap_common_calls(asset_type="persons", module=__name__)
+
+class Persons(BaseResource):
+    asset_type = "persons"
