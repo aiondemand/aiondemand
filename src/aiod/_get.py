@@ -1,50 +1,40 @@
 """Global get dispatch utility."""
 
+from aiod.data._openml import _get_openml_dataset
+from aiod.models._registry._craft import craft
+
 __all__ = ["get"]
+
 
 def get(id: str):
     """Retrieve model or dataset by identifier.
 
     For models, pass the class name directly, e.g., "RandomForestClassifier".
 
-    For datasets, use pattern "source:identifier"
-    ex.: "openml:31" loads OpenML dataset with ID 31
+    For datasets, use OpenML URI format:
+    - "openml://31" — OpenML dataset by ID
+    - "openml://credit-g" — OpenML dataset by name
 
     Parameters
     ----------
-    id: 
-        If it contains a ":" it resolves to dataset loader.
-        Otherwise, resolves as a model identifier.
+    id : str
+        Identifier string. Models are class names.
+        OpenML datasets use "openml://<id-or-name>" format.
 
     Returns
     -------
     object
         For models: the model class.
-        For datasets: a dataset loader instance.
+        For OpenML datasets: a native openml.OpenMLDataset instance.
+
+    Examples
+    --------
+    >>> clf = get("RandomForestClassifier")  # doctest: +SKIP
+    >>> ds = get("openml://31")  # doctest: +SKIP
     """
-    if ":" in id:
-        source, identifier = id.split(":", 1)
-        source = source.strip().lower()
-        identifier = identifier.strip()
+    if id.startswith("openml://"):
+        identifier = id.replace("openml://", "", 1)
 
-        if source == "openml":
-            return _get_openml_dataset(identifier)
-        else:
-            raise ValueError(f"Unknown dataset source '{source}'. ")
+        return _get_openml_dataset(identifier)
 
-    from aiod.models._registry._get import get as _model_get
-
-    return _model_get(id)
-
-def _get_openml_dataset(identifier):
-    """Create an OpenMLDataset for the given ID."""
-    from aiod.data import OpenMLDataset
-
-    try:
-        dataset_id = int(identifier)
-    except ValueError:
-        raise ValueError(
-            f"OpenML identifier must be an integer dataset ID, got '{identifier}'."
-        ) from None
-
-    return OpenMLDataset(dataset_id=dataset_id)
+    return craft(id)
