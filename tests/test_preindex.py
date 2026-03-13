@@ -1,1 +1,69 @@
-"""Test preindex"""
+"""Test preindex utilities and model package indices."""
+
+import pytest
+import importlib
+import sys
+
+from aiod.utils._indexing._preindex_sklearn import (
+    _all_sklearn_estimators,
+    _all_sklearn_estimators_locdict,
+    _generate_sklearn_types_of_obj,
+)
+from aiod.utils._indexing._preindex import _generate_objs_by_type
+
+#part 1
+from aiod.models.apis import _ModelPkgSklearnEstimator
+import aiod.models.sklearn_apis
+
+
+
+_API_BASE_CLASSES = [_ModelPkgSklearnEstimator]
+
+_all_subclasses = []
+for base in _API_BASE_CLASSES:
+    _all_subclasses.extend(base.__subclasses__())
+
+_all_packages = [cls() for cls in _all_subclasses]
+
+
+@pytest.mark.parametrize(
+    "package",
+    _all_packages,
+    ids=[pkg.__class__.__name__ for pkg in _all_packages],
+)
+def test_generated_objs_by_type(package):
+    """Test that generated sklearn objs by type matches the package _objs_by_type."""
+    objs_by_type = _generate_objs_by_type(package._type_of_objs)
+    for type_, objs in package._objs_by_type.items():
+        assert type_ in objs_by_type
+        assert set(objs) == set(objs_by_type[type_])
+
+@pytest.mark.parametrize(
+    "package",
+    _all_packages,
+    ids=[pkg.__class__.__name__ for pkg in _all_packages],
+)
+def test_sklearn_obj_dict(package):
+    """Test that generated sklearn loc dict matches the package _obj_dict."""
+    if package._tags["pkg_pypi_name"] == "sklearn" and sys.version_info < (3, 11):
+        pytest.skip("ClassicalMDS sklearn estimator not available in Python 3.10")
+    loc_dict = _all_sklearn_estimators_locdict(package._tags["pkg_pypi_name"])
+    for obj_name, obj_loc in package._obj_dict.items():
+        assert obj_name in loc_dict
+        assert obj_loc == loc_dict[obj_name]
+
+
+
+@pytest.mark.parametrize(
+    "package",
+    _all_packages,
+    ids=[pkg.__class__.__name__ for pkg in _all_packages],
+)
+def test_sklearn_types_of_obj(package):
+    """Test that generated sklearn types dict matches the package _type_of_objs."""
+    if package._tags["pkg_pypi_name"] == "sklearn" and sys.version_info < (3, 11):
+        pytest.skip("ClassicalMDS sklearn estimator not available in Python 3.10")
+    type_dict = _generate_sklearn_types_of_obj(package._tags["pkg_pypi_name"])
+    for type_, objs in package._type_of_objs.items():
+        assert type_ in type_dict
+        assert set(objs) == set(type_dict[type_])

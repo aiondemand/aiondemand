@@ -7,8 +7,6 @@ __author__ = ["fkiraly"]
 
 import inspect
 
-from skbase.lookup import all_objects
-
 
 def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
     """Return dictionary of all scikit-learn estimators in sktime and sklearn.
@@ -51,37 +49,6 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
 
         loc_dict = serialize_dict(loc_dict, name="sklearn_estimators_loc_dict")
 
-    return loc_dict
-
-
-def _sklearn_estimators_locdict_by_type(type_filter, serialized=False):
-    """Return dictionary of scikit-learn estimators filtered by type.
-
-    Parameters
-    ----------
-    type_filter : str
-        The type of estimator to filter for.
-    serialized : bool, optional (default=False)
-        If True, returns a serialized version of the dict, via
-        ``aiod.utils._inmemory._dict.serialize_dict``.
-        If False, returns the dict directly.
-
-    Returns
-    -------
-    loc_dict : dict
-        A dictionary with:
-            * keys: str, estimator class name, e.g., ``RandomForestClassifier``
-            * values: str, public import path of the estimator, e.g.,
-              ``sklearn.ensemble.RandomForestClassifier``
-    """
-    from sklearn.utils import all_estimators
-
-    ests = all_estimators(type_filter=type_filter)
-    loc_dict = {name: f"{est.__module__}.{name}" for name, est in ests}
-    if serialized:
-        from aiod.utils._inmemory._dict import serialize_dict
-
-        loc_dict = serialize_dict(loc_dict, name=f"sklearn_{type_filter}_loc_dict")
     return loc_dict
 
 
@@ -154,6 +121,7 @@ def _all_sklearn_estimators(
             passed in return_tags will serve as column names for all columns of
             tags that were optionally requested.
     """
+    from skbase.lookup import all_objects
     from sklearn.base import BaseEstimator
 
     MODULES_TO_IGNORE_SKLEARN = [
@@ -163,43 +131,29 @@ def _all_sklearn_estimators(
         "conftest",
     ]
 
-    return all_objects(
+    found = all_objects(
         object_types=BaseEstimator,
         package_name=package_name,
         modules_to_ignore=MODULES_TO_IGNORE_SKLEARN,
-        as_dataframe=as_dataframe,
-        return_names=return_names,
-        suppress_import_stdout=suppress_import_stdout,
+        as_dataframe=False,
+        return_names=True,
+        suppress_import_stdout=True,
     )
 
+    result = []
+    for name, obj in found:
+        if obj.__module__.split(".")[0] != package_name:
+            continue
+        if "Base" in name or "mixin" in name.lower():
+            continue
+        result.append((name, obj))
 
-def _generate_sklearn_objs_by_type(type_of_objs: dict) -> dict:
-    """
-    Generate _objs_by_type dictionary from _type_of_objs.
-
-    Args:
-        type_of_objs: Dictionary mapping object names to their types.
-                     Types can be strings or lists of strings for polymorphic objects.
-
-    Returns
-    -------
-        Dictionary mapping types to lists of object names.
-    """
-    objs_by_type: dict[str, list[str]] = {}
-
-    for obj_name, obj_types in type_of_objs.items():
-        if isinstance(obj_types, str):
-            obj_types = [obj_types]
-
-        for obj_type in obj_types:
-            if obj_type not in objs_by_type:
-                objs_by_type[obj_type] = []
-            objs_by_type[obj_type].append(obj_name)
-
-    return objs_by_type
+    if not return_names:
+        return [item[1] for item in result]
+    return result
 
 
-def _generate_sklearn_types_of_obj() -> dict:
+def _generate_sklearn_types_of_obj(package_name) -> dict:
     """
     Generate _type_of_objs dictionary from _all_sklearn_estimators.
 
@@ -210,29 +164,63 @@ def _generate_sklearn_types_of_obj() -> dict:
     -------
         Dictionary mapping object names to their types (as strings or lists of strings).
     """
-    # TODO: handle meta-estimators properly
-    all_est = _all_sklearn_estimators()
+    all_est = _all_sklearn_estimators(package_name)
     type_of_objs: dict[str, list[str] | str] = {}
+
+    polymorphic_meta = [
+        "classifier",
+        "regressor",
+        "transformer",
+        "cluster",
+        "meta_estimator",
+        "bicluster",
+        "density",
+        "outlier_detector",
+        "manifold",
+        "covariance",  # need to add all
+    ]
+
     mixin_to_type = {
         "RegressorMixin": "regressor",
         "ClassifierMixin": "classifier",
         "TransformerMixin": "transformer",
-        "ClusterMixin": "clusterer",
-        "BiclusterMixin": "biclusterer",
+        "ClusterMixin": "cluster",
+        "BiclusterMixin": "bicluster",
         "DensityMixin": "density",
-        "OutlierMixin": "detector_outlier",
+        "KernelDensity": "density",
+        "OutlierMixin": "outlier_detector",
         "_VectorizerMixin": "transformer",
+        "MetaEstimatorMixin": "meta_estimator",
+        "SamplerMixin": "sampler",
+        "Pipeline": polymorphic_meta,
+        "GridSearchCV": polymorphic_meta,
+        "RandomizedSearchCV": polymorphic_meta,
+        "FrozenEstimator": polymorphic_meta,
     }
-
     for est_name, est_class in all_est:
-        mro = inspect.getmro(est_class)
+        if package_name not in est_class.__module__:
+            continue
 
-        found_types = []
-        for base_class in mro:
-            if base_class.__name__ in mixin_to_type:
-                est_type = mixin_to_type[base_class.__name__]
-                if est_type not in found_types:
-                    found_types.append(est_type)
+        est_type = getattr(est_class, "_estimator_type", None)
+        if est_type is not None and isinstance(est_type, str):
+            found_types = est_type
+        elif hasattr(est_class, "get_class_tag"):
+            found_types = est_class.get_class_tag("object_type", tag_value_default=[])
+        else:
+            mro = inspect.getmro(est_class)
+            found_types = []
+            for base_class in mro:
+                if base_class.__name__ in mixin_to_type:
+                    est_type = mixin_to_type[base_class.__name__]
+                    if est_type not in found_types:
+                        found_types.append(est_type) if isinstance(
+                            est_type, str
+                        ) else found_types.extend(est_type)
+
+            for module in ["manifold", "covariance"]:
+                if module in est_class.__module__:
+                    found_types.append(module)
+
         if len(found_types) > 1:
             type_of_objs[est_name] = found_types
         elif len(found_types) == 1:
