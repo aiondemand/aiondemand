@@ -4,7 +4,7 @@
 from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
-class AiodPkg__mlxtend(_ModelPkgSklearnEstimator):
+class AiodPkg__Mlxtend(_ModelPkgSklearnEstimator):
     _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "mlxtend",
@@ -28,17 +28,14 @@ class AiodPkg__mlxtend(_ModelPkgSklearnEstimator):
     }
 
     _type_of_objs = {
-        "ColumnSelector": "transformer",
-        "CopyTransformer": "transformer",
-        "DenseTransformer": "transformer",
-        "EnsembleVoteClassifier": "classifier",
-        "ExhaustiveFeatureSelector": "transformer",
+        "EnsembleVoteClassifier": ["classifier", "transformer"],
+        "ExhaustiveFeatureSelector": "meta_estimator",
         "OneRClassifier": "classifier",
-        "SequentialFeatureSelector": "transformer",
+        "SequentialFeatureSelector": "meta_estimator",
         "StackingCVClassifier": "classifier",
-        "StackingCVRegressor": "regressor",
+        "StackingCVRegressor": ["regressor", "transformer"],
         "StackingClassifier": "classifier",
-        "StackingRegressor": "regressor",
+        "StackingRegressor": ["regressor", "transformer"],
         "TransactionEncoder": "transformer",
     }
 
@@ -49,16 +46,12 @@ class AiodPkg__mlxtend(_ModelPkgSklearnEstimator):
             "StackingCVClassifier",
             "StackingClassifier",
         ],
-        "regressor": [
+        "transformer": [
+            "EnsembleVoteClassifier",
             "StackingCVRegressor",
             "StackingRegressor",
-        ],
-        "transformer": [
-            "ColumnSelector",
-            "CopyTransformer",
-            "DenseTransformer",
-            "ExhaustiveFeatureSelector",
-            "SequentialFeatureSelector",
             "TransactionEncoder",
         ],
+        "meta_estimator": ["ExhaustiveFeatureSelector", "SequentialFeatureSelector"],
+        "regressor": ["StackingCVRegressor", "StackingRegressor"],
     }
