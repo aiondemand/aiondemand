@@ -33,7 +33,7 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
           ``sklearn.ensemble.RandomForestClassifier``
     """
     all_ests = _all_sklearn_estimators(
-        package=package_name,
+        package_name=package_name,
         return_names=False,
     )
 
