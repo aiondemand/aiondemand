@@ -6,7 +6,6 @@ __all__ = ["_ModelPkgSklearnEstimator"]
 
 
 class _ModelPkgSklearnEstimator(_AiodModelPkg):
-    _CLASSES_TO_IGNORE = []
     _tags = {
         # tags specific to API type
         "pkg_obj_type": "multiple",
