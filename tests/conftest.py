@@ -33,7 +33,7 @@ def skip_if_server_unreachable(request):
                 f"{type(e).__name__}: {e}"
             )
 
-    if not _server_reachable:
+    if _server_reachable is False:
         pytest.skip(_server_skip_reason)
 
 
