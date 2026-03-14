@@ -33,7 +33,7 @@ def url_to_search(
         for key, value in locals().items()
         if value is not None and value != "" and key not in ["version", "asset_type"]
     }
-    query = urllib.parse.urlencode(query_params, doseq=True).lower()
+    query = urllib.parse.urlencode(query_params, doseq=True)
     base_url = server_url(version)
     url = f"{base_url}search/{asset_type}?{query}"
     return url
@@ -58,7 +58,7 @@ def url_to_get_content(
 ) -> str:
     base_url = server_url(version)
     url = f"{base_url}{asset_type}/{identifier}/content"
-    url += f"/{distribution_idx}" if distribution_idx else ""
+    url += f"/{distribution_idx}" if distribution_idx is not None else ""
     return url
 
 
