@@ -102,13 +102,14 @@ class ResultObject:
                     scores[score_name] = []
                 scores[score_name].append(score_value)
         for name, score in scores.items():
+            ddof = 1 if len(score) > 1 else 0
             if all(isinstance(s, (pd.DataFrame, pd.Series)) for s in score):
                 score = pd.concat(score, axis=1)
                 self.means[name] = np.mean(score, axis=1)
-                self.stds[name] = np.std(score, ddof=1, axis=1)
+                self.stds[name] = np.std(score, ddof=ddof, axis=1)
             else:
                 self.means[name] = np.mean(score, axis=0)
-                self.stds[name] = np.std(score, axis=0, ddof=1)
+                self.stds[name] = np.std(score, axis=0, ddof=ddof)
 
     def to_dataframe(self):
         """Return results as a pandas DataFrame."""
