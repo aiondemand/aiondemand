@@ -2,7 +2,7 @@
 
 import pytest
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import KFold, StratifiedKFold
+from sklearn.model_selection import KFold
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 
