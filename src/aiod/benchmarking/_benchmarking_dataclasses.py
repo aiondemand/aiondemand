@@ -22,10 +22,10 @@ def _coerce_data_for_evaluate(dataset_loader, task_type=None):
         if isclass(dataset_loader):
             dataset_loader = dataset_loader()
 
-        X = dataset_loader.load("X")
+        x = dataset_loader.load("x")
         y = dataset_loader.load("y")
 
-        return {"X": X, "y": y}
+        return {"x": x, "y": y}
 
     else:
         # Case 3: Data tuple or single data container
@@ -44,7 +44,7 @@ def _coerce_data_for_evaluate(dataset_loader, task_type=None):
         data0 = data
         data1 = None
 
-    return {"X": data0, "y": data1}
+    return {"x": data0, "y": data1}
 
 
 @dataclass
@@ -55,12 +55,12 @@ class TaskObject:
     cv_splitter: Any
     scorers: list[Any]
     strategy: str = "refit"
-    cv_X = None
+    cv_x = None
     cv_global = None
     error_score: str = "raise"
     cv_global_temporal = None
 
-    def get_y_X(self, task_type=None):
+    def get_y_x(self, task_type=None):
         """Get the endogenous and exogenous data."""
         return _coerce_data_for_evaluate(self.data, task_type=task_type)
 
@@ -96,7 +96,7 @@ class ResultObject:
         self.means = {}
         self.stds = {}
         scores = {}
-        for fold_idx, fold in self.folds.items():
+        for _fold_idx, fold in self.folds.items():
             for score_name, score_value in fold.scores.items():
                 if score_name not in scores:
                     scores[score_name] = []

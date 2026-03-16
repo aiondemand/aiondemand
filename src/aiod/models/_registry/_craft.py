@@ -21,7 +21,6 @@ import re
 from aiod.models._registry._cls_lookup import _get_class
 
 
-
 def _extract_class_names(spec):
     """Get all maximal alphanumeric substrings that are valid identifiers."""
     import keyword

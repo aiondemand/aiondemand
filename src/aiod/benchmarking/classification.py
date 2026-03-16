@@ -4,6 +4,7 @@ __all__ = ["ClassificationBenchmark"]
 
 from collections.abc import Callable
 from typing import Any
+
 import pandas as pd
 
 from aiod.benchmarking._benchmarking_dataclasses import (
@@ -66,7 +67,7 @@ class ClassificationBenchmark(BaseBenchmark):
     def _run_validation(self, task: TaskObject, estimator):
         cv_splitter = task.cv_splitter
         scorers = task.scorers
-        xy_dict = task.get_y_X("classification")
+        xy_dict = task.get_y_x("classification")
         
         scores_df = evaluate(
             classifier=estimator,
@@ -86,14 +87,15 @@ class ClassificationBenchmark(BaseBenchmark):
             scores["pred_time"] = row["pred_time"]
             if self.return_data:
                 folds[ix] = FoldResults(
-                    scores, row["y_test"], row.get("y_pred", None), row.get("y_train", None)
+                    scores, row["y_test"], row.get("y_pred", None), 
+                    row.get("y_train", None)
                 )
             else:
                 folds[ix] = FoldResults(scores)
         return folds
     
     def _format_and_rank_results(self, df: pd.DataFrame) -> pd.DataFrame:
-        """misc. formatting for the classification benchmark"""
+        """Misc. formatting for the classification benchmark."""
         if df.empty:
             return df
 
@@ -108,7 +110,8 @@ class ClassificationBenchmark(BaseBenchmark):
             if col in df.columns:
                 # invert when ranking loss and error metrics
                 ascending = "loss" in metric.lower() or "error" in metric.lower()
-                df[f"{col}_rank"] = df.groupby("task_id")[col].rank(ascending=ascending, method="min").astype(int)
+                df[f"{col}_rank"] = df.groupby("task_id")[col].rank(
+                    ascending=ascending, method="min").astype(int)
 
         final_df = df.T
         final_df.index.name = "Metric / Metadata"

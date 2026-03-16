@@ -114,8 +114,8 @@ def _evaluate_fold(x, meta):
         fit_time = np.nan
         pred_time = np.nan
         y_pred = pd.NA
-        temp_result = dict()
-        y_preds_cache = dict()
+        temp_result = {}
+        y_preds_cache = {}
 
         try:
             # fit
@@ -178,7 +178,8 @@ def _evaluate_fold(x, meta):
                     for metric in scoring.get(scitype):
                         temp_result[f"test_{metric.__name__}"] = [score]
                 warnings.warn(
-                    f"evaluate: fitting of classifier {type(classifier).__name__} failed."
+                f"evaluate: fitting of classifier {type(classifier).__name__}failed.",
+                    stacklevel=2,
                 )
 
         temp_result["fit_time"] = [fit_time]
@@ -195,13 +196,13 @@ def _evaluate_fold(x, meta):
 
         return result
 
-
 def evaluate(
         classifier,
         cv=None,
-        X=None,
+        x=None,
         y=None,
-        scoring: collections.abc.Callable | list[collections.abc.Callable] | None = None,
+        scoring: collections.abc.Callable 
+        | list[collections.abc.Callable] | None = None,
         return_data: bool = False,
         error_score: str | int | float = np.nan,
     ):
@@ -221,15 +222,15 @@ def evaluate(
             "error_score": error_score,
         }
 
-        def gen_y_X_train_test(y, X, cv):
+        def gen_y_x_train_test(y, x, cv):
             # We assume X and y are numpy arrays or pandas dataframes
-            for train_instance_idx, test_instance_idx in cv.split(X, y):
-                if isinstance(X, pd.DataFrame):
-                    X_train = X.iloc[train_instance_idx]
-                    X_test = X.iloc[test_instance_idx]
+            for train_instance_idx, test_instance_idx in cv.split(x, y):
+                if isinstance(x, pd.DataFrame):
+                    x_train = x.iloc[train_instance_idx]
+                    x_test = x.iloc[test_instance_idx]
                 else:
-                    X_train = X[train_instance_idx]
-                    X_test = X[test_instance_idx]
+                    x_train = x[train_instance_idx]
+                    x_test = x[test_instance_idx]
 
                 if isinstance(y, (pd.Series, pd.DataFrame)):
                     y_train = y.iloc[train_instance_idx]
@@ -238,9 +239,9 @@ def evaluate(
                     y_train = y[train_instance_idx]
                     y_test = y[test_instance_idx]
 
-                yield y_train, y_test, X_train, X_test
+                yield y_train, y_test, x_train, x_test
 
-        yx_splits = gen_y_X_train_test(y, X, cv)
+        yx_splits = gen_y_x_train_test(y, x, cv)
         
         results = []
         for i, fold_data in enumerate(yx_splits):
@@ -251,4 +252,3 @@ def evaluate(
         results = results.reset_index(drop=True)
 
         return results
-

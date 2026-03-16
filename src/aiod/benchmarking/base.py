@@ -6,13 +6,13 @@ from dataclasses import dataclass, field
 
 import pandas as pd
 import sklearn
+from sklearn.base import BaseEstimator as _BaseEstimator
 
 from aiod.benchmarking._benchmarking_dataclasses import (
     ResultObject,
     TaskObject,
 )
 from aiod.benchmarking._resolve_obj import _resolve_obj
-from sklearn.base import BaseEstimator as _BaseEstimator
 from aiod.benchmarking._storage_handlers import get_storage_backend
 
 
@@ -31,7 +31,6 @@ def _check_estimators_type(objs: dict | list | _BaseEstimator) -> None:
     TypeError
         If any of the estimators are not BaseEstimator objects.
     """
-
     if isinstance(objs, _BaseEstimator):
         objs = [objs]
     items = objs.values() if isinstance(objs, dict) else objs
@@ -92,7 +91,7 @@ class _BenchmarkingResults:
 
 
     def __post_init__(self):
-        """Load existing results from path"""
+        """Load existing results from path."""
         self.storage_backend =  get_storage_backend(self.path)
         self.results = self.storage_backend(self.path).load()
 
@@ -154,17 +153,16 @@ class BaseBenchmark:
         estimator_id : str, optional (default=None)
             Identifier for estimator. If none given then uses estimator's class name.
         """
-
         estimators = _coerce_estimator_and_id(estimator, estimator_id)
         for estimator_id, estimator in estimators.items():
             self._add_estimator(estimator, estimator_id)
 
     def _add_estimator(self, estimator, estimator_id: str):
         """Register a single estimator to the benchmark."""
-
         #replace with estimator.clone() when implemented in base class
         estimator = sklearn.base.clone(estimator)
-        unique_estimator_id = _make_strings_unique(list(self.estimators.keys()), estimator_id)
+        unique_estimator_id = _make_strings_unique(list(self.estimators.keys()), 
+                                                    estimator_id)
         if estimator_id != unique_estimator_id:
             warnings.warn(
                 message=f"Estimator with ID [id={estimator_id}] already registered, "
@@ -204,7 +202,7 @@ class BaseBenchmark:
             raise TypeError(f"Unrecognized obj_type '{obj_type}' for spec: {spec}")
 
     def register_stored_tasks(self):
-        """Register stored tasks"""
+        """Register stored tasks."""
         if self._datasets and self._metrics and self._cv_splitters:
             for dataset_loader in self._datasets:
                 if callable(dataset_loader) and hasattr(dataset_loader, "__name__"):
@@ -273,7 +271,7 @@ class BaseBenchmark:
         return exps
 
     def _format_and_rank_results(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Ranking and misc. formatting should be implemented by benchmark child classes"""
+        """To be implemented by benchmark child classes."""
         return df
 
     def run(self, output_file: str = None, force_rerun: str | list[str] = "none"):
