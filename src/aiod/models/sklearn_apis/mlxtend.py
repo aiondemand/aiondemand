@@ -28,10 +28,13 @@ class AiodPkg__Mlxtend(_ModelPkgSklearnEstimator):
     }
 
     _type_of_objs = {
+        "ColumnSelector": "transformer",
+        "CopyTransformer": "transformer",
+        "DenseTransformer": "transformer",
         "EnsembleVoteClassifier": ["classifier", "transformer"],
-        "ExhaustiveFeatureSelector": "meta_estimator",
+        "ExhaustiveFeatureSelector": "transformer",
         "OneRClassifier": "classifier",
-        "SequentialFeatureSelector": "meta_estimator",
+        "SequentialFeatureSelector": "transformer",
         "StackingCVClassifier": "classifier",
         "StackingCVRegressor": ["regressor", "transformer"],
         "StackingClassifier": "classifier",
@@ -40,18 +43,16 @@ class AiodPkg__Mlxtend(_ModelPkgSklearnEstimator):
     }
 
     _objs_by_type = {
-        "classifier": [
-            "EnsembleVoteClassifier",
-            "OneRClassifier",
-            "StackingCVClassifier",
-            "StackingClassifier",
-        ],
-        "transformer": [
-            "EnsembleVoteClassifier",
-            "StackingCVRegressor",
-            "StackingRegressor",
-            "TransactionEncoder",
-        ],
-        "meta_estimator": ["ExhaustiveFeatureSelector", "SequentialFeatureSelector"],
-        "regressor": ["StackingCVRegressor", "StackingRegressor"],
+        "ColumnSelector": "transformer",
+        "CopyTransformer": "transformer",
+        "DenseTransformer": "transformer",
+        "EnsembleVoteClassifier": ["classifier", "transformer"],
+        "ExhaustiveFeatureSelector": "transformer",
+        "OneRClassifier": "classifier",
+        "SequentialFeatureSelector": "transformer",
+        "StackingCVClassifier": "classifier",
+        "StackingCVRegressor": ["regressor", "transformer"],
+        "StackingClassifier": "classifier",
+        "StackingRegressor": ["regressor", "transformer"],
+        "TransactionEncoder": "transformer",
     }

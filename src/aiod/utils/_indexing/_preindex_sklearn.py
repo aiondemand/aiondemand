@@ -141,7 +141,14 @@ def _all_sklearn_estimators(
     )
 
     result = []
+    parent_count = {}
     for name, obj in found:
+        for _, other_obj in found:
+            if obj in inspect.getmro(other_obj)[1:]:
+                parent_count[obj] = parent_count.get(obj, 0) + 1
+        if parent_count.get(obj, 0) >= max(2, len(found) // 25):
+            if not isinstance(getattr(obj, "_estimator_type", None), str):
+                continue
         if obj.__module__.split(".")[0] != package_name:
             continue
         if "Base" in name or "mixin" in name.lower():
@@ -171,41 +178,40 @@ def _generate_sklearn_types_of_obj(package_name) -> dict:
         "classifier",
         "regressor",
         "transformer",
-        "cluster",
-        "meta_estimator",
-        "bicluster",
-        "density",
+        "clusterer",
         "outlier_detector",
-        "manifold",
-        "covariance",  # need to add all
     ]
 
     mixin_to_type = {
         "RegressorMixin": "regressor",
         "ClassifierMixin": "classifier",
         "TransformerMixin": "transformer",
-        "ClusterMixin": "cluster",
-        "BiclusterMixin": "bicluster",
+        "ClusterMixin": "clusterer",
+        "BiclusterMixin": "biclusterer",
         "DensityMixin": "density",
         "KernelDensity": "density",
         "OutlierMixin": "outlier_detector",
         "_VectorizerMixin": "transformer",
-        "MetaEstimatorMixin": "meta_estimator",
         "SamplerMixin": "sampler",
+        "BaseSuccessiveHalving": polymorphic_meta,
+        "BaseSearchCV": polymorphic_meta,
         "Pipeline": polymorphic_meta,
-        "GridSearchCV": polymorphic_meta,
-        "RandomizedSearchCV": polymorphic_meta,
         "FrozenEstimator": polymorphic_meta,
+    }
+    module_type = {
+        "manifold": "transformer",
+        "covariance": "covariance",
+        "feature_selection": "transformer",
+        "preprocessing": "transformer",
+        "metrics": "metric",
     }
     for est_name, est_class in all_est:
         if package_name not in est_class.__module__:
             continue
 
         est_type = getattr(est_class, "_estimator_type", None)
-        if est_type is not None and isinstance(est_type, str):
+        if isinstance(est_type, str) and est_type != "ranker":
             found_types = est_type
-        elif hasattr(est_class, "get_class_tag"):
-            found_types = est_class.get_class_tag("object_type", tag_value_default=[])
         else:
             mro = inspect.getmro(est_class)
             found_types = []
@@ -217,9 +223,9 @@ def _generate_sklearn_types_of_obj(package_name) -> dict:
                             est_type, str
                         ) else found_types.extend(est_type)
 
-            for module in ["manifold", "covariance"]:
-                if module in est_class.__module__:
-                    found_types.append(module)
+            for module in module_type.keys():
+                if module in est_class.__module__ and found_types == []:
+                    found_types.append(module_type[module])
 
         if len(found_types) > 1:
             type_of_objs[est_name] = found_types
