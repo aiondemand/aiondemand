@@ -1,4 +1,4 @@
-# AIoD User Guide: Using and ML Models
+# Using and sharing models from and to AIoD
 
 This guide demonstrates how to use indexed machine learning models and datasets through the AI-on-Demand platform. Users can access models and datasets from popular machine learning libraries and platforms.
 
@@ -9,9 +9,6 @@ import aiod
 
 # Get a model
 clf = aiod.get("RandomForestClassifier")
-
-# Get a dataset from openml
-dataset = aiod.get("openml://31")
 
 # Get an instance with hyperparameters
 pipeline = aiod.get("Pipeline(steps=[('scaler', StandardScaler()), ('clf', RandomForestClassifier(n_estimators=100))])")
@@ -134,31 +131,7 @@ print(X.shape, y.shape)
 
 Available scikit-learn datasets: `iris`, `wine`, `digits`, `diabetes`, `linnerud`, `breast_cancer`
 
-### 2b Getting Datasets from OpenML
-
-Load any dataset from the OpenML platform by ID or name. OpenML is a comprehensive repository with thousands of publicly available datasets for machine learning research and benchmarking:
-
-```python
-import aiod
-
-# By dataset ID
-dataset = aiod.get("openml://31")
-
-# By dataset name
-dataset = aiod.get("openml://credit-g")
-
-print(type(dataset))
-# <class 'openml.OpenMLDataset'>
-
-# Access the data using OpenML API
-X, y, _, _ = dataset.get_data(
-    target=dataset.default_target_attribute
-)
-
-print(X.shape, y.shape)
-```
-
-### 2c Getting Datasets from sktime
+### 2b Getting Datasets from sktime
 
 Load time series datasets:
 
