@@ -2,7 +2,7 @@
 
 import pandas as pd
 import pytest
-from sklearn.datasets import load_iris
+from sklearn.datasets import load_iris, load_breast_cancer
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 from sklearn.tree import DecisionTreeClassifier
@@ -15,6 +15,10 @@ def _iris_xy():
     data = load_iris()
     return data.data, data.target
 
+
+def _binary_xy():
+    data = load_breast_cancer()
+    return data.data, data.target
 
 
 class TestAddSpec:
