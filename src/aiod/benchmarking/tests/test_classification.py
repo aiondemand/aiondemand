@@ -2,11 +2,11 @@
 
 import pandas as pd
 import pytest
-from sklearn.datasets import load_iris, load_breast_cancer
+from sklearn.datasets import load_breast_cancer, load_iris
+from sklearn.dummy import DummyClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.dummy import DummyClassifier
 
 from aiod.benchmarking.classification import ClassificationBenchmark
 
@@ -67,33 +67,34 @@ class TestAddTask:
     def test_add_task_explicit_id(self):
         b = ClassificationBenchmark()
         X, y = _iris_xy()
+        def loader(): return X, y
         b.add_task(
-            dataset_loader=lambda: (X, y),
+            dataset_loader=loader,
             cv_splitter=KFold(n_splits=2),
             scorers=[accuracy_score],
-            task_id="my_task",
+            task_id="test_task",
         )
-        assert "my_task" in b.tasks
+        assert "test_task" in b.tasks
 
     def test_add_task_auto_id_callable(self):
         b = ClassificationBenchmark()
         X, y = _iris_xy()
 
-        def my_loader():
+        def test_loader():
             return X, y
 
         b.add_task(
-            dataset_loader=my_loader,
+            dataset_loader=test_loader,
             cv_splitter=KFold(n_splits=2),
             scorers=[accuracy_score],
         )
         task_id = list(b.tasks.keys())[0]
-        assert "my_loader" in task_id
+        assert "test_loader" in task_id
 
     def test_duplicate_task_id_renamed(self):
         b = ClassificationBenchmark()
         X, y = _iris_xy()
-        loader = lambda: (X, y)
+        def loader(): return X, y
         cv = KFold(n_splits=2)
         b.add_task(loader, cv, [accuracy_score], task_id="task")
         with pytest.warns(UserWarning, match="already registered"):
@@ -107,8 +108,9 @@ class TestRun:
         X, y = _iris_xy()
         b = ClassificationBenchmark()
         b.add_estimator(DecisionTreeClassifier(random_state=0))
+        def loader(): return X, y
         b.add_task(
-            dataset_loader=lambda: (X, y),
+            dataset_loader=loader,
             cv_splitter=KFold(n_splits=2, shuffle=True, random_state=0),
             scorers=[accuracy_score],
             task_id="iris_task",
@@ -132,8 +134,9 @@ class TestRun:
         b = ClassificationBenchmark()
         b.add_estimator(DecisionTreeClassifier(random_state=0))
         b.add_estimator(DummyClassifier(strategy="most_frequent"))
+        def loader(): return X, y
         b.add_task(
-            dataset_loader=lambda: (X, y),
+            dataset_loader=loader,
             cv_splitter=KFold(n_splits=2, shuffle=True, random_state=0),
             scorers=[accuracy_score],
             task_id="multi_clf",
@@ -144,11 +147,13 @@ class TestRun:
 
     def test_run_multiple_metrics(self):
         from sklearn.metrics import accuracy_score as acc
+
         X, y = _iris_xy()
         b = ClassificationBenchmark()
         b.add_estimator(DecisionTreeClassifier(random_state=0))
+        def loader(): return X, y
         b.add_task(
-            dataset_loader=lambda: (X, y),
+            dataset_loader=loader,
             cv_splitter=KFold(n_splits=2, shuffle=True, random_state=0),
             scorers=[acc],
             task_id="multi_metric",
@@ -161,14 +166,16 @@ class TestRun:
         X_bc, y_bc = _binary_xy()
         b = ClassificationBenchmark()
         b.add_estimator(DecisionTreeClassifier(random_state=0))
+        def iris_loader(): return X_iris, y_iris
+        def bc_loader(): return X_bc, y_bc
         b.add_task(
-            dataset_loader=lambda: (X_iris, y_iris),
+            dataset_loader=iris_loader,
             cv_splitter=KFold(n_splits=2, shuffle=True, random_state=0),
             scorers=[accuracy_score],
             task_id="iris",
         )
         b.add_task(
-            dataset_loader=lambda: (X_bc, y_bc),
+            dataset_loader=bc_loader,
             cv_splitter=KFold(n_splits=2, shuffle=True, random_state=0),
             scorers=[accuracy_score],
             task_id="breast_cancer",
@@ -189,10 +196,11 @@ class TestRun:
 class TestForceRerun:
     def test_force_rerun_none_skips_existing(self, tmp_path):
         X, y = _iris_xy()
+        def loader(): return X, y
         b = ClassificationBenchmark()
         b.add_estimator(DecisionTreeClassifier(random_state=0), estimator_id="tree")
         b.add_task(
-            dataset_loader=lambda: (X, y),
+            dataset_loader=loader,
             cv_splitter=KFold(n_splits=2, shuffle=True, random_state=0),
             scorers=[accuracy_score],
             task_id="iris_task",
@@ -203,7 +211,7 @@ class TestForceRerun:
         b2 = ClassificationBenchmark()
         b2.add_estimator(DecisionTreeClassifier(random_state=0), estimator_id="tree")
         b2.add_task(
-            dataset_loader=lambda: (X, y),
+            dataset_loader=loader,
             cv_splitter=KFold(n_splits=2, shuffle=True, random_state=0),
             scorers=[accuracy_score],
             task_id="iris_task",
@@ -217,8 +225,9 @@ class TestReturnData:
         X, y = _iris_xy()
         b = ClassificationBenchmark(return_data=False)
         b.add_estimator(DecisionTreeClassifier(random_state=0))
+        def loader(): return X, y
         b.add_task(
-            dataset_loader=lambda: (X, y),
+            dataset_loader=loader,
             cv_splitter=KFold(n_splits=2, shuffle=True, random_state=0),
             scorers=[accuracy_score],
             task_id="t",
@@ -230,8 +239,9 @@ class TestReturnData:
         X, y = _iris_xy()
         b = ClassificationBenchmark(return_data=True)
         b.add_estimator(DecisionTreeClassifier(random_state=0))
+        def loader(): return X, y
         b.add_task(
-            dataset_loader=lambda: (X, y),
+            dataset_loader=loader,
             cv_splitter=KFold(n_splits=2, shuffle=True, random_state=0),
             scorers=[accuracy_score],
             task_id="t",

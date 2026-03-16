@@ -1,10 +1,10 @@
 """Tests for _resolve_obj spec-string resolution."""
 
 import pytest
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
 
 from aiod.benchmarking._resolve_obj import _resolve_obj
 
