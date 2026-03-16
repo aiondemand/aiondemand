@@ -1,5 +1,5 @@
 # ruff: noqa: N802
-"""Tests for OpenML dataset dispatch via aiod.get()."""
+"""Tests for OpenML dataset loading."""
 
 import pytest
 from skbase.utils.dependencies import _check_soft_dependencies
@@ -10,12 +10,12 @@ from skbase.utils.dependencies import _check_soft_dependencies
     reason="openml-python not installed",
 )
 @pytest.mark.parametrize("identifier", [31, "credit-g"])
-def test_get_openml(identifier):
-    """aiod.get('openml://...') returns a valid OpenMLDataset."""
+def test_get_openml_dataset(identifier):
+    """_get_openml_dataset returns a valid OpenMLDataset."""
     import openml
 
-    from aiod import get
+    from aiod.data._openml import _get_openml_dataset
 
-    ds = get(f"openml://{identifier}")
+    ds = _get_openml_dataset(identifier)
 
     assert isinstance(ds, openml.OpenMLDataset)
