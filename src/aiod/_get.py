@@ -1,7 +1,6 @@
 """Global get dispatch utility."""
 
 from aiod.data._openml import _get_openml_dataset
-from aiod.models._registry._craft import craft
 
 __all__ = ["get"]
 
@@ -37,4 +36,6 @@ def get(id: str):
 
         return _get_openml_dataset(identifier)
 
-    return craft(id)
+    from aiod.models._registry._get import get as get_model
+
+    return get_model(id)
