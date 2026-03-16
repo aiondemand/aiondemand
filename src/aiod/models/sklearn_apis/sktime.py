@@ -378,7 +378,7 @@ class AiodPkg__sktime(_ModelPkgSklearnEstimator):
         "PeakTimeFeature": "sktime.transformations.series.peak.PeakTimeFeature",
         "Permute": "sktime.forecasting.compose._pipeline.Permute",
         "PinballLoss": "sktime.performance_metrics.forecasting.probabilistic._classes.PinballLoss",
-        "Pipeline": "sktime.pipeline.pipeline.Pipeline",
+        "SktimePipeline": "sktime.pipeline.pipeline.Pipeline",
         "PlateauFinder": "sktime.transformations.panel.summarize._extract.PlateauFinder",
         "PluginParamsForecaster": "sktime.param_est.plugin._forecaster.PluginParamsForecaster",
         "PluginParamsTransformer": "sktime.param_est.plugin._transformer.PluginParamsTransformer",
