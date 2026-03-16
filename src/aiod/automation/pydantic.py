@@ -1,8 +1,9 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict
 import re
-import json
-import litellm
+from typing import Dict, List, Optional
+
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_openai import ChatOpenAI
+from pydantic import BaseModel, Field
 
 
 class Estimator(BaseModel):
@@ -58,11 +59,6 @@ class PaperExtraction(BaseModel):
     artefacts: Artefacts = Field(
         description="Granular ML components like estimators, datasets, and metrics."
     )
-    confidence_score: float = Field(
-        ge=0.0,
-        le=1.0,
-        description="LLM's estimated confidence in the extraction accuracy (0.0 to 1.0).",
-    )
 
 
 SYSTEM_PROMPT = """You are an expert machine learning metadata extraction engine designed to cross-link scientific papers with software artifacts for the AI-on-Demand (AIoD) catalogue.
@@ -111,45 +107,23 @@ def extract_urls_deterministic(text: str) -> Dict[str, List[str]]:
 def extract_paper_metadata(
     text: str, model_name: str = "gpt-4o-mini"
 ) -> PaperExtraction:
-    """Runs the full extraction pipeline for the Population Phase."""
+    """Run the full extraction pipeline for the Population Phase."""
     # Step 1: Get deterministic hints (optional, but helps guide the LLM if you inject it into the prompt)
     hints = extract_urls_deterministic(text)
     user_content = (
         f"Text to analyze:\n\n{text}\n\n(Hint: found these candidate URLs: {hints})"
     )
 
-    # Step 2: Call the LLM with structured output enforcement
-    response = litellm.completion(
-        model=model_name,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_content},
-        ],
-        response_format=PaperExtraction,  # Forces Pydantic schema output
-        temperature=0.0,  # Keep it deterministic
+    # Step 2: Call the LLM with structured output enforcement via LangChain
+    prompt_text = (
+        f"""{SYSTEM_PROMPT}\n\nPlease answer as strictly valid JSON matching the schema.
+        \n{user_content}"""
     )
 
-    # Step 3: Parse and return the validated Pydantic object
-    raw_json = response.choices[0].message.content
-    return PaperExtraction.model_validate_json(raw_json)
-
-
-# ---------------------------------------------------------------------------
-# Example Usage
-# ---------------------------------------------------------------------------
-if __name__ == "__main__":
-    # Mock text extracted via PyMuPDF
-    sample_paper_text = """
-    We introduce a novel approach to tabular data classification. Our official repository 
-    is located at https://github.com/researcher/tabular-novel. For our experiments, 
-    we utilized the Adult Census Income dataset. We compared our approach against several 
-    baselines using scikit-learn, specifically instantiating a RandomForestClassifier with 
-    n_estimators set to 200, and an XGBClassifier with a learning_rate of 0.05. 
-    Evaluation was performed using the F1-Score and ROC-AUC metrics. We also acknowledge 
-    the related PyTorch-Geometric library, though it was not utilized in our pipeline.
-    """
-
-    # Remember to set your API key in the environment, e.g., export OPENAI_API_KEY="sk-..."
-    result = extract_paper_metadata(sample_paper_text)
-
-    print(result.model_dump_json(indent=2))
+    llm = ChatOpenAI(model_name=model_name, temperature=0.0)
+    llm = llm.with_structured_output(PaperExtraction)
+    result = llm.invoke(
+        [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=prompt_text)]
+    )
+    
+    return result

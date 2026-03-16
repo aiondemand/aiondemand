@@ -1,4 +1,4 @@
-from aiod.automation.pdf import extract_text_from_pdf
+from aiod.automation import extract_text_from_pdf
 
 if __name__ == '__main__':
     import argparse

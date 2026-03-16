@@ -5,17 +5,12 @@ from pathlib import Path
 from threading import RLock
 from typing import Any
 
-from aiod.automation.pdf import extract_text_from_pdf
+import fitz
+
 from aiod.automation.pydantic import PaperExtraction, extract_paper_metadata
 
 PAPER_CACHE_FILE = Path(__file__).resolve().parent / "paper_cache.json"
 _CACHE_LOCK = RLock()
-
-
-def _ensure_paper_id(paper_id: str) -> str:
-    if not isinstance(paper_id, str) or not paper_id.strip():
-        raise ValueError("paper_id must be a non-empty string")
-    return paper_id.strip()
 
 
 def _load_cache() -> dict[str, dict[str, Any]]:
@@ -43,7 +38,6 @@ class Paper:
     """Cached paper metadata object with a request-time fetch API."""
 
     def __init__(self, paper_id: str, metadata: PaperExtraction):
-        self.paper_id = _ensure_paper_id(paper_id)
         self.metadata = metadata
 
     def fetch(self, object_type: str, as_object: bool = True):
@@ -86,11 +80,16 @@ class Paper:
 
 
 def _write_paper_to_cache(paper_id: str, metadata: PaperExtraction) -> None:
-    paper_id = _ensure_paper_id(paper_id)
     cache = _load_cache()
     cache[paper_id] = metadata.model_dump()
     _save_cache(cache)
 
+def extract_text_from_pdf(pdf_path: str) -> str:
+    """Extract ALL text from the PDF. No head/tail truncation."""
+    doc = fitz.open(pdf_path)
+    text = "\n".join(page.get_text() for page in doc)
+    doc.close()
+    return text
 
 def populate_paper_from_text(
     paper_id: str,
@@ -102,7 +101,6 @@ def populate_paper_from_text(
 
     If paper_id already exists and force=False, it returns cached output.
     """
-    paper_id = _ensure_paper_id(paper_id)
     if not text or not text.strip():
         raise ValueError("text must be non-empty for paper population")
 
@@ -121,16 +119,8 @@ def populate_paper_from_pdf(
     pdf_path: str,
     model_name: str = "gpt-4o-mini",
     force: bool = False,
-    head_pages: int = 5,
-    tail_pages: int = 3,
-    max_chars: int = 60000,
 ) -> Paper:
-    text = extract_text_from_pdf(
-        pdf_path=pdf_path,
-        head_pages=head_pages,
-        tail_pages=tail_pages,
-        max_chars=max_chars,
-    )
+    text = extract_text_from_pdf(pdf_path=pdf_path)
     return populate_paper_from_text(
         paper_id=paper_id,
         text=text,
@@ -140,7 +130,6 @@ def populate_paper_from_pdf(
 
 
 def get_paper(paper_id: str) -> Paper:
-    paper_id = _ensure_paper_id(paper_id)
     cache = _load_cache()
     if paper_id not in cache:
         raise KeyError(

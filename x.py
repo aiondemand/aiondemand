@@ -7,7 +7,7 @@ import json
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI 
 
-from w import extract_text_from_pdf
+from aiod.automation import extract_text_from_pdf
 
 # ---------------------------------------------------------------------------
 # 1. AIoD Schema Definitions

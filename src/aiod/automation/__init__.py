@@ -5,7 +5,7 @@ from aiod.automation.papers import (
     populate_paper_from_pdf,
     populate_paper_from_text,
 )
-from aiod.automation.pdf import extract_text_from_pdf
+from aiod.automation.papers import extract_text_from_pdf
 
 __all__ = [
     "Paper",
