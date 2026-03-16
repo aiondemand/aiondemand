@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import json
+import tempfile
 from pathlib import Path
 from threading import RLock
 from typing import Any
 
 import fitz
+import requests
 
 from aiod.automation.pydantic import PaperExtraction, extract_paper_metadata
+
 
 PAPER_CACHE_FILE = Path(__file__).resolve().parent / "paper_cache.json"
 _CACHE_LOCK = RLock()
@@ -30,7 +33,8 @@ def _load_cache() -> dict[str, dict[str, Any]]:
 def _save_cache(cache: dict[str, dict[str, Any]]) -> None:
     with _CACHE_LOCK:
         PAPER_CACHE_FILE.write_text(
-            json.dumps(cache, indent=2, ensure_ascii=False), encoding="utf-8"
+            json.dumps(cache, indent=2, ensure_ascii=False),
+            encoding="utf-8",
         )
 
 
@@ -42,7 +46,8 @@ class Paper:
 
     def fetch(self, object_type: str, as_object: bool = True):
         object_type = object_type.strip().lower()
-        if object_type not in {
+
+        allowed = {
             "estimators",
             "datasets",
             "metrics",
@@ -50,16 +55,17 @@ class Paper:
             "unofficial_github",
             "pypi_packages",
             "related_code_used",
-        }:
+        }
+
+        if object_type not in allowed:
             raise ValueError(
-                "object_type must be one of estimators, datasets, metrics, official_github, unofficial_github, pypi_packages, related_code_used"
+                "object_type must be one of estimators, datasets, metrics, "
+                "official_github, unofficial_github, pypi_packages, related_code_used"
             )
 
         if object_type == "estimators":
             result = self.metadata.artefacts.estimators
-            if as_object:
-                return result
-            return [est.model_dump() for est in result]
+            return result if as_object else [est.model_dump() for est in result]
 
         values = {
             "datasets": self.metadata.artefacts.datasets,
@@ -84,34 +90,41 @@ def _write_paper_to_cache(paper_id: str, metadata: PaperExtraction) -> None:
     cache[paper_id] = metadata.model_dump()
     _save_cache(cache)
 
+
 def extract_text_from_pdf(pdf_path: str) -> str:
-    """Extract ALL text from the PDF. No head/tail truncation."""
+    """Extract all text from a PDF."""
     doc = fitz.open(pdf_path)
     text = "\n".join(page.get_text() for page in doc)
     doc.close()
     return text
 
-def populate_paper_from_text(
-    paper_id: str,
-    text: str,
-    model_name: str = "gpt-4o-mini",
-    force: bool = False,
-) -> Paper:
-    """Run long-form extraction (population phase) and store in cache.
 
-    If paper_id already exists and force=False, it returns cached output.
-    """
-    if not text or not text.strip():
-        raise ValueError("text must be non-empty for paper population")
+def _download_pdf(url: str) -> str:
+    """Download a PDF from a URL and return local temp file path."""
+    response = requests.get(url, timeout=30)
+    response.raise_for_status()
 
-    cache = _load_cache()
-    if paper_id in cache and not force:
-        metadata = PaperExtraction.model_validate(cache[paper_id])
-        return Paper(paper_id=paper_id, metadata=metadata)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
+        f.write(response.content)
+        return f.name
 
-    metadata = extract_paper_metadata(text=text, model_name=model_name)
-    _write_paper_to_cache(paper_id=paper_id, metadata=metadata)
-    return Paper(paper_id=paper_id, metadata=metadata)
+
+def _resolve_doi_to_pdf(doi: str) -> str:
+    """Resolve DOI to a PDF file."""
+    doi = doi.replace("doi:", "").strip()
+    url = f"https://doi.org/{doi}"
+
+    response = requests.get(url, allow_redirects=True, timeout=30)
+    response.raise_for_status()
+
+    content_type = response.headers.get("content-type", "")
+
+    if "application/pdf" in content_type:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
+            f.write(response.content)
+            return f.name
+
+    return _download_pdf(response.url)
 
 
 def populate_paper_from_pdf(
@@ -120,10 +133,49 @@ def populate_paper_from_pdf(
     model_name: str = "gpt-4o-mini",
     force: bool = False,
 ) -> Paper:
-    text = extract_text_from_pdf(pdf_path=pdf_path)
-    return populate_paper_from_text(
+
+    cache = _load_cache()
+
+    if paper_id in cache and not force:
+        metadata = PaperExtraction.model_validate(cache[paper_id])
+        return Paper(paper_id=paper_id, metadata=metadata)
+
+    text = extract_text_from_pdf(pdf_path)
+
+    metadata = extract_paper_metadata(text=text, model_name=model_name)
+
+    _write_paper_to_cache(paper_id, metadata)
+
+    return Paper(paper_id=paper_id, metadata=metadata)
+
+
+def populate_paper(
+    paper_id: str,
+    source: str,
+    model_name: str = "gpt-4o-mini",
+    force: bool = False,
+) -> Paper:
+    """
+    Populate a paper from:
+    - local PDF path
+    - PDF URL
+    - DOI (doi:10.xxxx/xxxxx)
+    """
+
+    source = source.strip()
+
+    if source.lower().startswith("doi:"):
+        pdf_path = _resolve_doi_to_pdf(source)
+
+    elif source.startswith("http://") or source.startswith("https://"):
+        pdf_path = _download_pdf(source)
+
+    else:
+        pdf_path = source
+
+    return populate_paper_from_pdf(
         paper_id=paper_id,
-        text=text,
+        pdf_path=pdf_path,
         model_name=model_name,
         force=force,
     )
@@ -131,12 +183,15 @@ def populate_paper_from_pdf(
 
 def get_paper(paper_id: str) -> Paper:
     cache = _load_cache()
+
     if paper_id not in cache:
         raise KeyError(
-            f"Paper with id '{paper_id}' not found in cache. Run populate_paper_from_text(...) first."
+            f"Paper '{paper_id}' not found in cache. "
+            "Run populate_paper(...) first."
         )
 
     metadata = PaperExtraction.model_validate(cache[paper_id])
+
     return Paper(paper_id=paper_id, metadata=metadata)
 
 
