@@ -32,7 +32,7 @@ def get_from_pub(doi: str, return_as: ReturnMode = "ids") -> list[object]:
 
     Examples
     --------
-    >>> aiod.get_from_pub("10.1000/random-forest-paper")
+    >>> aiod.get_from_pub('10.1023/A:1010933404324')
     ['RandomForestClassifier']
     >>> aiod.get_from_pub('10.1023/A:1010933404324', return_as="instances")
     [RandomForestClassifier()]
