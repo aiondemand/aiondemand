@@ -135,9 +135,9 @@ def _all_sklearn_estimators(
         object_types=BaseEstimator,
         package_name=package_name,
         modules_to_ignore=MODULES_TO_IGNORE_SKLEARN,
-        as_dataframe=False,
-        return_names=True,
-        suppress_import_stdout=True,
+        as_dataframe=as_dataframe,
+        return_names=return_names,
+        suppress_import_stdout=suppress_import_stdout,
     )
 
     result = []
@@ -174,13 +174,13 @@ def _generate_sklearn_types_of_obj(package_name) -> dict:
     all_est = _all_sklearn_estimators(package_name)
     type_of_objs: dict[str, list[str] | str] = {}
 
-    polymorphic_meta = [
+    polymorphic_meta = {
         "classifier",
         "regressor",
         "transformer",
         "clusterer",
         "outlier_detector",
-    ]
+    }
 
     mixin_to_type = {
         "RegressorMixin": "regressor",
@@ -214,7 +214,7 @@ def _generate_sklearn_types_of_obj(package_name) -> dict:
             found_types = est_type
         else:
             mro = inspect.getmro(est_class)
-            found_types = []
+            found_types = set()
             for base_class in mro:
                 if base_class.__name__ in mixin_to_type:
                     est_type = mixin_to_type[base_class.__name__]
