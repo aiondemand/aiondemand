@@ -160,7 +160,7 @@ def _all_sklearn_estimators(
     return result
 
 
-def _generate_sklearn_types_of_obj(package_name) -> dict:
+def _generate_sklearn_types_of_obj(package_name="sklearn") -> dict:
     """
     Generate _type_of_objs dictionary from _all_sklearn_estimators.
 
@@ -171,7 +171,7 @@ def _generate_sklearn_types_of_obj(package_name) -> dict:
     -------
         Dictionary mapping object names to their types (as strings or lists of strings).
     """
-    all_est = _all_sklearn_estimators(package_name)
+    all_est = _all_sklearn_estimators(package_name=package_name)
     type_of_objs: dict[str, list[str] | str] = {}
 
     polymorphic_meta = {
@@ -214,7 +214,7 @@ def _generate_sklearn_types_of_obj(package_name) -> dict:
             found_types = est_type
         else:
             mro = inspect.getmro(est_class)
-            found_types = set()
+            found_types = []
             for base_class in mro:
                 if base_class.__name__ in mixin_to_type:
                     est_type = mixin_to_type[base_class.__name__]

@@ -143,6 +143,20 @@ Go to `http://localhost:9200` and login with:
 
 ## Common Development Tasks
 
+### Refresh indexed sklearn estimators
+
+To automatically update the sklearn model registry used by `aiod.models.get()`:
+
+```bash
+python -m aiod.utils._indexing.update_sklearn_index
+```
+
+Use check mode in CI/cron jobs (exits with code 1 if updates are needed):
+
+```bash
+python -m aiod.utils._indexing.update_sklearn_index --check
+```
+
 ### Using the SDK with a Local Backend
 
 
