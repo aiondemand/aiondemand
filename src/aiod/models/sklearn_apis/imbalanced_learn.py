@@ -9,7 +9,7 @@ class AiodPkg__ImbalancedLearn(_ModelPkgSklearnEstimator):
         "pkg_id": "__multiple",
         "python_dependencies": "imbalanced-learn",
         "pkg_pypi_name": "imbalanced-learn",
-        "object_types": ["classifier", "sampler"],
+        "object_types": ["classifier", "sampler", "metric"],
     }
 
     _obj_dict = {
@@ -39,6 +39,7 @@ class AiodPkg__ImbalancedLearn(_ModelPkgSklearnEstimator):
         "SMOTETomek": "imblearn.combine.SMOTETomek",
         "SVMSMOTE": "imblearn.over_sampling.SVMSMOTE",
         "TomekLinks": "imblearn.under_sampling.TomekLinks",
+        "ValueDifferenceMetric": "imblearn.metrics.ValueDifferenceMetric",
     }
 
     _type_of_objs = {
@@ -68,6 +69,7 @@ class AiodPkg__ImbalancedLearn(_ModelPkgSklearnEstimator):
         "SMOTETomek": "sampler",
         "SVMSMOTE": "sampler",
         "TomekLinks": "sampler",
+        "ValueDifferenceMetric": "metric",
     }
 
     _objs_by_type = {
@@ -100,5 +102,8 @@ class AiodPkg__ImbalancedLearn(_ModelPkgSklearnEstimator):
             "SMOTETomek",
             "SVMSMOTE",
             "TomekLinks",
+        ],
+        "metric": [
+            "ValueDifferenceMetric",
         ],
     }
