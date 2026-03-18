@@ -8,7 +8,7 @@ def _get_openml_dataset(identifier):
     ----------
     identifier : str or int
         OpenML dataset ID (integer) or name (string).
-        Examples: "31", "credit-g"
+        Examples: 31, "credit-g"
 
     Returns
     -------
@@ -17,21 +17,11 @@ def _get_openml_dataset(identifier):
 
     Raises
     ------
-    ValueError
+    ImportError
+        If openml-python is not installed.
+    Exception
         If the identifier is invalid or dataset not found.
     """
-    try:
-        import openml
-    except ImportError as e:
-        msg = (
-            "openml-python is required to load OpenML datasets. "
-            "Install it with: pip install openml"
-        )
-        raise ImportError(msg) from e
+    import openml
 
-    try:
-        dataset_id = int(identifier)
-        return openml.datasets.get_dataset(dataset_id)
-    except ValueError:
-        # Not an integer, try as a name string
-        return openml.datasets.get_dataset(identifier)
+    return openml.datasets.get_dataset(identifier)
