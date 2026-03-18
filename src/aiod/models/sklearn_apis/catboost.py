@@ -6,20 +6,18 @@ class AiodPkg__CatBoost(_ModelPkgSklearnEstimator):
         "pkg_id": "__multiple",
         "python_dependencies": "catboost",
         "pkg_pypi_name": "catboost",
-        "object_types": ["classifier", "regressor", "ranker"],
+        "object_types": ["classifier", "regressor"],
     }
 
     _obj_dict = {
         "CatBoost": "catboost.core.CatBoost",
         "CatBoostClassifier": "catboost.core.CatBoostClassifier",
-        "CatBoostRanker": "catboost.core.CatBoostRanker",
         "CatBoostRegressor": "catboost.core.CatBoostRegressor",
     }
 
     _type_of_objs = {
         "CatBoost": ["classifier", "regressor"],
         "CatBoostClassifier": "classifier",
-        "CatBoostRanker": "ranker",
         "CatBoostRegressor": "regressor",
     }
 
@@ -31,8 +29,5 @@ class AiodPkg__CatBoost(_ModelPkgSklearnEstimator):
         "regressor": [
             "CatBoost",
             "CatBoostRegressor",
-        ],
-        "ranker": [
-            "CatBoostRanker",
         ],
     }
