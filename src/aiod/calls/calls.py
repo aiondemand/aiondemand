@@ -102,6 +102,54 @@ def get_list(
     resources = format_response(res.json(), data_format)
     return resources
 
+def get_all(
+    *,
+    asset_type: str,
+    batch_size: int = 100,
+    version: str | None = None,
+    data_format: Literal["pandas", "json"] = "pandas",
+    show_progress: bool = False,
+) -> pd.DataFrame | list[dict]:
+    """Retrieve all assets from the catalogue, auto-paginating through all pages.
+
+    All parameters must be specified by name.
+
+    Parameters
+    ----------
+    asset_type
+        The type of asset to retrieve (e.g. "datasets", "publications").
+    batch_size
+        Number of records to fetch per internal request (default is 100).
+    version
+        The version of the endpoint (default is None).
+    data_format
+        The desired format for the response (default is "pandas").
+        For "json" format, returns a list of dicts.
+    show_progress
+        If True, display a tqdm progress bar (default is False).
+
+    Returns
+    -------
+    :
+        All retrieved metadata in the specified format.
+    """
+    all_results = []
+    offset = 0
+    while True:
+        page = get_list(
+            asset_type=asset_type,
+            offset=offset,
+            limit=batch_size,
+            version=version,
+            data_format="json",
+        )
+        if not page:
+            break
+        all_results.extend(page)
+        offset += batch_size
+    if data_format == "pandas":
+        return pd.DataFrame(all_results)
+    return all_results
 
 def delete_asset(
     *,
@@ -562,6 +610,7 @@ wrap_common_calls = partial(
     wrap_calls,
     calls=[
         get_list,
+        get_all,
         counts,
         get_asset,
         post_asset,
