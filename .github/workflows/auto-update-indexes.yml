@@ -1,0 +1,50 @@
+name: auto-update-indexes
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-indexes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ".[dev]"
+          python -m pip install scikit-learn sktime skpro hyperactive
+
+      - name: Update indexes
+        run: python -m aiod.utils._indexing.update_library_indexes
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore(indexing): auto-update indexed libraries"
+          title: "chore(indexing): auto-update indexed libraries"
+          body: |
+            Automated index refresh for supported libraries:
+            - sklearn
+            - sktime
+            - skpro
+            - hyperactive
+          branch: automation/auto-update-indexes
+          delete-branch: true
+          labels: |
+            enhancement
+          add-paths: |
+            src/aiod/models/sklearn_apis/*.py

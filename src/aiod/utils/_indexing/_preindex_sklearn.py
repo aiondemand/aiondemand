@@ -136,7 +136,7 @@ def _all_sklearn_estimators(
         package_name=package_name,
         modules_to_ignore=MODULES_TO_IGNORE_SKLEARN,
         as_dataframe=as_dataframe,
-        return_names=return_names,
+        return_names=True,
         suppress_import_stdout=suppress_import_stdout,
     )
 

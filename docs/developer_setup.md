@@ -157,6 +157,20 @@ Use check mode in CI/cron jobs (exits with code 1 if updates are needed):
 python -m aiod.utils._indexing.update_sklearn_index --check
 ```
 
+### Refresh indexed external libraries (sklearn, sktime, skpro, hyperactive)
+
+To update all supported indexed libraries in one command:
+
+```bash
+python -m aiod.utils._indexing.update_library_indexes
+```
+
+To run in check mode for CI/cron jobs:
+
+```bash
+python -m aiod.utils._indexing.update_library_indexes --check
+```
+
 ### Using the SDK with a Local Backend
 
 
