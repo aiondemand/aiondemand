@@ -14,11 +14,9 @@ class AiodPkg__Sklearn(_ModelPkgSklearnEstimator):
             "regressor",
             "transformer",
             "cluster",
-            "meta_estimator",
             "bicluster",
             "density",
             "outlier_detector",
-            "manifold",
             "covariance",
         ],
     }

@@ -136,7 +136,7 @@ def _all_sklearn_estimators(
         package_name=package_name,
         modules_to_ignore=MODULES_TO_IGNORE_SKLEARN,
         as_dataframe=as_dataframe,
-        return_names=return_names,
+        return_names=True,
         suppress_import_stdout=suppress_import_stdout,
     )
 
@@ -218,18 +218,17 @@ def _generate_sklearn_types_of_obj(package_name) -> dict:
             for base_class in mro:
                 if base_class.__name__ in mixin_to_type:
                     est_type = mixin_to_type[base_class.__name__]
-                    if est_type not in found_types:
-                        found_types.append(est_type) if isinstance(
-                            est_type, str
-                        ) else found_types.extend(est_type)
+                    found_types.add(est_type) if isinstance(
+                        est_type, str
+                    ) else found_types.update(est_type)
 
             for module in module_type.keys():
-                if module in est_class.__module__ and found_types == []:
-                    found_types.append(module_type[module])
+                if module in est_class.__module__ and not found_types:
+                    found_types.add(module_type[module])
 
         if len(found_types) > 1:
-            type_of_objs[est_name] = found_types
+            type_of_objs[est_name] = list(found_types)
         elif len(found_types) == 1:
-            type_of_objs[est_name] = found_types[0]
+            type_of_objs[est_name] = found_types.pop()
 
     return type_of_objs
