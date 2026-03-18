@@ -9,7 +9,7 @@ class AiodPkg__FeatureEngine(_ModelPkgSklearnEstimator):
         "pkg_id": "__multiple",
         "python_dependencies": "feature_engine",
         "pkg_pypi_name": "feature-engine",
-        "object_types": ["transformer"],
+        "object_types": ["transformer", "classifier", "regressor"],
     }
 
     _obj_dict = {
@@ -54,6 +54,7 @@ class AiodPkg__FeatureEngine(_ModelPkgSklearnEstimator):
         "OneHotEncoder": "feature_engine.encoding.one_hot.OneHotEncoder",
         "OrdinalEncoder": "feature_engine.encoding.ordinal.OrdinalEncoder",
         "OutlierTrimmer": "feature_engine.outliers.trimmer.OutlierTrimmer",
+        "Pipeline": "feature_engine.pipeline.Pipeline",
         "PowerTransformer": "feature_engine.transformation.power.PowerTransformer",
         "ProbeFeatureSelection": "feature_engine.selection.probe_feature_selection.ProbeFeatureSelection",
         "RandomSampleImputer": "feature_engine.imputation.random_sample.RandomSampleImputer",
@@ -69,6 +70,8 @@ class AiodPkg__FeatureEngine(_ModelPkgSklearnEstimator):
         "SklearnTransformerWrapper": "feature_engine.wrappers.wrappers.SklearnTransformerWrapper",
         "SmartCorrelatedSelection": "feature_engine.selection.smart_correlation_selection.SmartCorrelatedSelection",
         "StringSimilarityEncoder": "feature_engine.encoding.similarity_encoder.StringSimilarityEncoder",
+        "TargetMeanClassifier": "feature_engine.encoding.target_mean.TargetMeanClassifier",
+        "TargetMeanRegressor": "feature_engine.encoding.target_mean.TargetMeanRegressor",
         "TextFeatures": "feature_engine.text.text_features.TextFeatures",
         "WindowFeatures": "feature_engine.timeseries.forecasting.window_features.WindowFeatures",
         "Winsorizer": "feature_engine.outliers.winsorizer.Winsorizer",
@@ -118,6 +121,7 @@ class AiodPkg__FeatureEngine(_ModelPkgSklearnEstimator):
         "OneHotEncoder": "transformer",
         "OrdinalEncoder": "transformer",
         "OutlierTrimmer": "transformer",
+        "Pipeline": ["regressor", "outlier_detector", "clusterer", "transformer", "classifier"],
         "PowerTransformer": "transformer",
         "ProbeFeatureSelection": "transformer",
         "RandomSampleImputer": "transformer",
@@ -133,6 +137,8 @@ class AiodPkg__FeatureEngine(_ModelPkgSklearnEstimator):
         "SklearnTransformerWrapper": "transformer",
         "SmartCorrelatedSelection": "transformer",
         "StringSimilarityEncoder": "transformer",
+        "TargetMeanClassifier": "classifier",
+        "TargetMeanRegressor": "regressor",
         "TextFeatures": "transformer",
         "WindowFeatures": "transformer",
         "Winsorizer": "transformer",
@@ -183,6 +189,7 @@ class AiodPkg__FeatureEngine(_ModelPkgSklearnEstimator):
             "OneHotEncoder",
             "OrdinalEncoder",
             "OutlierTrimmer",
+            "Pipeline",
             "PowerTransformer",
             "ProbeFeatureSelection",
             "RandomSampleImputer",
@@ -203,5 +210,19 @@ class AiodPkg__FeatureEngine(_ModelPkgSklearnEstimator):
             "Winsorizer",
             "WoEEncoder",
             "YeoJohnsonTransformer",
+        ],
+        "classifier": [
+            "Pipeline",
+            "TargetMeanClassifier",
+        ],
+        "regressor": [
+            "Pipeline",
+            "TargetMeanRegressor",
+        ],
+        "outlier_detector": [
+            "Pipeline",
+        ],
+        "clusterer": [
+            "Pipeline",
         ],
     }
