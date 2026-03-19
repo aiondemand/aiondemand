@@ -17,7 +17,7 @@ The `aiondemand` package is on [PyPI](https://pypi.org/project/aiondemand/):
 $ pip install aiondemand
 ```
 
-Tip: install your dependencies in a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/).
+Tip: Install your dependencies in a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/).
 
 ## Usage
 You can directly access endpoints through the Python API, for example to browse datasets:
