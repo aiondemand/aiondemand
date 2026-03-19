@@ -2,11 +2,11 @@
 
 from pathlib import Path
 
+from aiod.utils._indexing._index_file_utils import _parse_assignment_dict
 from aiod.utils._indexing.update_library_indexes import (
     LibraryConfig,
     update_library_index,
 )
-from aiod.utils._indexing.update_sklearn_index import _parse_assignment_dict
 
 
 def _write_model_file(path: Path) -> None:

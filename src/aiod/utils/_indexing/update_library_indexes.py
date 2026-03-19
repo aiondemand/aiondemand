@@ -8,6 +8,11 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from aiod.utils._indexing._index_file_utils import (
+    _normalize_type_value,
+    _parse_assignment_dict,
+    _replace_assignment,
+)
 from aiod.utils._indexing._preindex_external import (
     _all_hyperactive_objects_locdict,
     _all_skpro_estimators_locdict,
@@ -19,11 +24,6 @@ from aiod.utils._indexing._preindex_external import (
 from aiod.utils._indexing._preindex_sklearn import (
     _all_sklearn_estimators_locdict,
     _generate_sklearn_types_of_obj,
-)
-from aiod.utils._indexing.update_sklearn_index import (
-    _normalize_type_value,
-    _parse_assignment_dict,
-    _replace_assignment,
 )
 
 ModelDiscoveryFn = Callable[[str], dict[str, str]]

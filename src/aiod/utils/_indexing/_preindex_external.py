@@ -35,6 +35,36 @@ def _all_skbase_objects_locdict(package_name: str) -> dict[str, str]:
     return {name: _full_path(obj) for name, obj in objects}
 
 
+def _all_registry_objects_with_names(
+    package_name: str,
+    registry_module_name: str,
+) -> list[tuple[str, type]]:
+    try:
+        registry_module = importlib.import_module(registry_module_name)
+    except Exception:
+        return []
+
+    all_estimators = getattr(registry_module, "all_estimators", None)
+    if not callable(all_estimators):
+        return []
+
+    try:
+        found = all_estimators(return_names=True)
+    except TypeError:
+        try:
+            found = all_estimators(as_dataframe=False, return_names=True)
+        except Exception:
+            return []
+    except Exception:
+        return []
+
+    return [
+        (name, obj)
+        for name, obj in found
+        if getattr(obj, "__module__", "").split(".")[0] == package_name
+    ]
+
+
 def _normalize_type_tag(tag_value: Any) -> str | list[str] | None:
     if tag_value is None:
         return None
@@ -96,22 +126,62 @@ def _generate_skbase_types_of_obj(package_name: str) -> dict[str, str | list[str
 
 
 def _all_sktime_estimators_locdict(package_name: str = "sktime") -> dict[str, str]:
-    return _all_skbase_objects_locdict(package_name=package_name)
+    objects = _all_registry_objects_with_names(
+        package_name=package_name,
+        registry_module_name=f"{package_name}.registry",
+    )
+    if not objects:
+        return _all_skbase_objects_locdict(package_name=package_name)
+    return {
+        name: f"{obj.__module__.split('._')[0]}.{obj.__name__}" for name, obj in objects
+    }
 
 
 def _generate_sktime_types_of_obj(
     package_name: str = "sktime",
 ) -> dict[str, str | list[str]]:
+    objects = _all_registry_objects_with_names(
+        package_name=package_name,
+        registry_module_name=f"{package_name}.registry",
+    )
+    if objects:
+        type_of_objs: dict[str, str | list[str]] = {}
+        for name, obj in objects:
+            obj_type = _extract_skbase_object_type(obj)
+            if obj_type is not None:
+                type_of_objs[name] = obj_type
+        if type_of_objs:
+            return type_of_objs
     return _generate_skbase_types_of_obj(package_name=package_name)
 
 
 def _all_skpro_estimators_locdict(package_name: str = "skpro") -> dict[str, str]:
-    return _all_skbase_objects_locdict(package_name=package_name)
+    objects = _all_registry_objects_with_names(
+        package_name=package_name,
+        registry_module_name=f"{package_name}.registry",
+    )
+    if not objects:
+        return _all_skbase_objects_locdict(package_name=package_name)
+    return {
+        name: f"{obj.__module__.split('._')[0]}.{obj.__name__}" for name, obj in objects
+    }
 
 
 def _generate_skpro_types_of_obj(
     package_name: str = "skpro",
 ) -> dict[str, str | list[str]]:
+    objects = _all_registry_objects_with_names(
+        package_name=package_name,
+        registry_module_name=f"{package_name}.registry",
+    )
+    if objects:
+        type_of_objs: dict[str, str | list[str]] = {}
+        for name, obj in objects:
+            obj_type = _extract_skbase_object_type(obj)
+            if obj_type is not None:
+                type_of_objs[name] = obj_type
+        if type_of_objs:
+            return type_of_objs
     return _generate_skbase_types_of_obj(package_name=package_name)
 
 

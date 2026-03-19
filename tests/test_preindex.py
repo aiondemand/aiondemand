@@ -1,8 +1,12 @@
-"""Tests for sklearn preindex updater utilities."""
+"""Tests for sklearn indexing through the unified updater."""
 
 from pathlib import Path
 
-from aiod.utils._indexing import update_sklearn_index as updater
+from aiod.utils._indexing._index_file_utils import _parse_assignment_dict
+from aiod.utils._indexing.update_library_indexes import (
+	LibraryConfig,
+	update_library_index,
+)
 
 
 def _write_model_file(path: Path) -> None:
@@ -28,30 +32,29 @@ class AiodPkg__Sklearn:
 	)
 
 
-def test_update_sklearn_index_file_adds_new_objects(monkeypatch, tmp_path):
+def test_update_library_index_for_sklearn_adds_new_objects(tmp_path):
 	model_file = tmp_path / "scikit_learn.py"
 	_write_model_file(model_file)
 
-	monkeypatch.setattr(
-		updater,
-		"_all_sklearn_estimators_locdict",
-		lambda package_name="sklearn": {
+	config = LibraryConfig(
+		name="sklearn",
+		package_name="sklearn",
+		model_file=model_file,
+		locdict_fn=lambda package_name: {
 			"ExistingEstimator": "sklearn.existing.ExistingEstimator",
 			"NewEstimator": "sklearn.new.NewEstimator",
 			"Pipeline": "sklearn.pipeline.Pipeline",
 		},
-	)
-	monkeypatch.setattr(
-		updater,
-		"_generate_sklearn_types_of_obj",
-		lambda package_name="sklearn": {
+		type_fn=lambda package_name: {
 			"ExistingEstimator": "classifier",
 			"NewEstimator": "regressor",
 		},
 	)
 
-	result = updater.update_sklearn_index_file(
-		model_file=model_file, apply_changes=True
+	result = update_library_index(
+		config,
+		apply_changes=True,
+		skip_missing_files=False,
 	)
 
 	assert result.changed is True
@@ -59,35 +62,34 @@ def test_update_sklearn_index_file_adds_new_objects(monkeypatch, tmp_path):
 	assert result.unknown_types == []
 
 	updated = model_file.read_text(encoding="utf-8")
-	obj_dict = updater._parse_assignment_dict(updated, "_obj_dict")
-	type_of_objs = updater._parse_assignment_dict(updated, "_type_of_objs")
-	objs_by_type = updater._parse_assignment_dict(updated, "_objs_by_type")
+	obj_dict = _parse_assignment_dict(updated, "_obj_dict")
+	type_of_objs = _parse_assignment_dict(updated, "_type_of_objs")
+	objs_by_type = _parse_assignment_dict(updated, "_objs_by_type")
 
 	assert obj_dict["NewEstimator"] == "sklearn.new.NewEstimator"
 	assert type_of_objs["Pipeline"] == ["classifier", "transformer"]
 	assert objs_by_type["regressor"] == ["NewEstimator"]
 
 
-def test_update_sklearn_index_file_reports_unknown_types(monkeypatch, tmp_path):
+def test_update_library_index_for_sklearn_reports_unknown_types(tmp_path):
 	model_file = tmp_path / "scikit_learn.py"
 	_write_model_file(model_file)
 
-	monkeypatch.setattr(
-		updater,
-		"_all_sklearn_estimators_locdict",
-		lambda package_name="sklearn": {
+	config = LibraryConfig(
+		name="sklearn",
+		package_name="sklearn",
+		model_file=model_file,
+		locdict_fn=lambda package_name: {
 			"ExistingEstimator": "sklearn.existing.ExistingEstimator",
 			"UnknownEstimator": "sklearn.unknown.UnknownEstimator",
 		},
-	)
-	monkeypatch.setattr(
-		updater,
-		"_generate_sklearn_types_of_obj",
-		lambda package_name="sklearn": {"ExistingEstimator": "classifier"},
+		type_fn=lambda package_name: {"ExistingEstimator": "classifier"},
 	)
 
-	result = updater.update_sklearn_index_file(
-		model_file=model_file, apply_changes=False
+	result = update_library_index(
+		config,
+		apply_changes=False,
+		skip_missing_files=False,
 	)
 
 	assert result.changed is True
@@ -95,36 +97,39 @@ def test_update_sklearn_index_file_reports_unknown_types(monkeypatch, tmp_path):
 	assert result.unknown_types == ["UnknownEstimator"]
 
 
-def test_update_sklearn_index_file_passes_package_to_type_discovery(
-	monkeypatch, tmp_path
-):
+def test_update_library_index_passes_package_to_discovery_functions(tmp_path):
 	model_file = tmp_path / "scikit_learn.py"
 	_write_model_file(model_file)
 
-	captured = {"package_name": None}
+	captured = {"locdict_package_name": None, "type_package_name": None}
 
-	monkeypatch.setattr(
-		updater,
-		"_all_sklearn_estimators_locdict",
-		lambda package_name="sklearn": {
+	def _locdict_fn(package_name: str) -> dict[str, str]:
+		captured["locdict_package_name"] = package_name
+		return {
 			"ExistingEstimator": "custompkg.existing.ExistingEstimator",
 			"Pipeline": "custompkg.pipeline.Pipeline",
-		},
-	)
+		}
 
-	def _fake_generate_types(package_name="sklearn"):
-		captured["package_name"] = package_name
+	def _type_fn(package_name: str) -> dict[str, str | list[str]]:
+		captured["type_package_name"] = package_name
 		return {
 			"ExistingEstimator": "classifier",
 			"Pipeline": ["classifier", "transformer"],
 		}
 
-	monkeypatch.setattr(updater, "_generate_sklearn_types_of_obj", _fake_generate_types)
-
-	updater.update_sklearn_index_file(
-		model_file=model_file,
+	config = LibraryConfig(
+		name="custom",
 		package_name="custompkg",
-		apply_changes=False,
+		model_file=model_file,
+		locdict_fn=_locdict_fn,
+		type_fn=_type_fn,
 	)
 
-	assert captured["package_name"] == "custompkg"
+	update_library_index(
+		config,
+		apply_changes=False,
+		skip_missing_files=False,
+	)
+
+	assert captured["locdict_package_name"] == "custompkg"
+	assert captured["type_package_name"] == "custompkg"
