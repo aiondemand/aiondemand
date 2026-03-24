@@ -1,4 +1,4 @@
-"""User-facing utilities for querying paper–algorithm relationships."""
+"""Cross-linkages utilities for querying paper–algorithm relationships."""
 
 from __future__ import annotations
 
