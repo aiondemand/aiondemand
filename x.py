@@ -88,7 +88,7 @@ def extract_paper_metadata(text: str) -> PaperExtraction:
     # Connecting to your other laptop via the OpenAI-compatible endpoint
     # Note: 11434 is the default for Ollama. Use 1234 if using LM Studio.
     llm = ChatOpenAI(
-        base_url=f"",
+        base_url=f"http://192.168.0.229:1234/v1",
         api_key="not-needed", 
         model="qwen2.5-coder:3b",
         max_tokens=None,
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     # 1. Set your GPU laptop's IP here
     
     # 2. Extract text using your 'w.py' module
-    raw_text = extract_text_from_pdf(r"")
+    raw_text = extract_text_from_pdf(r"C:\Users\satvm\Downloads\p.pdf")
         
     # 3. Run the extraction
     result = extract_paper_metadata(raw_text)

@@ -4,7 +4,6 @@ from aiod.automation import (
     get_paper,
     list_cached_papers,
     populate_paper_from_pdf,
-    populate_paper_from_text,
 )
 
 # from aiod.calls.calls import get_any_asset as get
@@ -56,7 +55,6 @@ __all__ = [
     "counts",
     "get",
     "get_paper",
-    "populate_paper_from_text",
     "populate_paper_from_pdf",
     "list_cached_papers",
 ]
