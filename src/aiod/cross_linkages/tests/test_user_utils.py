@@ -3,7 +3,7 @@
 import pytest
 
 import aiod
-import aiod.cross_linkages.user_utils as user_utils
+import aiod.cross_linkages.cross_linkages as cross_linkages
 
 
 @pytest.fixture
@@ -13,7 +13,7 @@ def fake_registry(monkeypatch):
         "10.2/test-doi": ["AlgoB"],
     }
 
-    monkeypatch.setattr(user_utils, "PUB_ALGORITHM_REGISTRY", registry)
+    monkeypatch.setattr(cross_linkages, "PUB_ALGORITHM_REGISTRY", registry)
     return registry
 
 
@@ -24,7 +24,7 @@ def fake_get(monkeypatch):
             return f"instance:{name[:-2]}"
         return f"class:{name}"
 
-    monkeypatch.setattr(user_utils, "get", _fake_get)
+    monkeypatch.setattr(cross_linkages, "get", _fake_get)
 
 
 def test_get_from_pub_ids(fake_registry):
