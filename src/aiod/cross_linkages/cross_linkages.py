@@ -42,13 +42,13 @@ def get_from_pub(doi: str, return_as: ReturnMode = "ids") -> list[object]:
     algos = PUB_ALGORITHM_REGISTRY.get(doi, [])
 
     if return_as == "ids":
-        return list(algos)
+        return [a.split("(")[0] for a in algos]
 
     if return_as == "classes":
-        return [get(a) for a in algos]
+        return [get(a.split("(")[0]) for a in algos]
 
     if return_as == "instances":
-        return [get(f"{a}()") for a in algos]
+        return [get(a) if "(" in a else get(f"{a}()") for a in algos]
 
     raise ValueError(f"Unknown return mode: {return_as}")
 
