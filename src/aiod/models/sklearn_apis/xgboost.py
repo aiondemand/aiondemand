@@ -15,13 +15,10 @@ class AiodPkg__XGB(_ModelPkgSklearnEstimator):
         "DaskXGBClassifier": "xgboost.dask.DaskXGBClassifier",
         "DaskXGBRFClassifier": "xgboost.dask.DaskXGBRFClassifier",
         "DaskXGBRFRegressor": "xgboost.dask.DaskXGBRFRegressor",
-        "DaskXGBRanker": "xgboost.dask.DaskXGBRanker",
         "DaskXGBRegressor": "xgboost.dask.DaskXGBRegressor",
         "XGBClassifier": "xgboost.sklearn.XGBClassifier",
-        "XGBModel": "xgboost.sklearn.XGBModel",
         "XGBRFClassifier": "xgboost.sklearn.XGBRFClassifier",
         "XGBRFRegressor": "xgboost.sklearn.XGBRFRegressor",
-        "XGBRanker": "xgboost.sklearn.XGBRanker",
         "XGBRegressor": "xgboost.sklearn.XGBRegressor",
     }
 
@@ -49,5 +46,4 @@ class AiodPkg__XGB(_ModelPkgSklearnEstimator):
             "XGBRFRegressor",
             "XGBRegressor",
         ],
-        "ranker": ["DaskXGBRanker", "XGBRanker"],
     }
