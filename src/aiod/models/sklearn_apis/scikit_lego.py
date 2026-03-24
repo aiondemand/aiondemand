@@ -9,7 +9,13 @@ class AiodPkg__ScikitLego(_ModelPkgSklearnEstimator):
         "pkg_id": "__multiple",
         "python_dependencies": "scikit-lego",
         "pkg_pypi_name": "scikit-lego",
-        "object_types": ["classifier", "regressor", "transformer", "outlier_detector", "clusterer"],
+        "object_types": [
+            "classifier",
+            "regressor",
+            "transformer",
+            "outlier_detector",
+            "clusterer",
+        ],
     }
 
     _obj_dict = {
@@ -74,7 +80,13 @@ class AiodPkg__ScikitLego(_ModelPkgSklearnEstimator):
         "ColumnSelector": "transformer",
         "ConfusionBalancer": "classifier",
         "DeadZoneRegressor": "regressor",
-        "DebugPipeline": ["clusterer", "regressor", "transformer", "classifier", "outlier_detector"],
+        "DebugPipeline": [
+            "clusterer",
+            "regressor",
+            "transformer",
+            "classifier",
+            "outlier_detector",
+        ],
         "DemographicParityClassifier": "classifier",
         "DictMapper": "transformer",
         "EqualOpportunityClassifier": "classifier",
