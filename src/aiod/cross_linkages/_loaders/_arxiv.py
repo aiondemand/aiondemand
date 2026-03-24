@@ -23,6 +23,8 @@ class ArxivLoader(BaseLoader):
         "python_dependencies": [
             "langchain",
             "langchain_community",
+            "arxiv",
+            "pymupdf",
         ],
     }
 
