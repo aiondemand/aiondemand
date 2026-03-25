@@ -22,9 +22,21 @@ class Estimator(BaseModel):
 class Artefacts(BaseModel):
     """Granular ML components extracted for the AIoD catalogue."""
 
-    estimators: list[Estimator] = Field(default_factory=list)
-    datasets: list[str] = Field(default_factory=list)
-    metrics: list[str] = Field(default_factory=list)
+    estimators: list[Estimator] = Field(
+        default_factory=list,
+        description="""List of all machine learning models, algorithms,
+        and preprocessing modules mentioned.""",
+    )
+    datasets: list[str] = Field(
+        default_factory=list,
+        description="""Specific names of benchmark datasets used for training
+        or evaluation, e.g., 'MNIST', '20-Newsgroups', 'CIFAR-10'.""",
+    )
+    metrics: list[str] = Field(
+        default_factory=list,
+        description="""Evaluation metrics used to score the models, e.g., 'Accuracy',
+        'F1-Score', 'Zero-One Loss'.""",
+    )
 
 
 class PaperExtraction(BaseModel):

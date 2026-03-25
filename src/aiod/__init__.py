@@ -2,8 +2,6 @@ from aiod import bookmarks, taxonomies
 from aiod.authentication import create_token, get_current_user, invalidate_token
 from aiod.automation import (
     get_paper,
-    list_cached_papers,
-    populate_paper_from_pdf,
 )
 
 # from aiod.calls.calls import get_any_asset as get
@@ -56,17 +54,19 @@ __all__ = [
     "counts",
     "get",
     "get_paper",
-    "populate_paper_from_pdf",
-    "list_cached_papers",
     "get_from_pub",
     "get_pubs_for",
 ]
 
 
 def get(id: str):
-    """Resolve top-level get: DOI-based paper retrieval or existing model retrieval."""
-    if isinstance(id, str) and id.strip().lower().startswith("doi:"):
-        return get_paper(id.strip())
+    stripped = id.strip()
+    if isinstance(stripped, str):
+        lower = stripped.lower()
+        if lower.startswith("doi:"):
+            return get_paper(stripped)
+        if "arxiv.org" in lower:
+            return get_paper(stripped)
     return _models_get(id)
 
 

@@ -1,15 +1,6 @@
-from aiod.automation.papers import (
-    Paper,
-    extract_text_from_pdf,
-    get_paper,
-    list_cached_papers,
-    populate_paper_from_pdf,
-)
+from aiod.automation.llm import extract_paper_data, get_paper
 
 __all__ = [
-    "Paper",
     "get_paper",
-    "populate_paper_from_pdf",
-    "list_cached_papers",
-    "extract_text_from_pdf",
+    "extract_paper_data",
 ]

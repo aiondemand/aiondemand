@@ -5,7 +5,7 @@ import json
 
 # --- LangChain Imports ---
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI 
+from langchain_openai import ChatOpenAI
 
 from aiod.automation import extract_text_from_pdf
 
@@ -13,31 +13,38 @@ from aiod.automation import extract_text_from_pdf
 # 1. AIoD Schema Definitions
 # ---------------------------------------------------------------------------
 
+
 class Estimator(BaseModel):
     """Represents a specific ML model or estimator."""
+
     name: str = Field(
         description="The class name of the model/estimator, e.g., 'RandomForestClassifier'"
     )
     parameters: Optional[Dict[str, str]] = Field(
-        default_factory=dict, 
-        description="Hyperparameters mentioned in the text, e.g., {'n_estimators': '100'}"
+        default_factory=dict,
+        description="Hyperparameters mentioned in the text, e.g., {'n_estimators': '100'}",
     )
     instantiable_string: str = Field(
         description="The exact python string representation for the catalogue, e.g., 'RandomForestClassifier(n_estimators=100)'"
     )
 
+
 class Artefacts(BaseModel):
     """Granular ML components extracted for the AIoD catalogue."""
+
     estimators: List[Estimator] = Field(default_factory=list)
     datasets: List[str] = Field(default_factory=list)
     metrics: List[str] = Field(default_factory=list)
 
+
 class PaperExtraction(BaseModel):
     """The master schema for the LLM output during the Population Phase."""
+
     related_code_used: List[str] = Field(default_factory=list)
     artefacts: Artefacts = Field(
         description="Granular ML components like estimators, datasets, and metrics."
     )
+
 
 SYSTEM_PROMPT = """You are a technical machine learning metadata extraction engine. Your goal is to identify all machine learning algorithms, their specific hyperparameters, datasets, and metrics from scientific publications.
 
@@ -75,49 +82,58 @@ Return ONLY a JSON object. Use double curly braces {{ }} to escape JSON characte
 CRITICAL: In Python, Class Names are always PascalCase. You must return 'SVC' not 'svc', and 'RandomForestClassifier' not 'random_forest'. If you fail this, the code will crash.
 """
 
+
 def extract_urls_deterministic(text: str) -> Dict[str, List[str]]:
-    github_re = re.compile(r"https?://(?:www\.)?github\.com/[\w.-]+/[\w.-]*[\w]", re.IGNORECASE)
+    github_re = re.compile(
+        r"https?://(?:www\.)?github\.com/[\w.-]+/[\w.-]*[\w]", re.IGNORECASE
+    )
     pypi_re = re.compile(r"https?://pypi\.org/project/([\w.-]+)", re.IGNORECASE)
     return {
         "candidate_githubs": list(set(github_re.findall(text))),
-        "candidate_pypis": list(set(pypi_re.findall(text)))
+        "candidate_pypis": list(set(pypi_re.findall(text))),
     }
 
 
-def extract_paper_metadata(text: str) -> PaperExtraction:
+def extract_paper_data(text: str) -> PaperExtraction:
     """Runs the extraction using Qwen 2.5 Coder on the remote GPU laptop."""
-    
+
     hints = extract_urls_deterministic(text)
 
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", SYSTEM_PROMPT),
-        ("human", "Text to analyze:\n\n{text}\n\n(Hint: found these candidate URLs: {hints})")
-    ])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", SYSTEM_PROMPT),
+            (
+                "human",
+                "Text to analyze:\n\n{text}\n\n(Hint: found these candidate URLs: {hints})",
+            ),
+        ]
+    )
 
     llm = ChatOpenAI(
         base_url=f"http://192.168.0.169:1234/v1",
-        api_key="not-needed", 
+        api_key="not-needed",
         model="qwen2.5-coder:3b",
         max_tokens=None,
-        temperature=0.0
+        temperature=0.0,
     )
 
     structured_llm = llm.with_structured_output(PaperExtraction)
 
     chain = prompt | structured_llm
-    
+
     return chain.invoke({"text": text, "hints": hints})
+
 
 # ---------------------------------------------------------------------------
 # 4. Main Loop
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
     # 1. Set your GPU laptop's IP here
-    
+
     # 2. Extract text using your 'w.py' module
     raw_text = extract_text_from_pdf(r"C:\Users\satvm\Downloads\p.pdf")
-        
+
     # 3. Run the extraction
-    result = extract_paper_metadata(raw_text)
-        
+    result = extract_paper_data(raw_text)
+
     print(result.model_dump_json(indent=2))
