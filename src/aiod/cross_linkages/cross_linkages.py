@@ -49,7 +49,7 @@ def get_from_pub(doi: str, return_as: ReturnMode = "ids") -> list[object]:
     if return_as == "classes":
         return [type(i) if not isinstance(i, type) else i for i in algos]
 
-    if return_as == "instance":
+    if return_as == "instances":
         return [i() if isinstance(i, type) else i for i in algos]
 
     raise ValueError(f"Unknown return mode: {return_as}")
