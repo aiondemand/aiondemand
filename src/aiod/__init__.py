@@ -8,6 +8,7 @@ from aiod.automation import (
 
 # from aiod.calls.calls import get_any_asset as get
 from aiod.configuration import config
+from aiod.cross_linkages import get_from_pub, get_pubs_for
 from aiod.default.counts import asset_counts as counts
 from aiod.models import get as _models_get
 from aiod.resources import (
@@ -57,6 +58,8 @@ __all__ = [
     "get_paper",
     "populate_paper_from_pdf",
     "list_cached_papers",
+    "get_from_pub",
+    "get_pubs_for",
 ]
 
 
