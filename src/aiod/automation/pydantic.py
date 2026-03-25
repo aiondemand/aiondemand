@@ -1,7 +1,7 @@
 import re
 from typing import Dict, List, Optional
 
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
@@ -41,17 +41,6 @@ class Artefacts(BaseModel):
 class PaperExtraction(BaseModel):
     """The master schema for the LLM output during the Population Phase."""
 
-    official_github: List[str] = Field(
-        default_factory=list, description="URLs to the official code repositories."
-    )
-    unofficial_github: List[str] = Field(
-        default_factory=list,
-        description="URLs to unofficial reproductions or related repositories.",
-    )
-    pypi_packages: List[str] = Field(
-        default_factory=list,
-        description="Specific PyPI package names created or required by the paper.",
-    )
     related_code_used: List[str] = Field(
         default_factory=list,
         description="Libraries or tools used for experiments but not proposed in the paper.",
@@ -61,24 +50,40 @@ class PaperExtraction(BaseModel):
     )
 
 
-SYSTEM_PROMPT = """You are an expert machine learning metadata extraction engine designed to cross-link scientific papers with software artifacts for the AI-on-Demand (AIoD) catalogue.
+SYSTEM_PROMPT = """You are a technical machine learning metadata extraction engine. Your goal is to identify all machine learning algorithms, their specific hyperparameters, datasets, and metrics from scientific publications.
 
-Your task is to analyze excerpts from research papers and extract a structured JSON object detailing the code repositories, packages, and specific machine learning artifacts mentioned.
+### ARTEFACT DISCOVERY RULES
+1. **Identify Estimators**: Scan for every mentioned algorithm, model, or preprocessing module (e.g., SVC, PCA, RandomForestClassifier).
+2. **STRICT PASCALCASE NAMING**: You MUST convert all model names to PascalCase for the 'name' and 'instantiable_string' fields. 
+    - INCORRECT: svc(), pca(), random_forest()
+    - CORRECT: SVC(), PCA(), RandomForestClassifier()
+3. **Capture Arguments**: Extract the actual numerical or categorical values mentioned (e.g., "n_estimators=100", "whiten=True"). If no values are found, use empty parentheses: "ClassName()".
+4. **Exhaustive List**: Look past the first example. If the paper lists 12 different components in its configuration or search space, include all 12 in the 'estimators' list.
 
-### CORE DEFINITIONS
-1. Official Implementation: The paper's own code or package.
-2. Unofficial Implementation: Third-party community reproductions.
-3. Used in Experiments: Frameworks, libraries, and datasets used to conduct the research, but not proposed as the novel contribution.
-4. Cited Not Used: Tools discussed but not executed.
+### DATA SOURCES
+- Scan lists of terms like "SVM, KNN, PCA, Gradient Boosting".
+- Look for words followed by parentheses: "ModelName(...)".
+- Check tables comparing different "Methods" or "Baselines".
 
-### GRANULAR ARTIFACT EXTRACTION
-- Estimators: Extract specific model class names. If hyperparameters are mentioned, capture them. Format as a valid Python string (e.g., "XGBClassifier(max_depth=3)").
-- Datasets: Extract names of specific benchmark datasets.
-- Metrics: Extract evaluation metrics used.
+### MANDATORY OUTPUT FORMAT
+Return ONLY a JSON object. Use double curly braces {{ }} to escape JSON characters.
 
-### MANDATORY RULES
-- Output strictly valid JSON matching the schema.
-- Do not guess parameters or artifacts not explicitly mentioned in the text.
+{{
+  "related_code_used": ["List actual library names found, e.g., 'Scikit-Learn', 'Hyperopt'"],
+  "artefacts": {{
+    "estimators": [
+      {{
+        "name": "PascalCaseClassName",
+        "parameters": {{"param_name": "value"}},
+        "instantiable_string": "PascalCaseClassName(param_name=value)"
+      }}
+    ],
+    "datasets": ["Names of datasets used"],
+    "metrics": ["Names of evaluation metrics used"]
+  }}
+}}
+
+CRITICAL: In Python, Class Names are always PascalCase. You must return 'SVC' not 'svc', and 'RandomForestClassifier' not 'random_forest'. If you fail this, the code will crash.
 """
 
 # ---------------------------------------------------------------------------
@@ -105,25 +110,37 @@ def extract_urls_deterministic(text: str) -> Dict[str, List[str]]:
 
 
 def extract_paper_metadata(
-    text: str, model_name: str = "gpt-4o-mini"
+    text: str,
+    model_name: str = "qwen2.5-coder:3b",
+    base_url: str = "http://192.168.0.169:1234/v1",
+    api_key: str = "not-needed",
+    temperature: float = 0.0,
+    max_tokens: Optional[int] = None,
 ) -> PaperExtraction:
     """Run the full extraction pipeline for the Population Phase."""
-    # Step 1: Get deterministic hints (optional, but helps guide the LLM if you inject it into the prompt)
+
     hints = extract_urls_deterministic(text)
-    user_content = (
-        f"Text to analyze:\n\n{text}\n\n(Hint: found these candidate URLs: {hints})"
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", SYSTEM_PROMPT),
+            (
+                "human",
+                "Text to analyze:\n\n{text}\n\n(Hint: found these candidate URLs: {hints})",
+            ),
+        ]
     )
 
-    # Step 2: Call the LLM with structured output enforcement via LangChain
-    prompt_text = (
-        f"""{SYSTEM_PROMPT}\n\nPlease answer as strictly valid JSON matching the schema.
-        \n{user_content}"""
+    llm = ChatOpenAI(
+        base_url=base_url,
+        api_key=api_key,
+        model=model_name,
+        max_tokens=max_tokens,
+        temperature=temperature,
     )
 
-    llm = ChatOpenAI(model_name=model_name, temperature=0.0)
-    llm = llm.with_structured_output(PaperExtraction)
-    result = llm.invoke(
-        [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=prompt_text)]
-    )
-    
-    return result
+    structured_llm = llm.with_structured_output(PaperExtraction)
+
+    chain = prompt | structured_llm
+
+    return chain.invoke({"text": text, "hints": hints})

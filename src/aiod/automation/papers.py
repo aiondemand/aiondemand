@@ -42,6 +42,7 @@ class Paper:
     """Cached paper metadata object with a request-time fetch API."""
 
     def __init__(self, paper_id: str, metadata: PaperExtraction):
+        self.paper_id = paper_id
         self.metadata = metadata
 
     def fetch(self, object_type: str, as_object: bool = True):
@@ -51,18 +52,14 @@ class Paper:
             "estimators",
             "datasets",
             "metrics",
-            "official_github",
-            "unofficial_github",
-            "pypi_packages",
             "related_code_used",
         }
 
         if object_type not in allowed:
             raise ValueError(
                 "object_type must be one of estimators, datasets, metrics, "
-                "official_github, unofficial_github, pypi_packages, related_code_used"
+                "related_code_used"
             )
-
         if object_type == "estimators":
             result = self.metadata.artefacts.estimators
             return result if as_object else [est.model_dump() for est in result]
@@ -70,9 +67,6 @@ class Paper:
         values = {
             "datasets": self.metadata.artefacts.datasets,
             "metrics": self.metadata.artefacts.metrics,
-            "official_github": self.metadata.official_github,
-            "unofficial_github": self.metadata.unofficial_github,
-            "pypi_packages": self.metadata.pypi_packages,
             "related_code_used": self.metadata.related_code_used,
         }[object_type]
 
@@ -185,9 +179,12 @@ def get_paper(paper_id: str) -> Paper:
     cache = _load_cache()
 
     if paper_id not in cache:
+        # If doi-style id is provided, attempt auto-population from DOI.
+        if isinstance(paper_id, str) and paper_id.strip().lower().startswith("doi:"):
+            return populate_paper(paper_id=paper_id, source=paper_id)
+
         raise KeyError(
-            f"Paper '{paper_id}' not found in cache. "
-            "Run populate_paper(...) first."
+            f"Paper '{paper_id}' not found in cache. Run populate_paper(...) first."
         )
 
     metadata = PaperExtraction.model_validate(cache[paper_id])
