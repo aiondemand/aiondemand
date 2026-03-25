@@ -1,8 +1,6 @@
 from aiod import bookmarks, taxonomies
 from aiod.authentication import create_token, get_current_user, invalidate_token
-from aiod.automation import (
-    get_paper,
-)
+from aiod.automation import get_paper
 
 # from aiod.calls.calls import get_any_asset as get
 from aiod.configuration import config
@@ -60,13 +58,8 @@ __all__ = [
 
 
 def get(id: str):
-    stripped = id.strip()
-    if isinstance(stripped, str):
-        lower = stripped.lower()
-        if lower.startswith("doi:"):
-            return get_paper(stripped)
-        if "arxiv.org" in lower:
-            return get_paper(stripped)
+    if id.startswith(("http://", "https://", "www.")):
+        return get_paper(id, model_ip="")
     return _models_get(id)
 
 

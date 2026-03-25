@@ -5,9 +5,10 @@ from langchain_openai import ChatOpenAI
 from aiod.automation.prompt import SYSTEM_PROMPT
 from aiod.automation.pydantic import Paper, PaperExtraction
 from aiod.cross_linkages._loaders._arxiv import ArxivLoader
+from aiod.cross_linkages._loaders._zenodo import ZenodoLoader
 
 
-def extract_paper_data(text: str, model_ip: str = "192.168.0.169") -> PaperExtraction:
+def extract_paper_data(text: str, model_ip: str) -> PaperExtraction:
     """Run the extraction using Qwen 2.5 Coder on the remote GPU laptop."""
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -33,9 +34,13 @@ def extract_paper_data(text: str, model_ip: str = "192.168.0.169") -> PaperExtra
     return chain.invoke({"text": text})
 
 
-def get_paper(url: str, model_ip: str = "192.168.0.169") -> Paper:
+def get_paper(url: str, model_ip: str) -> Paper:
     """Get paper metadata by URL."""
-    loader = ArxivLoader()
+    if "arxiv.org" in url:
+        loader = ArxivLoader()
+    elif "zenodo.org" in url:
+        loader = ZenodoLoader()
+
     documents = loader.load(url)
     if documents:
         text = documents[0].page_content
