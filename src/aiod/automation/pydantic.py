@@ -1,5 +1,4 @@
 import re
-from typing import Dict, List, Optional
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
@@ -12,7 +11,7 @@ class Estimator(BaseModel):
     name: str = Field(
         description="The class name of the model/estimator, e.g., 'RandomForestClassifier'"
     )
-    parameters: Optional[Dict[str, str]] = Field(
+    parameters: dict[str, str] | None = Field(
         default_factory=dict,
         description="Hyperparameters mentioned in the text, e.g., {'n_estimators': '100'}",
     )
@@ -24,15 +23,15 @@ class Estimator(BaseModel):
 class Artefacts(BaseModel):
     """Granular ML components extracted for the AIoD catalogue."""
 
-    estimators: List[Estimator] = Field(
+    estimators: list[Estimator] = Field(
         default_factory=list,
         description="Machine learning models and estimators used or proposed in the paper.",
     )
-    datasets: List[str] = Field(
+    datasets: list[str] = Field(
         default_factory=list,
         description="Specific names of datasets used for training, testing, or benchmarking.",
     )
-    metrics: List[str] = Field(
+    metrics: list[str] = Field(
         default_factory=list,
         description="Evaluation metrics used for comparison, e.g., 'Accuracy', 'F1-Score', 'RMSE'.",
     )
@@ -41,7 +40,7 @@ class Artefacts(BaseModel):
 class PaperExtraction(BaseModel):
     """The master schema for the LLM output during the Population Phase."""
 
-    related_code_used: List[str] = Field(
+    related_code_used: list[str] = Field(
         default_factory=list,
         description="Libraries or tools used for experiments but not proposed in the paper.",
     )
@@ -91,7 +90,7 @@ CRITICAL: In Python, Class Names are always PascalCase. You must return 'SVC' no
 # ---------------------------------------------------------------------------
 
 
-def extract_urls_deterministic(text: str) -> Dict[str, List[str]]:
+def extract_urls_deterministic(text: str) -> dict[str, list[str]]:
     """Quick regex pass to find URLs before hitting the LLM."""
     github_re = re.compile(
         r"https?://(?:www\.)?github\.com/[\w.-]+/[\w.-]*[\w]", re.IGNORECASE
@@ -115,10 +114,9 @@ def extract_paper_metadata(
     base_url: str = "http://192.168.0.169:1234/v1",
     api_key: str = "not-needed",
     temperature: float = 0.0,
-    max_tokens: Optional[int] = None,
+    max_tokens: int | None = None,
 ) -> PaperExtraction:
     """Run the full extraction pipeline for the Population Phase."""
-
     hints = extract_urls_deterministic(text)
 
     prompt = ChatPromptTemplate.from_messages(

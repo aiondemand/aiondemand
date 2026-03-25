@@ -11,7 +11,6 @@ import requests
 
 from aiod.automation.pydantic import PaperExtraction, extract_paper_metadata
 
-
 PAPER_CACHE_FILE = Path(__file__).resolve().parent / "paper_cache.json"
 _CACHE_LOCK = RLock()
 
@@ -155,7 +154,6 @@ def populate_paper(
     - PDF URL
     - DOI (doi:10.xxxx/xxxxx)
     """
-
     source = source.strip()
 
     if source.lower().startswith("doi:"):
