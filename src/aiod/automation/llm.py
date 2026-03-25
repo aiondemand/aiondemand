@@ -3,7 +3,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
 from aiod.automation.prompt import SYSTEM_PROMPT
-from aiod.automation.pydantic import PaperExtraction
+from aiod.automation.pydantic import Paper, PaperExtraction
 from aiod.cross_linkages._loaders._arxiv import ArxivLoader
 
 
@@ -33,7 +33,7 @@ def extract_paper_data(text: str, model_ip: str = "192.168.0.169") -> PaperExtra
     return chain.invoke({"text": text})
 
 
-def get_paper(url: str, model_ip: str = "192.168.0.169") -> PaperExtraction:
+def get_paper(url: str, model_ip: str = "192.168.0.169") -> Paper:
     """Get paper metadata by URL."""
     loader = ArxivLoader()
     documents = loader.load(url)
@@ -41,4 +41,4 @@ def get_paper(url: str, model_ip: str = "192.168.0.169") -> PaperExtraction:
         text = documents[0].page_content
 
     metadata = extract_paper_data(text, model_ip)
-    return metadata
+    return Paper(url, metadata)

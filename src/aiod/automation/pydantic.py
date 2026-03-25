@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -46,3 +48,45 @@ class PaperExtraction(BaseModel):
     artefacts: Artefacts = Field(
         description="Granular ML components like estimators, datasets, and metrics."
     )
+
+
+class Paper:
+    """Paper metadata object."""
+
+    def __init__(self, paper_id: str, metadata: PaperExtraction):
+        self.paper_id = paper_id
+        self.metadata = metadata
+
+    def fetch(self, object_type: str, as_object: bool = True):
+        object_type = object_type.strip().lower()
+
+        allowed = {
+            "estimators",
+            "datasets",
+            "metrics",
+            "related_code_used",
+        }
+
+        if object_type not in allowed:
+            raise ValueError(
+                "object_type must be one of estimators, datasets, metrics, "
+                "related_code_used"
+            )
+
+        if object_type == "estimators":
+            result = self.metadata.artefacts.estimators
+            return result if as_object else [est.model_dump() for est in result]
+
+        values = {
+            "datasets": self.metadata.artefacts.datasets,
+            "metrics": self.metadata.artefacts.metrics,
+            "related_code_used": self.metadata.related_code_used,
+        }[object_type]
+
+        return values if as_object else list(values)
+
+    def model_dump(self) -> dict[str, Any]:
+        return self.metadata.model_dump()
+
+    def model_dump_json(self, **kwargs: Any) -> str:
+        return self.metadata.model_dump_json(**kwargs)

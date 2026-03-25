@@ -22,7 +22,6 @@ def test_get_paper(monkeypatch):
     monkeypatch.setattr(
         "aiod.automation.llm.extract_paper_data", fake_extract_paper_data
     )
-    # Mock the ArxivLoader
     from unittest.mock import MagicMock
 
     mock_loader = MagicMock()
