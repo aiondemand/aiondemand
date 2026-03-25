@@ -2,12 +2,14 @@
 
 import re
 
-from langchain_community.document_loaders import ArxivLoader as LangChainArxivLoader
 from skbase.utils.dependencies import _safe_import
 
 from aiod.cross_linkages._loaders._base import BaseLoader
 
-Document = _safe_import("langchain_core.documents.Document", pkg_name="langchain")
+LangChainArxivLoader = _safe_import(
+    "langchain_community.document_loaders.arxiv.ArxivLoader",
+    pkg_name="langchain_community",
+)
 
 
 class ArxivLoader(BaseLoader):
