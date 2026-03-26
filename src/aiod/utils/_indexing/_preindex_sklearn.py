@@ -196,6 +196,7 @@ def _generate_sklearn_types_of_obj(package_name) -> dict:
         "transformer",
         "clusterer",
         "outlier_detector",
+        "density",
     }
 
     mixin_to_type = {
