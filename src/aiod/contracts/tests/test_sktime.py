@@ -1,28 +1,7 @@
 """Test validity of sktime API contracts."""
 
 import pytest
-from sktime.alignment.dtw_python import AlignerDTW
-from sktime.classification.distance_based import KNeighborsTimeSeriesClassifier
-from sktime.classification.early_classification import TEASER
-from sktime.clustering.dbscan import TimeSeriesDBSCAN
-from sktime.datasets import Airline
-from sktime.datasets.classification.acsf1 import ACSF1
-from sktime.datasets.regression.tecator import Tecator
-from sktime.detection.bs import BinarySegmentation
-from sktime.detection.igts import InformationGainSegmentation
-from sktime.dists_kernels import AggrDist
-from sktime.dists_kernels.scipy_dist import ScipyDist
-from sktime.forecasting.naive import NaiveForecaster
-from sktime.forecasting.reconcile import TopdownReconciler
-from sktime.forecasting.timemoe import TimeMoEForecaster
-from sktime.networks.cnn import CNNNetwork
-from sktime.param_est.fixed import FixedParams
-from sktime.performance_metrics.detection._count import DetectionCount
-from sktime.performance_metrics.forecasting import MeanAbsolutePercentageError
-from sktime.performance_metrics.forecasting.probabilistic._classes import CRPS
-from sktime.regression.distance_based import KNeighborsTimeSeriesRegressor
-from sktime.split import SingleWindowSplitter
-from sktime.transformations.series.boxcox import BoxCoxTransformer
+from skbase.utils.dependencies import _safe_import
 
 from aiod.contracts.sktime.contracts import (
     aligner,
@@ -50,10 +29,54 @@ from aiod.contracts.sktime.contracts import (
 )
 from aiod.contracts.utils import ContractError
 
+AlignerDTW = _safe_import("sktime.alignment.dtw_python.AlignerDTW")
+KNeighborsTimeSeriesClassifier = _safe_import(
+    "sktime.classification.distance_based.KNeighborsTimeSeriesClassifier"
+)
+TEASER = _safe_import("sktime.classification.early_classification.TEASER")
+TimeSeriesDBSCAN = _safe_import("sktime.clustering.dbscan.TimeSeriesDBSCAN")
+Airline = _safe_import("sktime.datasets.Airline")
+ACSF1 = _safe_import("sktime.datasets.classification.acsf1.ACSF1")
+Tecator = _safe_import("sktime.datasets.regression.tecator.Tecator")
+BinarySegmentation = _safe_import("sktime.detection.bs.BinarySegmentation")
+InformationGainSegmentation = _safe_import(
+    "sktime.detection.igts.InformationGainSegmentation"
+)
+AggrDist = _safe_import("sktime.dists_kernels.AggrDist")
+ScipyDist = _safe_import("sktime.dists_kernels.scipy_dist.ScipyDist")
+NaiveForecaster = _safe_import("sktime.forecasting.naive.NaiveForecaster")
+TopdownReconciler = _safe_import("sktime.forecasting.reconcile.TopdownReconciler")
+TimeMoEForecaster = _safe_import("sktime.forecasting.timemoe.TimeMoEForecaster")
+CNNNetwork = _safe_import("sktime.networks.cnn.CNNNetwork")
+FixedParams = _safe_import("sktime.param_est.fixed.FixedParams")
+DetectionCount = _safe_import(
+    "sktime.performance_metrics.detection._count.DetectionCount"
+)
+MeanAbsolutePercentageError = _safe_import(
+    "sktime.performance_metrics.forecasting.MeanAbsolutePercentageError"
+)
+CRPS = _safe_import(
+    "sktime.performance_metrics.forecasting.probabilistic._classes.CRPS"
+)
+KNeighborsTimeSeriesRegressor = _safe_import(
+    "sktime.regression.distance_based.KNeighborsTimeSeriesRegressor"
+)
+SingleWindowSplitter = _safe_import("sktime.split.SingleWindowSplitter")
+BoxCoxTransformer = _safe_import(
+    "sktime.transformations.series.boxcox.BoxCoxTransformer"
+)
+
 
 def _generate_cases(obj, contract, expected):
     """Generate variations: class, instance, string, string-instance."""
-    return [(obj, contract, expected), (obj.__name__, contract, expected)]
+    if obj is None or "skbase.utils.dependencies" in str(type(obj)):
+        return []
+
+    cases = [(obj, contract, expected)]
+    if hasattr(obj, "__name__"):
+        cases.append((obj.__name__, contract, expected))
+
+    return cases
 
 
 class BrokenBehaviorForecaster(NaiveForecaster):
@@ -61,12 +84,8 @@ class BrokenBehaviorForecaster(NaiveForecaster):
         raise RuntimeError("behavior failure")
 
 
-@pytest.fixture
-def invalid_obj():
-    class TotallyInvalidDummyClass:
-        pass
-
-    return TotallyInvalidDummyClass
+class TotallyInvalidDummyClass:
+    pass
 
 
 @pytest.mark.parametrize(
@@ -99,7 +118,7 @@ def invalid_obj():
         *_generate_cases(BoxCoxTransformer, regressor, False),
     ],
 )
-def test_istypeof(obj, contract, expected, invalid_obj):
+def test_istypeof(obj, contract, expected):
     if expected is True:
         assert contract.istypeof(obj, raise_error=True) is True
     else:
@@ -107,7 +126,7 @@ def test_istypeof(obj, contract, expected, invalid_obj):
             contract.istypeof(obj, raise_error=True)
         assert contract.istypeof(obj) is False
 
-    assert contract.istypeof(invalid_obj) is False
+    assert contract.istypeof(TotallyInvalidDummyClass()) is False
 
 
 @pytest.mark.parametrize(
