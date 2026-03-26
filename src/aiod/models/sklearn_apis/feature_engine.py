@@ -54,7 +54,7 @@ class AiodPkg__FeatureEngine(_ModelPkgSklearnEstimator):
         "OneHotEncoder": "feature_engine.encoding.one_hot.OneHotEncoder",
         "OrdinalEncoder": "feature_engine.encoding.ordinal.OrdinalEncoder",
         "OutlierTrimmer": "feature_engine.outliers.trimmer.OutlierTrimmer",
-        "Pipeline": "feature_engine.pipeline.Pipeline",
+        "FeatureEnginePipeline": "feature_engine.pipeline.Pipeline",
         "PowerTransformer": "feature_engine.transformation.power.PowerTransformer",
         "ProbeFeatureSelection": "feature_engine.selection.probe_feature_selection.ProbeFeatureSelection",
         "RandomSampleImputer": "feature_engine.imputation.random_sample.RandomSampleImputer",
