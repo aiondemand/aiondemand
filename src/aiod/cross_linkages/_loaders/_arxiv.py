@@ -2,20 +2,13 @@
 
 import re
 
-from skbase.utils.dependencies import _check_soft_dependencies
+from skbase.utils.dependencies import _safe_import
 
 from aiod.cross_linkages._loaders._base import BaseLoader
 
-
-def _import_langchain_arxiv():
-    if _check_soft_dependencies("langchain_community", severity="error"):
-        from langchain_community.document_loaders.arxiv import ArxivLoader
-
-        return ArxivLoader
-    return None
-
-
-LangChainArxivLoader = _import_langchain_arxiv()
+LangChainArxivLoader = _safe_import(
+    "langchain_community.document_loaders.arxiv.ArxivLoader"
+)
 
 
 class ArxivLoader(BaseLoader):
