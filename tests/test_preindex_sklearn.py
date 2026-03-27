@@ -15,10 +15,7 @@ from skbase.utils.dependencies import _safe_import
 
 
 def _get_all_sklearn_packages():
-    _API_BASE_CLASSES = [_ModelPkgSklearnEstimator]
-    _all_subclasses = []
-    for base in _API_BASE_CLASSES:
-        _all_subclasses.extend(base.__subclasses__())
+    _all_subclasses = _ModelPkgSklearnEstimator.__subclasses__()
     pkgs = []
     for cls in _all_subclasses:
         pkg = cls()
