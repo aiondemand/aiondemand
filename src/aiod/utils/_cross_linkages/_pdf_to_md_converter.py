@@ -2,9 +2,7 @@
 
 from pathlib import Path
 
-from skbase.utils.dependencies import _safe_import
-
-MarkItDown = _safe_import("markitdown.MarkItDown", pkg_name="markitdown")
+from skbase.utils.dependencies import _check_soft_dependencies, _safe_import
 
 
 def pdf_to_markdown(pdf_path: Path) -> str:
@@ -20,12 +18,13 @@ def pdf_to_markdown(pdf_path: Path) -> str:
     str
         Markdown content extracted from PDF.
     """
+    _check_soft_dependencies("markitdown", severity="error")
+
+    MarkItDown = _safe_import("markitdown.MarkItDown", pkg_name="markitdown")
+
     converter = MarkItDown()
     result = converter.convert(str(pdf_path))
 
-    text = result.text_content
-
-    if not isinstance(text, str):
-        raise TypeError(f"Expected string output, got {type(text)}")
+    text = str(result)
 
     return text

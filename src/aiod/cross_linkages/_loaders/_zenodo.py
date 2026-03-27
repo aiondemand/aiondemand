@@ -4,12 +4,10 @@ import re
 from pathlib import Path
 
 import httpx
-from skbase.utils.dependencies import _safe_import
+from skbase.utils.dependencies import _check_soft_dependencies, _safe_import
 
 from aiod.cross_linkages._loaders._base import BaseLoader
 from aiod.utils._cross_linkages import pdf_to_markdown
-
-Document = _safe_import("langchain_core.documents.Document", pkg_name="langchain")
 
 
 class ZenodoLoader(BaseLoader):
@@ -17,6 +15,9 @@ class ZenodoLoader(BaseLoader):
 
     Parameters
     ----------
+    retries : int
+        Number of retry attempts for downloading PDFs.
+        Defaults to 3.
     download_dir : Path
         Directory to download PDF files to.
         Defaults to "data/pdfs".
@@ -36,7 +37,8 @@ class ZenodoLoader(BaseLoader):
 
     BASE_API = "https://zenodo.org/api/records"
 
-    def __init__(self, download_dir: Path = Path("data/pdfs")):
+    def __init__(self, retries: int = 3, download_dir: Path = Path("data/pdfs")):
+        self.retries = retries
         self.download_dir = download_dir
         super().__init__()
 
@@ -64,10 +66,9 @@ class ZenodoLoader(BaseLoader):
         self,
         pdf_url: str,
         output_path: Path,
-        retries: int = 3,
     ) -> Path:
         """Download PDF with retry logic."""
-        for attempt in range(1, retries + 1):
+        for attempt in range(1, self.retries + 1):
             try:
                 with httpx.Client() as client:
                     with client.stream("GET", pdf_url) as response:
@@ -82,9 +83,9 @@ class ZenodoLoader(BaseLoader):
                 return output_path
 
             except Exception as exc:
-                if attempt == retries:
+                if attempt == self.retries:
                     raise RuntimeError(
-                        f"Download failed after {retries} attempts"
+                        f"Download failed after {self.retries} attempts"
                     ) from exc
 
         raise RuntimeError("Unreachable")
@@ -102,6 +103,12 @@ class ZenodoLoader(BaseLoader):
         List[Document]
             List containing one Document with full paper content.
         """
+        _check_soft_dependencies("langchain", severity="error")
+
+        Document = _safe_import(
+            "langchain_core.documents.Document", pkg_name="langchain"
+        )
+
         record_id = self._extract_record_id(url)
         pdf_url = self._get_pdf_url(record_id)
 
