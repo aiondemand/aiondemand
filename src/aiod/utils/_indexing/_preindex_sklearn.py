@@ -5,7 +5,9 @@
 __author__ = ["fkiraly"]
 # all_estimators is also based on the sklearn utility of the same name
 
+import importlib
 import inspect
+import pkgutil
 
 
 def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
@@ -121,7 +123,6 @@ def _all_sklearn_estimators(
             passed in return_tags will serve as column names for all columns of
             tags that were optionally requested.
     """
-    from skbase.lookup import all_objects
     from sklearn.base import BaseEstimator
 
     MODULES_TO_IGNORE_SKLEARN = [
@@ -131,21 +132,43 @@ def _all_sklearn_estimators(
         "conftest",
     ]
 
-    found = all_objects(
-        object_types=BaseEstimator,
-        package_name=package_name,
-        modules_to_ignore=MODULES_TO_IGNORE_SKLEARN,
-        as_dataframe=False,
-        return_names=True,
-        suppress_import_stdout=True,
-    )
+    pkg = importlib.import_module(package_name)
+    results = {}
+
+    for _, modname, _ in pkgutil.walk_packages(pkg.__path__, prefix=package_name + "."):
+        if True in [
+            f".{i}." in modname or modname.endswith(f".{i}")
+            for i in MODULES_TO_IGNORE_SKLEARN
+        ]:
+            continue
+        if "._" in modname or modname.startswith("_"):
+            continue
+
+        module = importlib.import_module(modname)
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+            if name in results:
+                continue
+            if not obj.__module__.startswith(package_name):
+                continue
+            if "Base" in name or "mixin" in name.lower() or name.endswith("Ranker"):
+                continue
+            if name.startswith("_"):
+                continue
+            if issubclass(obj, BaseEstimator) or isinstance(
+                getattr(obj, "_estimator_type", None), str
+            ):
+                results[name] = obj
 
     result = []
-    for name, obj in found:
-        if obj.__module__.split(".")[0] != package_name:
-            continue
-        if "Base" in name or "mixin" in name.lower():
-            continue
+    parent_count = {}
+    threshold = max(2, int(len(results) * 0.05))
+    for name, obj in results.items():
+        for _, other_obj in results.items():
+            if obj in inspect.getmro(other_obj)[1:]:
+                parent_count[obj] = parent_count.get(obj, 0) + 1
+        if parent_count.get(obj, 0) >= threshold:
+            if not isinstance(getattr(obj, "_estimator_type", None), str):
+                continue
         result.append((name, obj))
 
     if not return_names:
@@ -167,63 +190,62 @@ def _generate_sklearn_types_of_obj(package_name) -> dict:
     all_est = _all_sklearn_estimators(package_name)
     type_of_objs: dict[str, list[str] | str] = {}
 
-    polymorphic_meta = [
+    polymorphic_meta = {
         "classifier",
         "regressor",
         "transformer",
-        "cluster",
-        "meta_estimator",
-        "bicluster",
-        "density",
+        "clusterer",
         "outlier_detector",
-        "manifold",
-        "covariance",  # need to add all
-    ]
+        "density",
+    }
 
     mixin_to_type = {
         "RegressorMixin": "regressor",
         "ClassifierMixin": "classifier",
         "TransformerMixin": "transformer",
-        "ClusterMixin": "cluster",
-        "BiclusterMixin": "bicluster",
+        "ClusterMixin": "clusterer",
+        "BiclusterMixin": "biclusterer",
         "DensityMixin": "density",
         "KernelDensity": "density",
         "OutlierMixin": "outlier_detector",
         "_VectorizerMixin": "transformer",
-        "MetaEstimatorMixin": "meta_estimator",
         "SamplerMixin": "sampler",
+        "BaseSuccessiveHalving": polymorphic_meta,
+        "BaseSearchCV": polymorphic_meta,
         "Pipeline": polymorphic_meta,
-        "GridSearchCV": polymorphic_meta,
-        "RandomizedSearchCV": polymorphic_meta,
         "FrozenEstimator": polymorphic_meta,
+    }
+    module_type = {
+        "manifold": "transformer",
+        "covariance": "covariance",
+        "feature_selection": "transformer",
+        "preprocessing": "transformer",
+        "metrics": "metric",
     }
     for est_name, est_class in all_est:
         if package_name not in est_class.__module__:
             continue
 
         est_type = getattr(est_class, "_estimator_type", None)
-        if est_type is not None and isinstance(est_type, str):
-            found_types = est_type
-        elif hasattr(est_class, "get_class_tag"):
-            found_types = est_class.get_class_tag("object_type", tag_value_default=[])
+        if isinstance(est_type, str) and est_type != "ranker":
+            found_types = {est_type}
         else:
             mro = inspect.getmro(est_class)
-            found_types = []
+            found_types = set()
             for base_class in mro:
                 if base_class.__name__ in mixin_to_type:
                     est_type = mixin_to_type[base_class.__name__]
-                    if est_type not in found_types:
-                        found_types.append(est_type) if isinstance(
-                            est_type, str
-                        ) else found_types.extend(est_type)
+                    found_types.add(est_type) if isinstance(
+                        est_type, str
+                    ) else found_types.update(est_type)
 
-            for module in ["manifold", "covariance"]:
-                if module in est_class.__module__:
-                    found_types.append(module)
+            for module in module_type.keys():
+                if module in est_class.__module__ and not found_types:
+                    found_types.add(module_type[module])
 
         if len(found_types) > 1:
-            type_of_objs[est_name] = found_types
+            type_of_objs[est_name] = list(found_types)
         elif len(found_types) == 1:
-            type_of_objs[est_name] = found_types[0]
+            type_of_objs[est_name] = found_types.pop()
 
     return type_of_objs
