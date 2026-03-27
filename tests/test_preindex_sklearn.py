@@ -11,11 +11,27 @@ from aiod.utils._indexing._preindex_sklearn import (
 #scikit-learn model pkg
 from aiod.models.apis import _ModelPkgSklearnEstimator
 import aiod.models.sklearn_apis
+from skbase.utils.dependencies import _safe_import
 
 
 def _get_all_sklearn_packages():
-    _all_subclasses = _ModelPkgSklearnEstimator.__subclasses__()
-    return [cls() for cls in _all_subclasses]
+    _API_BASE_CLASSES = [_ModelPkgSklearnEstimator]
+    _all_subclasses = []
+    for base in _API_BASE_CLASSES:
+        _all_subclasses.extend(base.__subclasses__())
+    pkgs = []
+    for cls in _all_subclasses:
+        pkg = cls()
+        mod = _safe_import(pkg._tags["pkg_pypi_name"])
+        if mod is not None:
+            pkgs.append(pkg)
+        else:
+            import warnings
+            warnings.warn(
+                f"Skipping {pkg.__class__.__name__} because "
+                f"{pkg._tags['pkg_pypi_name']} is not installed."
+            )
+    return pkgs
 
 
 @pytest.mark.parametrize(
