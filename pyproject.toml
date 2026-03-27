@@ -36,6 +36,13 @@ doc = [
 tests_integrations = [
     "scikit-learn",
 ]
+cross_linkages = [
+    # Dependencies for the arxiv loader
+    "langchain",
+    "langchain_community",
+    "arxiv",
+    "pymupdf",
+]
 
 [build-system]
 requires = ["hatchling >= 1.26"]
