@@ -12,13 +12,16 @@ from aiod.utils._indexing._preindex_sklearn import (
 from aiod.models.apis import _ModelPkgSklearnEstimator
 import aiod.models.sklearn_apis
 
-_all_subclasses = _ModelPkgSklearnEstimator.__subclasses__()
-_all_packages = [cls() for cls in _all_subclasses]
+
+def _get_all_sklearn_packages():
+    _all_subclasses = _ModelPkgSklearnEstimator.__subclasses__()
+    return [cls() for cls in _all_subclasses]
+
 
 @pytest.mark.parametrize(
     "package",
-    _all_packages,
-    ids=[pkg.__class__.__name__ for pkg in _all_packages],
+    _get_all_sklearn_packages(),
+    ids=lambda pkg: pkg.__class__.__name__,
 )
 def test_sklearn_obj_dict(package):
     """Test that generated sklearn loc dict matches the package _obj_dict."""
@@ -30,11 +33,10 @@ def test_sklearn_obj_dict(package):
         assert obj_loc == loc_dict[obj_name]
 
 
-
 @pytest.mark.parametrize(
     "package",
-    _all_packages,
-    ids=[pkg.__class__.__name__ for pkg in _all_packages],
+    _get_all_sklearn_packages(),
+    ids=lambda pkg: pkg.__class__.__name__,
 )
 def test_sklearn_types_of_obj(package):
     """Test that generated sklearn types dict matches the package _type_of_objs."""
