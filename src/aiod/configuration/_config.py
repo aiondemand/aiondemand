@@ -53,7 +53,17 @@ class Config:
     )
 
     def subscribe(self, attribute: str, on_change: AttributeObserver) -> None:
-        """Register a callback to be notified if the value of the `attribute` changes."""
+        """Register a callback to be notified if the value of the `attribute` changes.
+
+        Parameters
+        ----------
+        attribute
+            The name of the attribute to observe.
+        on_change
+            The callback to call when the value of the attribute changes. It will be
+            called with three arguments: the name of the attribute, the old value, and
+            the new value.
+        """
         if on_change not in self._observers[attribute]:
             self._observers[attribute].add(on_change)
 
@@ -121,7 +131,6 @@ def _add_decode_error_note(file: Path, e: tomlkit.exceptions.ParseError) -> None
                 """
         )
     )
-
 
 config = Config()  # Modified through `load_configuration`
 _user_config_file = Path("~/.aiod/config.toml").expanduser()
