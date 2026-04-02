@@ -126,7 +126,9 @@ def _add_decode_error_note(file: Path, e: tomlkit.exceptions.ParseError) -> None
 config = Config()  # Modified through `load_configuration`
 _user_config_file = Path("~/.aiod/config.toml").expanduser()
 if _user_config_file.exists() and _user_config_file.is_file():
-    load_configuration(_user_config_file)
-    logger.info(f"Loaded configuration from {_user_config_file}: {config}.")
+    user_config = load_configuration(_user_config_file)
+    log_msg = f"Loaded configuration from {_user_config_file}: {config}."
 else:
-    logger.info(f"No configuration file detected, using default configuration: {config}.")
+    log_msg = f"No configuration file detected, using default configuration: {config}."
+
+logger.info(log_msg)
