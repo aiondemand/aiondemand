@@ -38,12 +38,11 @@ class Config:
     request_timeout_seconds: int
         If any request remains unresponsive for `request_timeout_seconds` seconds,
         it will automatically be aborted and raise a `requests.Timeout` error.
-
     """
 
-    api_server: str = "https://api.aiod.eu/"
+    api_server: str = "https://api.aiodp.eu/"
     version: str = "v2"
-    auth_server: str = "https://auth.aiod.eu/aiod-auth/"
+    auth_server: str = "https://auth.aiodp.eu/aiod-auth/"
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
     request_timeout_seconds: int = 10
