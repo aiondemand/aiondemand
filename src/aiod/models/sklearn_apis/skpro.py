@@ -2,7 +2,6 @@
 """skpro probabilistic estimator and metric index."""
 
 from aiod.models.apis import _ModelPkgSklearnEstimator
-from aiod.utils._indexing._preindex_sklearn import _generate_sklearn_objs_by_type
 
 
 class AiodPkg__skpro(_ModelPkgSklearnEstimator):
