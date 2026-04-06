@@ -38,12 +38,11 @@ class Config:
     request_timeout_seconds: int
         If any request remains unresponsive for `request_timeout_seconds` seconds,
         it will automatically be aborted and raise a `requests.Timeout` error.
-
     """
 
-    api_server: str = "https://api.aiod.eu/"
+    api_server: str = "https://api.aiodp.eu/"
     version: str = "v2"
-    auth_server: str = "https://auth.aiod.eu/aiod-auth/"
+    auth_server: str = "https://auth.aiodp.eu/aiod-auth/"
     realm: str = "aiod"
     client_id: str = "aiod-sdk"
     request_timeout_seconds: int = 10
@@ -54,7 +53,17 @@ class Config:
     )
 
     def subscribe(self, attribute: str, on_change: AttributeObserver) -> None:
-        """Register a callback to be notified if the value of the `attribute` changes."""
+        """Register a callback to be notified if the value of the `attribute` changes.
+
+        Parameters
+        ----------
+        attribute
+            The name of the attribute to observe.
+        on_change
+            The callback to call when the value of the attribute changes. It will be
+            called with three arguments: the name of the attribute, the old value, and
+            the new value.
+        """
         if on_change not in self._observers[attribute]:
             self._observers[attribute].add(on_change)
 
@@ -123,11 +132,12 @@ def _add_decode_error_note(file: Path, e: tomlkit.exceptions.ParseError) -> None
         )
     )
 
-
 config = Config()  # Modified through `load_configuration`
 _user_config_file = Path("~/.aiod/config.toml").expanduser()
 if _user_config_file.exists() and _user_config_file.is_file():
-    load_configuration(_user_config_file)
-    logger.info(f"Loaded configuration from {_user_config_file}: {config}.")
+    user_config = load_configuration(_user_config_file)
+    log_msg = f"Loaded configuration from {_user_config_file}: {config}."
 else:
-    logger.info(f"No configuration file detected, using default configuration: {config}.")
+    log_msg = f"No configuration file detected, using default configuration: {config}."
+
+logger.info(log_msg)
