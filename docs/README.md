@@ -57,3 +57,35 @@ The `aiondemand` package is being developed with funding from EU’s Horizon Eur
 Not all contributors need be affiliated with this funding.
 
 [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter) were used to create the repository structure.
+## Development Setup
+
+If you want to contribute to the project or run the full test suite locally, install the package with the optional development and integration test dependencies:
+
+```bash
+pip install -e ".[dev,tests_integrations]"
+```
+
+### Running the test suite
+
+To run the full test suite:
+
+```bash
+python -m pytest
+```
+
+### Notes
+
+Some tests require additional optional packages. In particular:
+
+- `responses` is required for some HTTP-related tests
+- `aioresponses` is required for async HTTP-related tests
+- `scikit-learn` is required for model-related tests
+
+If these dependencies are missing, you may see errors such as:
+
+```text
+ModuleNotFoundError: No module named 'responses'
+ModuleNotFoundError: No module named 'aioresponses'
+```
+
+Installing the optional dependency groups as shown above should resolve these issues.
