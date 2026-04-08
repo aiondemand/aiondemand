@@ -3,6 +3,7 @@ from aiod.authentication import create_token, get_current_user, invalidate_token
 
 # from aiod.calls.calls import get_any_asset as get
 from aiod.configuration import config
+from aiod.cross_linkages import get_from_pub, get_pubs_for
 from aiod.default.counts import asset_counts as counts
 from aiod.models import get
 from aiod.resources import (
@@ -49,6 +50,8 @@ __all__ = [
     "create_token",
     "counts",
     "get",
+    "get_from_pub",
+    "get_pubs_for",
 ]
 
 # def __getattr__(name: str):
