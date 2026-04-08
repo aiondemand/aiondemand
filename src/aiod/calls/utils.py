@@ -57,6 +57,22 @@ class ServerError(RuntimeError):
 
     def __init__(self, response: requests.Response):
         self.status_code = response.status_code
-        self.detail = response.json().get("detail")
-        self.reference = response.json().get("reference")
         self._response = response
+
+        # Parse JSON body once to avoid redundant calls and to handle
+        # non-JSON responses (e.g., HTML 502 error pages) gracefully.
+        # Catch ValueError as well since Response.json() may raise
+        # different decode exceptions depending on JSON backend/version.
+        try:
+            body = response.json()
+        except (requests.exceptions.JSONDecodeError, ValueError):
+            body = {}
+
+        self.detail = body.get("detail")
+        self.reference = body.get("reference")
+
+        # Provides a useful default message when the error is printed or logged
+        super().__init__(
+            f"Server error {self.status_code}: "
+            f"{self.detail or response.text[:200]}"
+        )
