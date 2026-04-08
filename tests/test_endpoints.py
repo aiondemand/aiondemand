@@ -176,12 +176,29 @@ def test_get_content(asset_name):
             res_body = f.read()
         mocked_requests.add(
             responses.GET,
-            f"{server_url()}{asset_name}/1/content",
+            f"{server_url()}{asset_name}/1/content/0",
             body=res_body,
             status=200,
         )
         endpoint = getattr(aiod, asset_name)
         content = endpoint.get_content(identifier=1)
+
+        assert content == b"a,b,c\n1,2,3"
+
+
+def test_get_content_with_distribution_idx_zero(asset_name):
+    """Regression test: distribution_idx=0 must append '/0' to the URL."""
+    with responses.RequestsMock() as mocked_requests:
+        with open(resources_path / "content.csv", "r") as f:
+            res_body = f.read()
+        mocked_requests.add(
+            responses.GET,
+            f"{server_url()}{asset_name}/1/content/0",
+            body=res_body,
+            status=200,
+        )
+        endpoint = getattr(aiod, asset_name)
+        content = endpoint.get_content(identifier=1, distribution_idx=0)
 
         assert content == b"a,b,c\n1,2,3"
 
@@ -200,6 +217,7 @@ def test_get_content_with_distribution_idx(asset_name):
         content = endpoint.get_content(identifier=1, distribution_idx=2)
 
         assert content == b"a,b,c\n1,2,3"
+
 
 
 def test_search(asset_with_search):
