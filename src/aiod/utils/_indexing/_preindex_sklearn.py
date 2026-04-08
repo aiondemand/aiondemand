@@ -6,6 +6,8 @@ __author__ = ["fkiraly"]
 # all_estimators is also based on the sklearn utility of the same name
 
 import inspect
+import re
+from pprint import pformat
 
 from skbase.lookup import all_objects
 
@@ -239,3 +241,108 @@ def _generate_sklearn_types_of_obj() -> dict:
             type_of_objs[est_name] = found_types[0]
 
     return type_of_objs
+
+
+def _sanitize_class_suffix(name: str) -> str:
+    """Sanitize string for usage in generated class names."""
+    pieces = re.split(r"[^0-9a-zA-Z]+", name)
+    return "".join(piece[:1].upper() + piece[1:] for piece in pieces if piece)
+
+
+def _normalize_object_types(obj_types: str | list[str] | None) -> list[str]:
+    """Return object types in normalized list form."""
+    if obj_types is None:
+        return []
+    if isinstance(obj_types, str):
+        return [obj_types]
+    return list(obj_types)
+
+
+def generate_sklearn_index_source(
+    pypi_package_name="scikit-learn",
+    import_root="sklearn",
+    class_name=None,
+    mode="multiple",
+):
+    """Generate source code for sklearn index package class(es).
+
+    Parameters
+    ----------
+    pypi_package_name : str, default="scikit-learn"
+        Name of the package in PyPI metadata.
+    import_root : str, default="sklearn"
+        Import root used to discover sklearn-style estimators.
+    class_name : str or None, optional
+        Name of class to generate in ``mode='multiple'``.
+        If None, this defaults to ``AiodPkg__{ImportRoot}``.
+    mode : {"multiple", "single"}, default="multiple"
+        If ``"multiple"``, generates one class with ``_obj_dict``, ``_type_of_objs``
+        and ``_objs_by_type``.
+        If ``"single"``, generates one single-object class per estimator.
+
+    Returns
+    -------
+    str
+        Python source code for generated class definition(s).
+    """
+    if mode not in {"multiple", "single"}:
+        raise ValueError("mode must be one of {'multiple', 'single'}")
+
+    obj_dict = _all_sklearn_estimators_locdict(package_name=import_root)
+    type_of_objs = _generate_sklearn_types_of_obj()
+    objs_by_type = _generate_sklearn_objs_by_type(type_of_objs)
+
+    lines = [
+        '"""Generated sklearn index class(es)."""',
+        "",
+        "from aiod.models.apis import _ModelPkgSklearnEstimator",
+        "",
+        "",
+    ]
+
+    if mode == "multiple":
+        if class_name is None:
+            class_name = f"AiodPkg__{_sanitize_class_suffix(import_root)}"
+
+        object_types = sorted(objs_by_type.keys())
+
+        lines.extend(
+            [
+                f"class {class_name}(_ModelPkgSklearnEstimator):",
+                "    _tags = {",
+                '        "pkg_id": "__multiple",',
+                f'        "python_dependencies": "{pypi_package_name}",',
+                f'        "pkg_pypi_name": "{pypi_package_name}",',
+                f"        \"object_types\": {pformat(object_types)},",
+                "    }",
+                "",
+                f"    _obj_dict = {pformat(obj_dict, sort_dicts=True)}",
+                "",
+                f"    _type_of_objs = {pformat(type_of_objs, sort_dicts=True)}",
+                "",
+                f"    _objs_by_type = {pformat(objs_by_type, sort_dicts=True)}",
+                "",
+            ]
+        )
+        return "\n".join(lines)
+
+    for estimator_name in sorted(obj_dict):
+        estimator_class_name = f"AiodPkg__{_sanitize_class_suffix(estimator_name)}"
+        estimator_obj_types = _normalize_object_types(type_of_objs.get(estimator_name))
+        lines.extend(
+            [
+                f"class {estimator_class_name}(_ModelPkgSklearnEstimator):",
+                "    _tags = {",
+                f'        "pkg_id": "{estimator_name}",',
+                f'        "python_dependencies": "{pypi_package_name}",',
+                f'        "pkg_pypi_name": "{pypi_package_name}",',
+                f"        \"object_types\": {pformat(estimator_obj_types)},",
+                "    }",
+                "",
+                f'    _obj = "{obj_dict[estimator_name]}"',
+                "",
+                "",
+            ]
+        )
+
+    return "\n".join(lines).rstrip() + "\n"
