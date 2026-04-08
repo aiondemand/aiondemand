@@ -1,4 +1,3 @@
-import asyncio
 from functools import partial
 from http import HTTPStatus
 from typing import Literal
@@ -6,6 +5,7 @@ from typing import Literal
 import aiohttp
 import pandas as pd
 import requests
+from tqdm.asyncio import tqdm
 
 from aiod.authentication.authentication import _get_auth_headers, get_token
 from aiod.calls.urls import (
@@ -83,7 +83,8 @@ def get_list(
         The version of the endpoint (default is None).
     data_format
         The desired format for the response (default is "pandas").
-        For "json" formats, the returned type is a json decoded type, i.e. in this case a list of dicts.
+        For "json" formats, the returned type is a json decoded type, i.e. in this case
+        a list of dicts.
 
     Returns
     -------
@@ -129,7 +130,9 @@ def delete_asset(
         headers=get_token().headers,
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     return res
 
@@ -176,7 +179,9 @@ def put_asset(
         json=metadata,
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     return res
 
@@ -194,7 +199,8 @@ def patch_asset(
 
     Notes
     -----
-    This is a best-effort implementation, but is not yet officially supported by the server.
+    This is a best-effort implementation, but is not yet officially supported
+    by the server.
 
     Parameters
     ----------
@@ -216,7 +222,9 @@ def patch_asset(
     """
     url = url_to_get_asset(asset_type, identifier, version)
 
-    asset = get_asset(identifier, asset_type=asset_type, version=version, data_format="json")
+    asset = get_asset(
+        identifier, asset_type=asset_type, version=version, data_format="json"
+    )
     del asset["aiod_entry"]
     for attribute, value in metadata.items():
         asset[attribute] = value
@@ -227,7 +235,9 @@ def patch_asset(
         json=asset,
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     return res
 
@@ -268,7 +278,9 @@ def post_asset(
     return res
 
 
-def counts(*, asset_type: str, version: str | None = None, per_platform: bool = False) -> int | dict[str, int]:
+def counts(
+    *, asset_type: str, version: str | None = None, per_platform: bool = False
+) -> int | dict[str, int]:
     """Retrieve the number of ASSET_TYPE assets in the metadata catalogue.
 
     All parameters must be specified by name.
@@ -312,7 +324,8 @@ def get_asset(
         The version of the endpoint (default is None).
     data_format
         The desired format for the response (default is "pandas").
-        For "json" formats, the returned type is a json decoded type, in this case a dict.
+        This is a best-effort implementation, but is not yet officially supported
+    by the server.
 
     Returns
     -------
@@ -330,7 +343,9 @@ def get_asset(
         headers=_get_auth_headers(required=False),
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     resources = format_response(res.json(), data_format)
     return resources
@@ -344,9 +359,10 @@ def get_asset_from_platform(
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
 ) -> pd.Series | dict:
-    """Retrieve metadata for a specific ASSET_TYPE identified by the external platform identifier.
+    """Retrieve metadata for an asset from an external platform.
 
-    All parameters must be specified by name.
+    Retrieve metadata for a specific ASSET_TYPE identified by the external
+    platform identifier. All parameters must be specified by name.
 
     Parameters
     ----------
@@ -358,17 +374,25 @@ def get_asset_from_platform(
         The version of the endpoint (default is None).
     data_format
         The desired format for the response (default is "pandas").
-        For "json" formats, the returned type is a json decoded type, in this case a dict.
+        For "json" formats, the returned type is a json decoded type, in this
+        case a dict.
 
     Returns
     -------
     :
         The retrieved metadata for the specified ASSET_TYPE.
     """
-    url = url_to_get_asset_from_platform(asset_type, platform, platform_identifier, version)
+    url = url_to_get_asset_from_platform(
+        asset_type, platform, platform_identifier, version
+    )
     res = requests.get(url, timeout=config.request_timeout_seconds)
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
-        raise KeyError(f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found.")
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get(
+        "detail"
+    ):
+        raise KeyError(
+            f"No {asset_type} with of {platform!r} with identifier "
+            f"{platform_identifier!r} found."
+        )
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -413,15 +437,19 @@ def search(
     platforms: list[str] | None = None,
     offset: int = 0,
     limit: int = 10,
-    search_field: (None | Literal["name", "issn", "description_html", "description_plain"]) = None,
+    search_field: (
+        None | Literal["name", "issn", "description_html", "description_plain"]
+    ) = None,
     get_all: bool = True,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
     asset_type: str,
 ) -> pd.DataFrame | list[dict]:
-    """Search metadata for ASSET_TYPE type using the Elasticsearch endpoint of the AIoD metadata catalogue.
+    """Search metadata using the Elasticsearch endpoint.
 
-    All parameters except `query` must be specified by name.
+    Search metadata for ASSET_TYPE type using the Elasticsearch endpoint
+    of the AIoD metadata catalogue. All parameters except `query` must be
+    specified by name.
 
     Parameters
     ----------
@@ -434,8 +462,8 @@ def search(
         The offset for pagination (default is 0).
     limit
         The maximum number of results to retrieve (default is 10).
-    search_field
-        The specific fields to search within. If None, the query will be matched against all fields (default is None).
+    The specific fields to search within. If None, the query will be matched
+        against all fields (default is None).
     get_all
         If true, a request to the database is made to retrieve all data.
         If false, only the indexed information is returned. (default is True).
@@ -443,7 +471,8 @@ def search(
         The version of the endpoint to use (default is None).
     data_format
         The desired format for the response (default is "pandas").
-        For "json" formats, the returned type is a json decoded type, in this case a list of dict's.
+        For "json" formats, the returned type is a json decoded type, in this
+        case a list of dict's.
 
     Returns
     -------
@@ -474,6 +503,7 @@ async def get_assets_async(
     asset_type: str,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
+    show_progress: bool = False,
 ) -> pd.DataFrame | list[dict]:
     """Asynchronously retrieve metadata for a list of ASSET_TYPE identifiers.
 
@@ -487,15 +517,15 @@ async def get_assets_async(
         The version of the endpoint (default is None).
     data_format
         The desired format for the response (default is "pandas").
-        For "json" formats, the returned type is a json decoded type, in this case a list of dicts.
-
-    Returns
-    -------
-    :
-        The retrieved metadata for the specified ASSET_TYPE.
+        For "json" formats, the returned type is a json decoded type,
+        in this case a list of dicts.
+    show_progress
+        If True, display a progress bar (default is False).
     """
-    urls = [url_to_get_asset(asset_type, identifier, version) for identifier in identifiers]
-    response_data = await _fetch_resources(urls)
+    urls = [
+        url_to_get_asset(asset_type, identifier, version) for identifier in identifiers
+    ]
+    response_data = await _fetch_resources(urls, show_progress=show_progress)
     resources = format_response(response_data, data_format)
     return resources
 
@@ -508,6 +538,7 @@ async def get_list_async(
     batch_size: int = 10,
     version: str | None = None,
     data_format: Literal["pandas", "json"] = "pandas",
+    show_progress: bool = False,
 ) -> pd.DataFrame | list[dict]:
     """Asynchronously retrieve a list of ASSET_TYPE from the catalogue in batches.
 
@@ -515,12 +546,20 @@ async def get_list_async(
 
     Parameters
     ----------
-        offset: The offset for pagination (default is 0).
-        limit: The maximum number of items to retrieve (default is 10).
-        batch_size: The number of items in a a batch.
-        version: The version of the endpoint (default is None).
-        data_format: The desired format for the response (default is "pandas").
-            For "json" formats, the returned type is a json decoded type, in this case a list of dicts.
+    offset:
+        The offset for pagination (default is 0).
+    limit:
+        The maximum number of items to retrieve (default is 10).
+    batch_size:
+        The number of items in a batch.
+    version:
+        The version of the endpoint (default is None).
+    data_format:
+        The desired format for the response (default is "pandas").
+        For "json" formats, the returned type is a json decoded type,
+        in this case a list of dicts.
+    show_progress:
+        If True, display a progress bar (default is False).
 
     Returns
     -------
@@ -533,28 +572,38 @@ async def get_list_async(
         Batch size must be larger than 0.
     """
     if batch_size <= 0:
-        raise ValueError("batch_size must be larger than 0, otherwise you can use the synchronous get_list function!")
+        raise ValueError(
+            "batch_size must be larger than 0, otherwise you can "
+            "use the synchronous get_list function!"
+        )
 
     offsets = range(offset, offset + limit, batch_size)
     last_batch_size = (limit % batch_size) or batch_size
     batch_sizes = [batch_size] * (len(offsets) - 1) + [last_batch_size]
 
-    urls = [url_to_get_list(asset_type, offset, limit, version) for offset, limit in zip(offsets, batch_sizes, strict=False)]
+    urls = [
+        url_to_get_list(asset_type, offset, limit, version)
+        for offset, limit in zip(offsets, batch_sizes, strict=False)
+    ]
 
-    response_data = await _fetch_resources(urls)
-    flattened_response_data = [response for batch in response_data for response in batch]
+    response_data = await _fetch_resources(urls, show_progress=show_progress)
+    flattened_response_data = [
+        response for batch in response_data for response in batch
+    ]
     resources = format_response(flattened_response_data, data_format)
     return resources
 
 
-async def _fetch_resources(urls) -> list[dict]:
+async def _fetch_resources(urls, show_progress: bool = False) -> list[dict]:
     async def _fetch_data(session, url) -> dict:
         async with session.get(url, timeout=config.request_timeout_seconds) as response:
             return await response.json()
 
     async with aiohttp.ClientSession() as session:
         tasks = [_fetch_data(session, url) for url in urls]
-        response_data = await asyncio.gather(*tasks)
+        response_data = await tqdm.gather(
+            *tasks, disable=not show_progress, desc="AIoD: Fetching assets"
+        )
     return response_data
 
 
