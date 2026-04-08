@@ -1,0 +1,42 @@
+name: integration-tests.yml
+
+# Run integration tests on a schedule or manually
+# These tests connect to the live AIoD server and are separated from
+# the main CI pipeline to avoid blocking PRs when the server is down
+
+on:
+  # Run weekly on Monday at 9:00 UTC
+  schedule:
+    - cron: '0 9 * * 1'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      
+      - name: Install Dependencies
+        run: python -m pip install ".[dev,tests_integrations]"
+      
+      - name: Run integration tests
+        run: python -m pytest -m server tests
+        continue-on-error: true
+        id: integration-tests
+      
+      - name: Report results
+        if: always()
+        run: |
+          if [ "${{ steps.integration-tests.outcome }}" == "success" ]; then
+            echo "✅ Integration tests passed - AIoD server is operational"
+          else
+            echo "❌ Integration tests failed - AIoD server may be down"
+            echo "This is expected if the server is undergoing maintenance or migration"
+          fi
