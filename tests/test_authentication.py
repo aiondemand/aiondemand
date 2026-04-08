@@ -5,6 +5,9 @@ from responses import matchers
 from unittest.mock import Mock
 import requests
 
+from datetime import datetime, timedelta, timezone
+import tomlkit
+
 import aiod
 from aiod.configuration import config
 from aiod.authentication.authentication import (
@@ -183,3 +186,22 @@ def test_token_to_file_creates_parent_directory(tmp_path):
     # Calling it multiple times should not result in an error,
     # even if the directory or file already exist.
     token.to_file(token_file)
+
+
+def test_token_from_file_long_expiry(tmp_path):
+    """timedelta.seconds truncates at 86399 — total_seconds() must be used."""
+
+    token_file = tmp_path / "token.toml"
+    # expiry 25 hours from now — .seconds would give 3600, not 90000
+    expiration = datetime.now(timezone.utc) + timedelta(hours=25)
+    doc = tomlkit.document()
+    doc.add("refresh_token", "fake_refresh")
+    doc.add("access_token", "fake_access")
+    doc.add("expiration_date", expiration.isoformat())
+    token_file.write_text(tomlkit.dumps(doc))
+
+    token = Token.from_file(token_file)
+    assert token._access_token == "fake_access"
+    # expires_in_seconds must be ~90000, not ~3600
+    remaining = (token._expiration_date - datetime.now(timezone.utc)).total_seconds()
+    assert remaining > 80000, f"Expected ~90000 seconds remaining, got {remaining}"
