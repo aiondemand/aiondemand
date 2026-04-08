@@ -203,9 +203,6 @@ def _generate_sklearn_types_of_obj() -> dict:
     """
     Generate _type_of_objs dictionary from _all_sklearn_estimators.
 
-    Args:
-        type_of_objs: Dictionary mapping object names to their types.
-
     Returns
     -------
         Dictionary mapping object names to their types (as strings or lists of strings).
