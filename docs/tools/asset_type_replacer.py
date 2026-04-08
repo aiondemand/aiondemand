@@ -1,9 +1,9 @@
+import logging
+
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import Files
 from mkdocs.structure.pages import Page
-
-import logging
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 

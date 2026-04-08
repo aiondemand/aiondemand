@@ -1,17 +1,17 @@
-import responses
 from pathlib import Path
+
+import responses
 
 import aiod
 from aiod.calls.urls import server_url
 from aiod.configuration import config
-
 
 resources_path = Path(__file__).parent / "resources"
 
 
 def test_counts():
     with responses.RequestsMock() as mocked_requests:
-        with open(resources_path / "counts.json", "r") as f:
+        with open(resources_path / "counts.json") as f:
             res_body = f.read()
         config.version = "v1"
         mocked_requests.add(
