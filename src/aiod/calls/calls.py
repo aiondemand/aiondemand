@@ -99,6 +99,8 @@ def get_list(
         url,
         timeout=config.request_timeout_seconds,
     )
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -290,6 +292,8 @@ def counts(*, asset_type: str, version: str | None = None, per_platform: bool = 
     """
     url = url_to_resource_counts(version, per_platform, asset_type)
     res = requests.get(url, timeout=config.request_timeout_seconds)
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     return res.json()
 
 
@@ -403,6 +407,8 @@ def get_content(
         url,
         timeout=config.request_timeout_seconds,
     )
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     distribution = res.content
     return distribution
 
@@ -464,6 +470,8 @@ def search(
         url,
         timeout=config.request_timeout_seconds,
     )
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     resources = format_response(res.json()["resources"], data_format)
     return resources
 
