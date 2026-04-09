@@ -183,3 +183,64 @@ def test_token_to_file_creates_parent_directory(tmp_path):
     # Calling it multiple times should not result in an error,
     # even if the directory or file already exist.
     token.to_file(token_file)
+
+
+# --- Tests for Issue #185: get_current_user() crash on non-200/401 responses ---
+
+
+def test_get_current_user_500_error(mocked_token: Mock):
+    """get_current_user() should raise RuntimeError on 500 Internal Server Error."""
+    keycloak_openid().token = mocked_token
+
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{config.api_server}authorization_test",
+            json={"error": "Internal Server Error"},
+            status=500,
+        )
+        set_token(
+            Token(refresh_token="fake_refresh", access_token="fake_token", expires_in_seconds=300)
+        )
+
+        with pytest.raises(RuntimeError, match="Unexpected server response 500"):
+            aiod.get_current_user()
+
+
+def test_get_current_user_503_error(mocked_token: Mock):
+    """get_current_user() should raise RuntimeError on 503 Service Unavailable."""
+    keycloak_openid().token = mocked_token
+
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{config.api_server}authorization_test",
+            json={"error": "Service Unavailable"},
+            status=503,
+        )
+        set_token(
+            Token(refresh_token="fake_refresh", access_token="fake_token", expires_in_seconds=300)
+        )
+
+        with pytest.raises(RuntimeError, match="Unexpected server response 503"):
+            aiod.get_current_user()
+
+
+def test_get_current_user_404_error(mocked_token: Mock):
+    """get_current_user() should raise RuntimeError on 404 Not Found."""
+    keycloak_openid().token = mocked_token
+
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{config.api_server}authorization_test",
+            json={"detail": "Not found"},
+            status=404,
+        )
+        set_token(
+            Token(refresh_token="fake_refresh", access_token="fake_token", expires_in_seconds=300)
+        )
+
+        with pytest.raises(RuntimeError, match="Unexpected server response 404"):
+            aiod.get_current_user()
+
