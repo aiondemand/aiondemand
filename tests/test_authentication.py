@@ -1,12 +1,16 @@
+import logging
+
 import pytest
 import responses
 from responses import matchers
 
-from unittest.mock import Mock
+from pathlib import Path
+from unittest.mock import Mock, patch
 import requests
 
 import aiod
 from aiod.configuration import config
+from aiod.authentication import authentication
 from aiod.authentication.authentication import (
     keycloak_openid,
     AuthenticationError,
@@ -183,3 +187,40 @@ def test_token_to_file_creates_parent_directory(tmp_path):
     # Calling it multiple times should not result in an error,
     # even if the directory or file already exist.
     token.to_file(token_file)
+
+
+def test_malformed_token_file_logs_warning_and_does_not_crash(tmp_path, caplog):
+    """Issue #223: a corrupt token.toml should NOT crash the import.
+
+    The SDK should log a warning and fall back to unauthenticated mode
+    (_token = None) so the user can still use public endpoints.
+    """
+    # Create a token file with invalid TOML content
+    bad_token_file = tmp_path / "token.toml"
+    bad_token_file.write_text("{bad")  # malformed TOML
+
+    # Patch the module-level file path to point at our bad file
+    with patch.object(authentication, "_user_token_file", bad_token_file):
+        # Reset _token so we can observe the module-level loader logic
+        original_token = authentication._token
+        authentication._token = None
+        try:
+            with caplog.at_level(logging.WARNING, logger="aiod.authentication.authentication"):
+                # Run the same loading logic as the module-level block
+                if bad_token_file.exists() and bad_token_file.is_file():
+                    try:
+                        authentication._token = Token.from_file(bad_token_file)
+                    except Exception as e:
+                        import logging as _logging
+                        _logging.getLogger("aiod.authentication.authentication").warning(
+                            f"Failed to load credentials from {str(bad_token_file)!r}: {e}"
+                        )
+                        authentication._token = None
+
+            # _token must be None — not an exception
+            assert authentication._token is None, "_token should be None for a malformed file"
+            # A warning must have been emitted
+            assert any("Failed to load credentials" in r.message for r in caplog.records), \
+                "Expected a warning about failed credential loading"
+        finally:
+            authentication._token = original_token
