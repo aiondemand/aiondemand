@@ -21,7 +21,7 @@ def format_response(response: list | dict, data_format: Literal["pandas", "json"
 
     Raises
     ------
-        Exception: If the specified format is invalid or not supported.
+        ValueError: If the specified format is invalid or not supported.
     """
     if data_format == "pandas":
         if isinstance(response, dict):
@@ -31,7 +31,9 @@ def format_response(response: list | dict, data_format: Literal["pandas", "json"
     elif data_format == "json" and (isinstance(response, dict) or isinstance(response, list)):
         return response
 
-    raise Exception(f"Format: {data_format} invalid or not supported for responses of {type(response)=}.")
+    raise ValueError(
+    f"Unsupported data_format: {data_format!r}. Use 'pandas' or 'json'."
+)
 
 
 def wrap_calls(asset_type: str, calls: list[Callable], module: str) -> tuple[Callable, ...]:
