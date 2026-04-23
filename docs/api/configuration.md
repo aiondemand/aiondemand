@@ -3,9 +3,9 @@
 ### Defaults
 The default configuration is as follows:
 
-- api_server: "https://api.aiod.eu/"
+- api_server: "https://api.aiodp.eu/"
 - version: "v2"
-- auth_server: "https://auth.aiod.eu/aiod-auth/"
+- auth_server: "https://auth.aiodp.eu/aiod-auth/"
 - realm: "aiod"
 - client_id: "aiod-sdk"
 - request_timeout_seconds: 10
