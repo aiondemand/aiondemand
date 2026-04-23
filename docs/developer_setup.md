@@ -146,7 +146,7 @@ Go to `http://localhost:9200` and login with:
 ### Using the SDK with a Local Backend
 
 
-By default, the SDK (`aiod`) connects to the remote production backend at `https://api.aiod.eu/`. To use your locally running backend (for development or testing), update the API server URL in your code as follows:
+By default, the SDK (`aiod`) connects to the remote production backend at `https://api.aiodp.eu/`. To use your locally running backend (for development or testing), update the API server URL in your code as follows:
 
 ### 1. Configure SDK to Use Local Backend
 
