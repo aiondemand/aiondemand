@@ -5,9 +5,9 @@
 __author__ = ["fkiraly"]
 # all_estimators is also based on the sklearn utility of the same name
 
+import importlib
 import inspect
-
-from skbase.lookup import all_objects
+import pkgutil
 
 
 def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
@@ -51,37 +51,6 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
 
         loc_dict = serialize_dict(loc_dict, name="sklearn_estimators_loc_dict")
 
-    return loc_dict
-
-
-def _sklearn_estimators_locdict_by_type(type_filter, serialized=False):
-    """Return dictionary of scikit-learn estimators filtered by type.
-
-    Parameters
-    ----------
-    type_filter : str
-        The type of estimator to filter for.
-    serialized : bool, optional (default=False)
-        If True, returns a serialized version of the dict, via
-        ``aiod.utils._inmemory._dict.serialize_dict``.
-        If False, returns the dict directly.
-
-    Returns
-    -------
-    loc_dict : dict
-        A dictionary with:
-            * keys: str, estimator class name, e.g., ``RandomForestClassifier``
-            * values: str, public import path of the estimator, e.g.,
-              ``sklearn.ensemble.RandomForestClassifier``
-    """
-    from sklearn.utils import all_estimators
-
-    ests = all_estimators(type_filter=type_filter)
-    loc_dict = {name: f"{est.__module__}.{name}" for name, est in ests}
-    if serialized:
-        from aiod.utils._inmemory._dict import serialize_dict
-
-        loc_dict = serialize_dict(loc_dict, name=f"sklearn_{type_filter}_loc_dict")
     return loc_dict
 
 
@@ -163,43 +132,51 @@ def _all_sklearn_estimators(
         "conftest",
     ]
 
-    return all_objects(
-        object_types=BaseEstimator,
-        package_name=package_name,
-        modules_to_ignore=MODULES_TO_IGNORE_SKLEARN,
-        as_dataframe=as_dataframe,
-        return_names=return_names,
-        suppress_import_stdout=suppress_import_stdout,
-    )
+    pkg = importlib.import_module(package_name)
+    results = {}
+
+    for _, modname, _ in pkgutil.walk_packages(pkg.__path__, prefix=package_name + "."):
+        if True in [
+            f".{i}." in modname or modname.endswith(f".{i}")
+            for i in MODULES_TO_IGNORE_SKLEARN
+        ]:
+            continue
+        if "._" in modname or modname.startswith("_"):
+            continue
+
+        module = importlib.import_module(modname)
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+            if name in results:
+                continue
+            if not obj.__module__.startswith(package_name):
+                continue
+            if "Base" in name or "mixin" in name.lower() or name.endswith("Ranker"):
+                continue
+            if name.startswith("_"):
+                continue
+            if issubclass(obj, BaseEstimator) or isinstance(
+                getattr(obj, "_estimator_type", None), str
+            ):
+                results[name] = obj
+
+    result = []
+    parent_count = {}
+    threshold = max(2, int(len(results) * 0.05))
+    for name, obj in results.items():
+        for _, other_obj in results.items():
+            if obj in inspect.getmro(other_obj)[1:]:
+                parent_count[obj] = parent_count.get(obj, 0) + 1
+        if parent_count.get(obj, 0) >= threshold:
+            if not isinstance(getattr(obj, "_estimator_type", None), str):
+                continue
+        result.append((name, obj))
+
+    if not return_names:
+        return [item[1] for item in result]
+    return result
 
 
-def _generate_sklearn_objs_by_type(type_of_objs: dict) -> dict:
-    """
-    Generate _objs_by_type dictionary from _type_of_objs.
-
-    Args:
-        type_of_objs: Dictionary mapping object names to their types.
-                     Types can be strings or lists of strings for polymorphic objects.
-
-    Returns
-    -------
-        Dictionary mapping types to lists of object names.
-    """
-    objs_by_type: dict[str, list[str]] = {}
-
-    for obj_name, obj_types in type_of_objs.items():
-        if isinstance(obj_types, str):
-            obj_types = [obj_types]
-
-        for obj_type in obj_types:
-            if obj_type not in objs_by_type:
-                objs_by_type[obj_type] = []
-            objs_by_type[obj_type].append(obj_name)
-
-    return objs_by_type
-
-
-def _generate_sklearn_types_of_obj() -> dict:
+def _generate_sklearn_types_of_obj(package_name) -> dict:
     """
     Generate _type_of_objs dictionary from _all_sklearn_estimators.
 
@@ -210,9 +187,18 @@ def _generate_sklearn_types_of_obj() -> dict:
     -------
         Dictionary mapping object names to their types (as strings or lists of strings).
     """
-    # TODO: handle meta-estimators properly
-    all_est = _all_sklearn_estimators()
+    all_est = _all_sklearn_estimators(package_name)
     type_of_objs: dict[str, list[str] | str] = {}
+
+    polymorphic_meta = {
+        "classifier",
+        "regressor",
+        "transformer",
+        "clusterer",
+        "outlier_detector",
+        "density",
+    }
+
     mixin_to_type = {
         "RegressorMixin": "regressor",
         "ClassifierMixin": "classifier",
@@ -220,22 +206,46 @@ def _generate_sklearn_types_of_obj() -> dict:
         "ClusterMixin": "clusterer",
         "BiclusterMixin": "biclusterer",
         "DensityMixin": "density",
-        "OutlierMixin": "detector_outlier",
+        "KernelDensity": "density",
+        "OutlierMixin": "outlier_detector",
         "_VectorizerMixin": "transformer",
+        "SamplerMixin": "sampler",
+        "BaseSuccessiveHalving": polymorphic_meta,
+        "BaseSearchCV": polymorphic_meta,
+        "Pipeline": polymorphic_meta,
+        "FrozenEstimator": polymorphic_meta,
     }
-
+    module_type = {
+        "manifold": "transformer",
+        "covariance": "covariance",
+        "feature_selection": "transformer",
+        "preprocessing": "transformer",
+        "metrics": "metric",
+    }
     for est_name, est_class in all_est:
-        mro = inspect.getmro(est_class)
+        if package_name not in est_class.__module__:
+            continue
 
-        found_types = []
-        for base_class in mro:
-            if base_class.__name__ in mixin_to_type:
-                est_type = mixin_to_type[base_class.__name__]
-                if est_type not in found_types:
-                    found_types.append(est_type)
+        est_type = getattr(est_class, "_estimator_type", None)
+        if isinstance(est_type, str) and est_type != "ranker":
+            found_types = {est_type}
+        else:
+            mro = inspect.getmro(est_class)
+            found_types = set()
+            for base_class in mro:
+                if base_class.__name__ in mixin_to_type:
+                    est_type = mixin_to_type[base_class.__name__]
+                    found_types.add(est_type) if isinstance(
+                        est_type, str
+                    ) else found_types.update(est_type)
+
+            for module in module_type.keys():
+                if module in est_class.__module__ and not found_types:
+                    found_types.add(module_type[module])
+
         if len(found_types) > 1:
-            type_of_objs[est_name] = found_types
+            type_of_objs[est_name] = list(found_types)
         elif len(found_types) == 1:
-            type_of_objs[est_name] = found_types[0]
+            type_of_objs[est_name] = found_types.pop()
 
     return type_of_objs
