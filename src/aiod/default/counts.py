@@ -1,9 +1,11 @@
+from http import HTTPStatus
 from typing import Literal
 
 import pandas as pd
 import requests
 
 from aiod.calls.urls import server_url
+from aiod.calls.utils import ServerError
 from aiod.configuration import config
 
 
@@ -29,6 +31,9 @@ def asset_counts(version: str | None = None, data_format: Literal["pandas", "jso
     url = f"{base_url}counts"
 
     res = requests.get(url, timeout=config.request_timeout_seconds)
+
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
 
     if data_format == "pandas":
         return pd.DataFrame(res.json())
