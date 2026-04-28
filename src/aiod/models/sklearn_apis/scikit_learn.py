@@ -222,7 +222,6 @@ class AiodPkg__Sklearn(_ModelPkgSklearnEstimator):
         "TruncatedSVD": "sklearn.decomposition.TruncatedSVD",
         "TunedThresholdClassifierCV": "sklearn.model_selection.TunedThresholdClassifierCV",
         "TweedieRegressor": "sklearn.linear_model.TweedieRegressor",
-        "VarianceThreshold": "sklearn.feature_selection.VarianceThreshold",
         "VotingClassifier": "sklearn.ensemble.VotingClassifier",
         "VotingRegressor": "sklearn.ensemble.VotingRegressor",
     }
