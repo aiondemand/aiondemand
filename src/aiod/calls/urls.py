@@ -58,7 +58,7 @@ def url_to_get_content(
 ) -> str:
     base_url = server_url(version)
     url = f"{base_url}{asset_type}/{identifier}/content"
-    url += f"/{distribution_idx}" if distribution_idx else ""
+    url += f"/{distribution_idx}" if distribution_idx is not None else ""
     return url
 
 
