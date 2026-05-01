@@ -155,4 +155,11 @@ for _taxonomy in _TAXONOMIES:
     setattr(_mod, _taxonomy, _get_taxonomy(_taxonomy))
 
 
+def _on_version_changed(_: str, __: str, ___: str) -> None:
+    for name in _TAXONOMIES:
+        getattr(_mod, name).cache_clear()
+
+
+config.subscribe("version", on_change=_on_version_changed)
+
 __all__ = _TAXONOMIES + ["Term"]
