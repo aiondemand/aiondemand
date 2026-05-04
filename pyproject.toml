@@ -27,6 +27,7 @@ dev = [
     "pytest",
     "pytest-asyncio",
     "ruff",
+    "sktime"
 ]
 doc = [
     "mkdocs-material",
