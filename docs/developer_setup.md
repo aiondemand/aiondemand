@@ -143,6 +143,20 @@ Go to `http://localhost:9200` and login with:
 
 ## Common Development Tasks
 
+### Refresh indexed external libraries (sklearn, sktime, skpro, hyperactive)
+
+To update all supported indexed libraries in one command:
+
+```bash
+python -m aiod.utils._indexing.update_library_indexes
+```
+
+To run in check mode for CI/cron jobs:
+
+```bash
+python -m aiod.utils._indexing.update_library_indexes --check
+```
+
 ### Using the SDK with a Local Backend
 
 

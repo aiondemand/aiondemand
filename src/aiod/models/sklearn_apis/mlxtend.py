@@ -4,7 +4,7 @@
 from aiod.models.apis import _ModelPkgSklearnEstimator
 
 
-class AiodPkg__mlxtend(_ModelPkgSklearnEstimator):
+class AiodPkg__Mlxtend(_ModelPkgSklearnEstimator):
     _tags = {
         "pkg_id": "__multiple",
         "python_dependencies": "mlxtend",
@@ -31,34 +31,34 @@ class AiodPkg__mlxtend(_ModelPkgSklearnEstimator):
         "ColumnSelector": "transformer",
         "CopyTransformer": "transformer",
         "DenseTransformer": "transformer",
-        "EnsembleVoteClassifier": "classifier",
+        "EnsembleVoteClassifier": ["classifier", "transformer"],
         "ExhaustiveFeatureSelector": "transformer",
         "OneRClassifier": "classifier",
         "SequentialFeatureSelector": "transformer",
         "StackingCVClassifier": "classifier",
-        "StackingCVRegressor": "regressor",
+        "StackingCVRegressor": ["regressor", "transformer"],
         "StackingClassifier": "classifier",
-        "StackingRegressor": "regressor",
+        "StackingRegressor": ["regressor", "transformer"],
         "TransactionEncoder": "transformer",
     }
 
     _objs_by_type = {
+        "transformer": [
+            "ColumnSelector",
+            "CopyTransformer",
+            "DenseTransformer",
+            "EnsembleVoteClassifier",
+            "ExhaustiveFeatureSelector",
+            "SequentialFeatureSelector",
+            "StackingCVRegressor",
+            "StackingRegressor",
+            "TransactionEncoder",
+        ],
         "classifier": [
             "EnsembleVoteClassifier",
             "OneRClassifier",
             "StackingCVClassifier",
             "StackingClassifier",
         ],
-        "regressor": [
-            "StackingCVRegressor",
-            "StackingRegressor",
-        ],
-        "transformer": [
-            "ColumnSelector",
-            "CopyTransformer",
-            "DenseTransformer",
-            "ExhaustiveFeatureSelector",
-            "SequentialFeatureSelector",
-            "TransactionEncoder",
-        ],
+        "regressor": ["StackingCVRegressor", "StackingRegressor"],
     }
