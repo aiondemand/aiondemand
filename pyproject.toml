@@ -42,7 +42,7 @@ requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
 [project.urls]
-Homepage = "https://www.aiod.eu"
+Homepage = "https://research.aiodp.eu"
 Documentation = "https://aiondemand.github.io/aiondemand/"
 Repository = "https://github.com/aiondemand/aiondemand"
 Issues = "https://github.com/aiondemand/aiondemand/issues"
