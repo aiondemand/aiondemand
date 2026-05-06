@@ -15,6 +15,7 @@ class AiodPkg__ScikitLego(_ModelPkgSklearnEstimator):
             "transformer",
             "outlier_detector",
             "clusterer",
+            "density",
         ],
     }
 
@@ -86,6 +87,7 @@ class AiodPkg__ScikitLego(_ModelPkgSklearnEstimator):
             "transformer",
             "classifier",
             "outlier_detector",
+            "density",
         ],
         "DemographicParityClassifier": "classifier",
         "DictMapper": "transformer",
@@ -190,6 +192,9 @@ class AiodPkg__ScikitLego(_ModelPkgSklearnEstimator):
             "UMAPOutlierDetection",
         ],
         "clusterer": [
+            "DebugPipeline",
+        ],
+        "density": [
             "DebugPipeline",
         ],
     }

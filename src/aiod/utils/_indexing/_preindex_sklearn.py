@@ -45,6 +45,10 @@ def _all_sklearn_estimators_locdict(package_name="sklearn", serialized=False):
         return f"{public_module_name}.{est.__name__}"
 
     loc_dict = {est.__name__: _full_path(est) for est in all_ests}
+    if package_name != "sklearn" and "Pipeline" in loc_dict:
+        clean_pkg_name = package_name.replace("-", "_")
+        prefix = "".join(word.capitalize() for word in clean_pkg_name.split("_"))
+        loc_dict[f"{prefix}Pipeline"] = loc_dict.pop("Pipeline")
 
     if serialized:
         from aiod.utils._inmemory._dict import serialize_dict
