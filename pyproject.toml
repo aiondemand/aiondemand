@@ -57,11 +57,6 @@ allow-direct-references = true
 [tool.hatch.build.targets.wheel]
 packages = ["src/aiod"]
 
-[tool.commitizen]
-name = "cz_conventional_commits"
-version = "0.1.6"
-version_files = ["pyproject.toml:version", "src/aiod/__init__.py:__version__"]
-
 [project.entry-points."mkdocs.plugins"]
 asset-type-replacer = "docs.tools.asset_type_replacer:AssetTypeReplacer"
 
