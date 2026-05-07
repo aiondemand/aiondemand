@@ -96,7 +96,7 @@ jobs:
         run: echo "WHEELNAME=$(ls ./wheelhouse/aiondemand-*none-any.whl)" >> $env:GITHUB_ENV
 
       - name: Install wheel and extras
-        run: python3 -m pip install "${{ env.WHEELNAME }}[dev,tests_integrations]"
+        run: python -m pip install "${{ env.WHEELNAME }}[dev,tests_integrations]"
 
       - run: python -m pytest tests
         name: Run local tests
