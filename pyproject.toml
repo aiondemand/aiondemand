@@ -1,6 +1,7 @@
 [project]
 name = "aiondemand"
-description = "Python SDK for the AIoD metadata catalogue"
+version = "0.3.0"
+description = "Obtain and share AI resources with ease"
 authors = [
   { name = "Jean Matias", email = "smatias.jean@gmail.com" },
   { name = "Pieter Gijsbers", email = "p.gijsbers@tue.nl" },
@@ -8,7 +9,6 @@ authors = [
 readme = "docs/README.md"
 requires-python = ">=3.10"
 license = "MIT"
-dynamic = ["version"]
 
 dependencies = [
     "aiohttp",
