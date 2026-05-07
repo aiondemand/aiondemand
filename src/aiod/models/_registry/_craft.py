@@ -38,12 +38,12 @@ def _extract_var_names(spec):
     import keyword
     import builtins
 
-    tree = ast.parse(spec, mode='exec')
+    tree = ast.parse(spec, mode="exec")
 
     names = {
         node.id
         for node in ast.walk(tree)
-        if isinstance(node, ast.Name)
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
     }
 
     excluded = set(keyword.kwlist) | set(dir(builtins))
