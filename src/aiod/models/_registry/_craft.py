@@ -38,23 +38,36 @@ def _extract_var_names(spec):
 
     tree = ast.parse(spec, mode="exec")
 
-    known_assigned = set()
-    unknown = set()
+    assigned = set()
+    used = []
+
+    # First pass: collect in order
+    for node in tree.body:
+        stmt_used = set()
+        stmt_assigned = set()
+
+        for sub in ast.walk(node):
+            if isinstance(sub, ast.Name):
+                if isinstance(sub.ctx, ast.Load):
+                    stmt_used.add(sub.id)
+                elif isinstance(sub.ctx, ast.Store):
+                    stmt_assigned.add(sub.id)
+
+        used.append((stmt_used, stmt_assigned))
+        assigned |= stmt_assigned
 
     excluded = set(keyword.kwlist) | set(dir(builtins))
 
-    for node in tree.body:
-        # collect reads BEFORE updating assigned names
-        for subnode in ast.walk(node):
-            if isinstance(subnode, ast.Name) and isinstance(subnode.ctx, ast.Load):
-                name = subnode.id
-                if name not in known_assigned and name not in excluded:
-                    unknown.add(name)
+    # Second pass: detect "used before defined"
+    known = set()
+    unknown = set()
 
-        # now record assignments from this statement
-        for subnode in ast.walk(node):
-            if isinstance(subnode, ast.Name) and isinstance(subnode.ctx, ast.Store):
-                known_assigned.add(subnode.id)
+    for stmt_used, stmt_assigned in used:
+        for name in stmt_used:
+            if name not in known and name not in excluded:
+                unknown.add(name)
+
+        known |= stmt_assigned
 
     return unknown
 
