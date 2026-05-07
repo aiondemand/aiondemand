@@ -16,8 +16,6 @@ new_est = craft(spec)
 will have the same effect as new_est = spec.clone()
 """
 
-import re
-
 from aiod.models._registry._cls_lookup import _retrieve
 
 
