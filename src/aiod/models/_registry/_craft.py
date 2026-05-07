@@ -38,7 +38,7 @@ def _extract_var_names(spec):
     import keyword
     import builtins
 
-    tree = ast.parse(spec, mode='eval')
+    tree = ast.parse(spec, mode='exec')
 
     names = {
         node.id
