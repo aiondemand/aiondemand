@@ -18,18 +18,36 @@ will have the same effect as new_est = spec.clone()
 
 import re
 
-from aiod.models._registry._cls_lookup import _get_class
+from aiod.models._registry._cls_lookup import _retrieve
 
 
-def _extract_class_names(spec):
-    """Get all maximal alphanumeric substrings that start with a capital."""
-    pattern = r"\b([A-Z][A-Za-z0-9_]*)\b"
-    cls_name_list = re.findall(pattern, spec)
+def _extract_var_names(spec):
+    """Get all unknown variable names in a python expression.
 
-    EXCLUDE_LIST = ["True", "False", "None"]
-    cls_name_list = [x for x in cls_name_list if x not in EXCLUDE_LIST]
+    Parameters
+    ----------
+    spec : str
+        A python expression as a string.
 
-    return cls_name_list
+    Returns
+    -------
+    names : set of str
+        All variable names in the expression that are not keywords or builtins.
+    """
+    import ast
+    import keyword
+    import builtins
+
+    tree = ast.parse(spec, mode='eval')
+
+    names = {
+        node.id
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Name)
+    }
+
+    excluded = set(keyword.kwlist) | set(dir(builtins))
+    return names - excluded
 
 
 def craft(spec):
@@ -45,13 +63,13 @@ def craft(spec):
     -------
     obj : constructed object
     """
-    cls_names = _extract_class_names(spec)
+    cls_names = _extract_var_names(spec)
 
     register = {}
 
     for name in cls_names:
         try:
-            register[name] = _get_class(name)
+            register[name] = _retrieve(name)
         except Exception as e:
             raise RuntimeError(
                 f"class {name} is required to build spec, but get('{name}') failed"
@@ -94,12 +112,12 @@ def deps(spec, include_test_deps=False):
     """
     dep_strs = []
 
-    for x in _extract_class_names(spec):
+    for x in _extract_var_names(spec):
         try:
-            cls = _get_class(x)
+            cls = _retrieve(x)
         except Exception as e:
             raise RuntimeError(
-                f"class {x} is required to build spec, but get('{x}') failed"
+                f"object {x} is required to build spec, but get('{x}') failed"
             ) from e
 
         def _resolve_disjunctions(dep):
@@ -141,9 +159,9 @@ def imports(spec):
     """
     import_strs = []
 
-    for x in _extract_class_names(spec):
+    for x in _extract_var_names(spec):
         try:
-            cls = _get_class(x)
+            cls = _retrieve(x)
         except Exception as e:
             raise RuntimeError(
                 f"class {x} is required to build spec, but get('{x}') failed"
