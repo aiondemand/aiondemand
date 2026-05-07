@@ -38,14 +38,25 @@ def _extract_var_names(spec):
 
     tree = ast.parse(spec, mode="exec")
 
-    names = {
-        node.id
-        for node in ast.walk(tree)
-        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
-    }
+    known_assigned = set()
+    unknown = set()
 
     excluded = set(keyword.kwlist) | set(dir(builtins))
-    return names - excluded
+
+    for node in tree.body:
+        # collect reads BEFORE updating assigned names
+        for subnode in ast.walk(node):
+            if isinstance(subnode, ast.Name) and isinstance(subnode.ctx, ast.Load):
+                name = subnode.id
+                if name not in known_assigned and name not in excluded:
+                    unknown.add(name)
+
+        # now record assignments from this statement
+        for subnode in ast.walk(node):
+            if isinstance(subnode, ast.Name) and isinstance(subnode.ctx, ast.Store):
+                known_assigned.add(subnode.id)
+
+    return unknown
 
 
 def craft(spec):
