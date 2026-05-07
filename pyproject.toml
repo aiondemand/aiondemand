@@ -3,11 +3,15 @@ name = "aiondemand"
 version = "0.3.0"
 description = "Obtain and share AI resources with ease"
 authors = [
+  { name = "aiod developers", email = "info@gcos.ai" },
   { name = "Jean Matias", email = "smatias.jean@gmail.com" },
   { name = "Pieter Gijsbers", email = "p.gijsbers@tue.nl" },
 ]
+maintainers = [
+  { name = "aiod developers", email = "info@gcos.ai" },
+]
 readme = "docs/README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.15"
 license = "MIT"
 
 dependencies = [
