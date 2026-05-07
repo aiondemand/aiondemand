@@ -17,7 +17,32 @@ The `aiondemand` package is on [PyPI](https://pypi.org/project/aiondemand/):
 $ pip install aiondemand
 ```
 
-Tip: install your dependencies in a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/).
+Tip: Install your dependencies in a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/).
+
+## Development Setup
+
+If you plan to contribute to this project or run the full test suite locally,
+install the package with development and integration test dependencies:
+
+```bash
+pip install -e ".[dev,tests_integrations]"
+```
+
+This installs:
+
+- Testing dependencies (`pytest`, `responses`, `aioresponses`)
+- Development tools (`ruff`, `pre-commit`)
+- Integration test dependencies such as `scikit-learn` (required for model-related tests)
+
+To run the full test suite:
+
+```bash
+python -m pytest
+```
+
+Note:
+Model-related tests depend on `scikit-learn`, which is included under the
+`tests_integrations` optional dependency group defined in `pyproject.toml`.
 
 ## Usage
 You can directly access endpoints through the Python API, for example to browse datasets:
