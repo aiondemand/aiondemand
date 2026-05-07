@@ -33,8 +33,8 @@ def _extract_var_names(spec):
         All variable names in the expression that are not keywords or builtins.
     """
     import ast
-    import keyword
     import builtins
+    import keyword
 
     tree = ast.parse(spec, mode="exec")
 
