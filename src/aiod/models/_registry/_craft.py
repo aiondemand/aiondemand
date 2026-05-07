@@ -63,11 +63,11 @@ def craft(spec):
     -------
     obj : constructed object
     """
-    cls_names = _extract_var_names(spec)
+    var_names = _extract_var_names(spec)
 
     register = {}
 
-    for name in cls_names:
+    for name in var_names:
         try:
             register[name] = _retrieve(name)
         except Exception as e:
