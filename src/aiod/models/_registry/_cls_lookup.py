@@ -1,20 +1,20 @@
-"""Model retrieval utility."""
+"""Model retrieval utility for classes."""
 
 from functools import lru_cache
 
 
-def get(id: str):
-    """Retrieve model object with unique identifier.
+def _get_class(id: str):
+    """Retrieve model class with unique identifier.
 
     Parameter
     ---------
     id : str
-        unique identifier of object to retrieve
+        unique identifier of class to retrieve
 
     Returns
     -------
     class
-        retrieved object
+        retrieved class
 
     Raises
     ------
@@ -60,5 +60,8 @@ def _all_objects(obj_type=None):
     from aiod.models.apis._sklearn_apis import _ModelPkgSklearnEstimator
 
     return all_objects(
-        object_types=_ModelPkgSklearnEstimator, package_name="aiod", return_names=False
+        object_types=_ModelPkgSklearnEstimator,
+        package_name="aiod",
+        return_names=False,
+        modules_to_ignore=["tests", "utils", "base", "registry"],
     )

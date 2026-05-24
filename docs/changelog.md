@@ -1,6 +1,11 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.3.0 (2026-05-07)
+
+- updated backend URLs to `aiodp.eu` endpoints
+- AI model construction feature, indexing into Python AI libraries
+
 ## v0.2.5 (2025-11-06)
 - Temporarily removed client-side checks on `update` calls since they weren't comprehensive enough and in some cases prohibited users from doing legitimate update requests.
 

@@ -81,11 +81,11 @@ All tests should pass.
 
 ### Making Changes
 
-While working on a feature, you can work from the "develop"-branch, provided you are working on a fork.
+While working on a feature, you can work from the "main"-branch, provided you are working on a fork.
 However, even if you are working on a fork we strongly recommend you to make changes on a new branch.
 When working on the main repository, this is required. When working on a fork, this makes it easier to 
 keep your fork in sync with the upstream repository (this one).
-Your new branch should branch off "develop":
+Your new branch should branch off "main":
 
 ```console
 git checkout -b name-of-your-bugfix-or-feature

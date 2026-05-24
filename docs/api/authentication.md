@@ -1,7 +1,7 @@
 # Authentication
 
 To authenticate with AI-on-Demand, you need an account.
-First navigate to [the web portal](https://aiod.eu/) and click `login`, you can choose
+First navigate to [the web portal](https://aiodp.eu/) and click `login`, you can choose
 to use any authentication service and an account will be created automatically.
 
 !!! danger "Never code your keys into a script"
@@ -30,8 +30,8 @@ The above command will output instructions to console on how to obtain a valid t
 ```bash title="Instructions in the Console"
 Please authenticate using one of two methods:
 
-  1. Navigate to https://auth.aiod.eu/aiod-auth/realms/aiod/device?user_code=ACBC-ARFZ
-  2. Navigate to https://auth.aiod.eu/aiod-auth/realms/aiod/device and enter code ACBC-ARFZ
+  1. Navigate to https://auth.aiodp.eu/aiod-auth/realms/aiod/device?user_code=ACBC-ARFZ
+  2. Navigate to https://auth.aiodp.eu/aiod-auth/realms/aiod/device and enter code ACBC-ARFZ
 
 This workflow will automatically abort after 300 seconds.
 ```
