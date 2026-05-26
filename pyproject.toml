@@ -1,6 +1,6 @@
 [project]
 name = "aiondemand"
-version = "0.3.0"
+version = "0.3.1"
 description = "Obtain and share AI resources with ease"
 authors = [
   { name = "aiod developers", email = "info@gcos.ai" },

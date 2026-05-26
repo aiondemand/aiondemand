@@ -1,6 +1,11 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.3.1 (2026-05-26)
+
+- add README badges and pypi classifiers in `pyproject.toml`
+- maintenance fixes
+
 ## v0.3.0 (2026-05-07)
 
 - updated backend URLs to `aiodp.eu` endpoints
