@@ -1,6 +1,3 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![python](https://img.shields.io/badge/Python-3.10+-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org)
-
 # [AI-on-Demand](https://aiodp.eu) - obtain and share AI resources with ease
 
 * quick instantiation of AI models from string IDs across the ecosystem
@@ -8,6 +5,13 @@
 * marketplace features for sharing models and assets (under development)
 
 A web interface for assets is available through [the AIoD catalogue](https://catalogue.aiodp.eu) and the [Metadata Catalogue Editor](https://editor.aiodp.eu/) (under construction)
+
+| Overview | |
+|---|---|
+| **Open Source** |  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/aiondemand/aiondemand/blob/main/LICENSE) |
+| **Community** | [![!discord](https://img.shields.io/static/v1?logo=discord&label=discord&message=chat&color=lightgreen)](https://discord.gg/A7YDRyvqYE) |
+| **CI/CD** | [![github-actions](https://img.shields.io/github/actions/workflow/status/aiondemand/aiondemand/release.yml?logo=github)](https://github.com/aiondemand/aiondemand/actions/workflows/release.yml) |
+| **Code** |  [![!pypi](https://img.shields.io/pypi/v/aiondemand?color=orange)](https://pypi.org/project/aiondemand/) [![!python-versions](https://img.shields.io/pypi/pyversions/aiondemand)](https://www.python.org/) |
 
 ## Installation
 
