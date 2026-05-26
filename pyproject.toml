@@ -11,7 +11,6 @@ maintainers = [
   { name = "aiod developers", email = "info@gcos.ai" },
 ]
 readme = "docs/README.md"
-license = "MIT"
 
 keywords = [
     "artificial-intelligence",
@@ -76,6 +75,9 @@ Documentation = "https://aiondemand.github.io/aiondemand/"
 Repository = "https://github.com/aiondemand/aiondemand"
 Issues = "https://github.com/aiondemand/aiondemand/issues"
 Changelog = "https://aiondemand.github.io/aiondemand/changelog/"
+
+[project.license]
+file = "LICENSE"
 
 [tool.hatch.version]
 path = "src/aiod/__init__.py"
