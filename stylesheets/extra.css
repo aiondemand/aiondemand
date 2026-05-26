@@ -1,0 +1,28 @@
+[data-md-color-scheme="aiod"] {
+  --md-primary-fg-color:        #0047BB; /* top header */
+  --md-primary-fg-color--light: #0047BB;
+  --md-primary-fg-color--dark:  #0047BB;
+
+
+  --md-typeset-a-color: #41B6E6;
+}
+
+/* AIOD colors
+dark blue: #0047BB
+alternative dark blue: #003399:
+light blue: #41B6E6
+yellow: #FFED00
+dark gray: #646567
+light gray: #C5C6C8
+ */
+
+/* At the default height and margin, the logo for AIoD is not recognizable. */
+.md-header__button.md-logo {
+    margin: 0;
+    padding: 0;
+}
+
+.md-header__button.md-logo img, .md-header__button.md-logo svg {
+    height: 2.4rem;
+    width: 2.4rem;
+}
