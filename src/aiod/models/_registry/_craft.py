@@ -16,20 +16,60 @@ new_est = craft(spec)
 will have the same effect as new_est = spec.clone()
 """
 
-import re
-
-from aiod.models._registry._cls_lookup import _get_class
+from aiod.models._registry._cls_lookup import _retrieve
 
 
-def _extract_class_names(spec):
-    """Get all maximal alphanumeric substrings that start with a capital."""
-    pattern = r"\b([A-Z][A-Za-z0-9_]*)\b"
-    cls_name_list = re.findall(pattern, spec)
+def _extract_var_names(spec):
+    """Get all unknown variable names in a python expression.
 
-    EXCLUDE_LIST = ["True", "False", "None"]
-    cls_name_list = [x for x in cls_name_list if x not in EXCLUDE_LIST]
+    Parameters
+    ----------
+    spec : str
+        A python expression as a string.
 
-    return cls_name_list
+    Returns
+    -------
+    names : set of str
+        All variable names in the expression that are not keywords or builtins.
+    """
+    import ast
+    import builtins
+    import keyword
+
+    tree = ast.parse(spec, mode="exec")
+
+    assigned = set()
+    used = []
+
+    # First pass: collect in order
+    for node in tree.body:
+        stmt_used = set()
+        stmt_assigned = set()
+
+        for sub in ast.walk(node):
+            if isinstance(sub, ast.Name):
+                if isinstance(sub.ctx, ast.Load):
+                    stmt_used.add(sub.id)
+                elif isinstance(sub.ctx, ast.Store):
+                    stmt_assigned.add(sub.id)
+
+        used.append((stmt_used, stmt_assigned))
+        assigned |= stmt_assigned
+
+    excluded = set(keyword.kwlist) | set(dir(builtins))
+
+    # Second pass: detect "used before defined"
+    known = set()
+    unknown = set()
+
+    for stmt_used, stmt_assigned in used:
+        for name in stmt_used:
+            if name not in known and name not in excluded:
+                unknown.add(name)
+
+        known |= stmt_assigned
+
+    return unknown
 
 
 def craft(spec):
@@ -45,13 +85,13 @@ def craft(spec):
     -------
     obj : constructed object
     """
-    cls_names = _extract_class_names(spec)
+    var_names = _extract_var_names(spec)
 
     register = {}
 
-    for name in cls_names:
+    for name in var_names:
         try:
-            register[name] = _get_class(name)
+            register[name] = _retrieve(name)
         except Exception as e:
             raise RuntimeError(
                 f"class {name} is required to build spec, but get('{name}') failed"
@@ -94,12 +134,12 @@ def deps(spec, include_test_deps=False):
     """
     dep_strs = []
 
-    for x in _extract_class_names(spec):
+    for x in _extract_var_names(spec):
         try:
-            cls = _get_class(x)
+            cls = _retrieve(x)
         except Exception as e:
             raise RuntimeError(
-                f"class {x} is required to build spec, but get('{x}') failed"
+                f"object {x} is required to build spec, but get('{x}') failed"
             ) from e
 
         def _resolve_disjunctions(dep):
@@ -141,9 +181,9 @@ def imports(spec):
     """
     import_strs = []
 
-    for x in _extract_class_names(spec):
+    for x in _extract_var_names(spec):
         try:
-            cls = _get_class(x)
+            cls = _retrieve(x)
         except Exception as e:
             raise RuntimeError(
                 f"class {x} is required to build spec, but get('{x}') failed"

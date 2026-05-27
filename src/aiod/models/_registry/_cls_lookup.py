@@ -3,18 +3,18 @@
 from functools import lru_cache
 
 
-def _get_class(id: str):
-    """Retrieve model class with unique identifier.
+def _retrieve(id: str):
+    """Retrieve python object with unique identifier.
 
     Parameter
     ---------
     id : str
-        unique identifier of class to retrieve
+        unique identifier for object to retrieve
 
     Returns
     -------
-    class
-        retrieved class
+    obj : object
+        retrieved object
 
     Raises
     ------
