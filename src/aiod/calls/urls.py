@@ -89,5 +89,6 @@ def url_to_get_asset_from_platform(
 def server_url(version: str | None = None) -> str:
     version_str = version if version is not None else config.version
     if version_str:
-        return f"{config.api_server}{version_str}/"
+        base = config.api_server.rstrip("/")
+        return f"{base}/{version_str}/"
     return config.api_server
