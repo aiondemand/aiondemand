@@ -121,7 +121,7 @@ class AiodPkg__FeatureEngine(_ModelPkgSklearnEstimator):
         "OneHotEncoder": "transformer",
         "OrdinalEncoder": "transformer",
         "OutlierTrimmer": "transformer",
-        "Pipeline": [
+        "FeatureEnginePipeline": [
             "regressor",
             "outlier_detector",
             "clusterer",
@@ -195,7 +195,7 @@ class AiodPkg__FeatureEngine(_ModelPkgSklearnEstimator):
             "OneHotEncoder",
             "OrdinalEncoder",
             "OutlierTrimmer",
-            "Pipeline",
+            "FeatureEnginePipeline",
             "PowerTransformer",
             "ProbeFeatureSelection",
             "RandomSampleImputer",
@@ -218,17 +218,17 @@ class AiodPkg__FeatureEngine(_ModelPkgSklearnEstimator):
             "YeoJohnsonTransformer",
         ],
         "classifier": [
-            "Pipeline",
+            "FeatureEnginePipeline",
             "TargetMeanClassifier",
         ],
         "regressor": [
-            "Pipeline",
+            "FeatureEnginePipeline",
             "TargetMeanRegressor",
         ],
         "outlier_detector": [
-            "Pipeline",
+            "FeatureEnginePipeline",
         ],
         "clusterer": [
-            "Pipeline",
+            "FeatureEnginePipeline",
         ],
     }

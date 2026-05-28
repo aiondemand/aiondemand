@@ -16,7 +16,6 @@ class AiodPkg__LightGBM(_ModelPkgSklearnEstimator):
         "DaskLGBMClassifier": "lightgbm.dask.DaskLGBMClassifier",
         "DaskLGBMRegressor": "lightgbm.dask.DaskLGBMRegressor",
         "LGBMClassifier": "lightgbm.sklearn.LGBMClassifier",
-        "LGBMModel": "lightgbm.sklearn.LGBMModel",
         "LGBMRegressor": "lightgbm.sklearn.LGBMRegressor",
     }
 
@@ -24,7 +23,6 @@ class AiodPkg__LightGBM(_ModelPkgSklearnEstimator):
         "DaskLGBMClassifier": "classifier",
         "DaskLGBMRegressor": "regressor",
         "LGBMClassifier": "classifier",
-        "LGBMModel": ["classifier", "regressor"],
         "LGBMRegressor": "regressor",
     }
 
@@ -32,11 +30,9 @@ class AiodPkg__LightGBM(_ModelPkgSklearnEstimator):
         "classifier": [
             "DaskLGBMClassifier",
             "LGBMClassifier",
-            "LGBMModel",
         ],
         "regressor": [
             "DaskLGBMRegressor",
             "LGBMRegressor",
-            "LGBMModel",
         ],
     }
