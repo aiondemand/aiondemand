@@ -60,5 +60,8 @@ def _all_objects(obj_type=None):
     from aiod.models.apis._sklearn_apis import _ModelPkgSklearnEstimator
 
     return all_objects(
-        object_types=_ModelPkgSklearnEstimator, package_name="aiod", return_names=False
+        object_types=_ModelPkgSklearnEstimator,
+        package_name="aiod",
+        return_names=False,
+        modules_to_ignore=["tests", "utils", "base", "registry"],
     )
