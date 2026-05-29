@@ -50,9 +50,16 @@ class _AiodModelPkg(_BasePkg):
             return _safe_import(obj_loc, pkg_name=pkg_name)
 
         if pkg_obj == "code":
-            exec(self._obj)
+            namespace = {}
+            exec(self._obj, globals(), namespace)
 
-            return obj  # noqa: F821
+            if "obj" not in namespace:
+                raise ValueError(
+                    "Error in _AiodModelPkg._materialize. "
+                    "Executed code did not define 'obj'."
+                )
+
+            return namespace["obj"]
 
         # elif pkg_obj == "craft":
         #    identify and call appropriate craft method

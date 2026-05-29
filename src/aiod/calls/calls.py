@@ -129,7 +129,7 @@ def delete_asset(
         headers=get_token().headers,
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail", ""):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     return res
 
@@ -176,7 +176,7 @@ def put_asset(
         json=metadata,
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail", ""):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     return res
 
@@ -227,7 +227,7 @@ def patch_asset(
         json=asset,
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail", ""):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     return res
 
@@ -330,7 +330,7 @@ def get_asset(
         headers=_get_auth_headers(required=False),
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail", ""):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
     resources = format_response(res.json(), data_format)
     return resources
@@ -367,7 +367,7 @@ def get_asset_from_platform(
     """
     url = url_to_get_asset_from_platform(asset_type, platform, platform_identifier, version)
     res = requests.get(url, timeout=config.request_timeout_seconds)
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail", ""):
         raise KeyError(f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found.")
     resources = format_response(res.json(), data_format)
     return resources
