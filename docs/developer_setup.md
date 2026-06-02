@@ -1,4 +1,7 @@
-# AI-on-Demand dev environment setup guide
+# AI-on-Demand Developer Setup Guide
+
+> **New contributor?** Start with the [Contributing Guide](contributing.md) for
+> an overview of how to get involved, then return here for environment setup.
 
 This guide sets up a complete local development environment for AI-on-Demand, which consists of:
 

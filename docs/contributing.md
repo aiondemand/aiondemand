@@ -1,113 +1,146 @@
-# Contributing
+# Contributing to AIoD SDK
 
-Contributions are welcome, and they are greatly appreciated! Every little bit
-helps, and credit will always be given.
+Welcome to the AI-on-Demand (AIoD) SDK! Contributions are welcome, and they
+are greatly appreciated. Every little bit helps, and credit will always be given.
+
+## Getting Involved
+
+The best way to get started is to:
+
+1. Join the [AIoD Discord server](https://discord.com/invite/6Z2PczwZd4) and
+   say hello -- it's a great place to ask questions and coordinate with other
+   contributors.
+2. Browse open [issues](https://github.com/aiondemand/aiondemand/issues).
+   Issues labelled `good first issue` or `help wanted` are especially suited
+   for new contributors.
+3. Set up your development environment by following the
+   [Developer Setup Guide](developer_setup.md).
+
+If you get stuck at any point, don't hesitate to ask on Discord or open a
+discussion on [GitHub Discussions](https://github.com/aiondemand/aiondemand/discussions).
+
+---
 
 ## Types of Contributions
 
 ### Report Bugs
 
-Before reporting a bug, please check our [issue tracker](https://github.com/aiondemand/aiondemand/issues)
-that the bug has not yet been reported. If it has, you may add any additional information that might be 
-missing to that issue. If you have nothing to add, react with a 👍 to the original report to communicate
-you are also experiencing the issue.
+Before reporting a bug, please check the
+[issue tracker](https://github.com/aiondemand/aiondemand/issues) to make sure
+it has not already been reported. If it has, you may add any additional
+information that might be missing. If you have nothing to add, react with a
+:+1: to communicate you are also experiencing the issue.
 
-In case the bug has not been reported yet, please follow these steps to ensure that we can investigate
-the issue and resolve it efficiently:
+When filing a new bug report, please include:
 
-- Describe the bug. What is the expected behavior, and what is the observed behavior?
-- As much as possible, provide steps to reproduce the bug. Preferably with a [minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).
-- Share your operating system name and version, Python and `aiondemand` version. The following 
-  code snippet can be used to automatically obtain the information:
+- A clear description of the expected vs. observed behavior.
+- Steps to reproduce the bug, preferably with a
+  [minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).
+- Your environment details. The following snippet prints the relevant info:
   ```python
-  import aiod
-  import platform
+  import aiod, platform
   print(f"{platform.platform()=}")
   print(f"{aiod.__version__=}")
   print(f"{platform.python_version()=}")
   ```
-  or, in one command; 
+  or, in one command:
   ```
   python -c 'import aiod; import platform; print(f"{platform.platform()=}"); print(f"{aiod.__version__=}"); print(f"{platform.python_version()=}")'
   ```
-- If you have any additional details about your local setup that might be helpful in troubleshooting, please share them.
+- Any other details about your local setup that might be helpful.
 
-### Fixing bugs and adding features
+### Fix Bugs and Add Features
 
-Our [issue tracker](https://github.com/aiondemand/aiondemand/issues) has a list of known bugs (labelled `bug`)
-and proposed features (labelled `enhancement`). Of particular interest may be those issues labelled `help wanted`,
-as those are best suited for outside contributors. 
+The [issue tracker](https://github.com/aiondemand/aiondemand/issues) lists
+known bugs (labelled `bug`) and proposed features (labelled `enhancement`).
 
-Before working on an open issue, please first indicate your interest in fixing it by posting a comment on the issue.
-That way, we can assign people (you) to the issue, and avoid multiple people working on fixing the same bug in parallel (and thus avoid double work).
+Before working on an open issue, please post a comment indicating your interest
+so that we can assign you and avoid duplicate work.
 
-### Write Documentation
+### Improve Documentation
 
-You can never have enough documentation! Please feel free to contribute to any
-part of the documentation, such as the official docs, docstrings, or even on the web in blog posts, articles, and such.
+You can never have enough documentation! Feel free to contribute to the
+official docs, docstrings, tutorials, or blog posts.
 
-### Submit Feedback
+### Submit Feedback / Feature Requests
 
-If you are proposing a feature, please explain in detail how it would work. 
-Answer at least the following questions:
+When proposing a new feature, please explain:
 
-  - What is the goal of the new feature? Which problem does it solve, or what functionality does it add?
-  - Does the feature change an existing interface, or add a new one? What does the suggested new interface look like?
-  - Give an example of a use case where the feature would be of added benefit.
-  - How does the change affect other existing functionality? Will it be a breaking change?
+- What problem does it solve, or what functionality does it add?
+- Does it change an existing interface, or add a new one? What would the new
+  interface look like?
+- Give an example use case.
+- How does it affect existing functionality? Is it a breaking change?
 
-When suggesting a new feature, try to keep the scope as narrow as possible.
-This keeps the discussion focused, and makes it easier to get to an agreement and subsequently implement it.
-Even if a feature request is accepted, it is not a guarantee that we have time available to implement it ourselves.
-However, it makes it much easier for any contributor to start implementing the feature. Contributions welcome :)
+Keep the scope as narrow as possible -- this keeps discussion focused and makes
+implementation easier. Even if a feature request is accepted, it is not a
+guarantee that we have time to implement it ourselves. However, a well-scoped
+request makes it much easier for any contributor to pick it up.
+Contributions welcome!
 
-## Get Started!
+---
 
-Ready to contribute? Here's how to set up `aiondemand` for local development.
+## Contribution Workflow
 
-### Setting up the Development Environment 
+### 1. Set Up Your Development Environment
 
-1. Fork the repository from GitHub by clicking the `fork` button on the webpage.
-1. Clone the fork: `git clone https://github.com/USERNAME/aiondemand.git`. Remember to substitute your username.
-1. Install the project locally (after moving to the new directory). 
-Similar to a regular installation, we strongly recommend you to make use of a virtual environment.
-After activating the environment, install the package in editable mode and with the additional develop packages: `python -m pip install -e ".[dev]"`
+Follow the [Developer Setup Guide](developer_setup.md) to fork, clone, and
+install the project with development dependencies. The guide also covers
+setting up the REST API backend for integration testing.
 
-Before making any changes, first check your setup works:
-```console
-python -m pytest tests
-```
-All tests should pass.
+### 2. Create a Feature Branch
 
-### Making Changes
+Even when working on a fork, we strongly recommend creating a new branch off
+`main`:
 
-While working on a feature, you can work from the "main"-branch, provided you are working on a fork.
-However, even if you are working on a fork we strongly recommend you to make changes on a new branch.
-When working on the main repository, this is required. When working on a fork, this makes it easier to 
-keep your fork in sync with the upstream repository (this one).
-Your new branch should branch off "main":
-
-```console
+```bash
 git checkout -b name-of-your-bugfix-or-feature
 ```
 
-When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
-Also add new tests. When fixing a bug, add a regression test that exposes the bug (i.e., it should fail without your changes, and pass with them)
-and add a reference to the GitHub issue number as a comment. When adding a feature, add new tests to cover the new code.
+### 3. Make Your Changes
 
-Finally, you can open a pull request with the proposed changes. A core contributor will have a look at the changes,
-and possibly request some changes. After all concerns have been addressed, the contributor will merge the change
-and it will be included in the next release.
+- Write clear, well-tested code.
+- When fixing a bug, add a regression test that fails without your fix and
+  passes with it, and reference the GitHub issue number in a comment.
+- When adding a feature, add tests that cover the new code.
+
+### 4. Validate Your Changes
+
+Before opening a pull request, run the full quality checks:
+
+```bash
+# Run tests
+python -m pytest -v
+
+# Run linting
+ruff check .
+
+# Auto-fix linting issues (optional)
+ruff check --fix .
+
+# Run all pre-commit hooks
+pre-commit run --all-files
+```
+
+### 5. Open a Pull Request
+
+Push your branch and open a pull request against `main`. A core contributor
+will review the changes and may request modifications. Once all concerns are
+addressed, the PR will be merged and included in the next release.
+
+---
 
 ## Pull Request Guidelines
 
-Before you submit a pull request, check that it meets these guidelines:
+1. The pull request should include tests where appropriate.
+2. If the pull request adds functionality, update the docs accordingly.
+3. The pull request should work on all currently supported operating systems
+   and Python versions.
 
-1. The pull request should include additional tests if appropriate.
-2. If the pull request adds functionality, the docs should be updated.
-3. The pull request should work for all currently supported operating systems and versions of Python.
+---
 
 ## Code of Conduct
 
-Please note that the `aiondemand` project is released with a Code of Conduct. 
-By contributing to this project you agree to abide by its terms.
+The `aiondemand` project is released with a
+[Code of Conduct](conduct.md). By contributing to this project you agree to
+abide by its terms.
