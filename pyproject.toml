@@ -39,10 +39,9 @@ classifiers = [
 
 requires-python = ">=3.10,<3.15"
 dependencies = [
-    "aiohttp",
+    "httpx",
     "pandas",
     "python-keycloak",
-    "requests",
     "scikit-base",
     "tomlkit",
 ]
@@ -50,10 +49,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pre-commit",
-    "responses",
-    "aioresponses",
     "pytest",
     "pytest-asyncio",
+    "pytest-httpx",
     "ruff",
 ]
 doc = [

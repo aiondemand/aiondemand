@@ -1,13 +1,14 @@
 from typing import Literal
 
 import pandas as pd
-import requests
 
+from aiod._client import client
 from aiod.calls.urls import server_url
-from aiod.configuration import config
 
 
-def asset_counts(version: str | None = None, data_format: Literal["pandas", "json"] = "pandas") -> pd.DataFrame | dict:
+def asset_counts(
+    version: str | None = None, data_format: Literal["pandas", "json"] = "pandas"
+) -> pd.DataFrame | dict:
     """Retrieve counts of assets.
 
     This method sends a GET request to the counts endpoint to retrieve counts of assets.
@@ -28,11 +29,13 @@ def asset_counts(version: str | None = None, data_format: Literal["pandas", "jso
     base_url = server_url(version)
     url = f"{base_url}counts"
 
-    res = requests.get(url, timeout=config.request_timeout_seconds)
+    res = client.get(url)
 
     if data_format == "pandas":
         return pd.DataFrame(res.json())
     elif data_format == "json" and isinstance(res.json(), dict):
         return res.json()
 
-    raise Exception(f"Format: {data_format} invalid or not supported for responses of {type(res.json())=}.")
+    raise Exception(
+        f"Format: {data_format} invalid or not supported for responses of {type(res.json())=}."
+    )

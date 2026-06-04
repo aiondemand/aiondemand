@@ -1,4 +1,5 @@
 from aiod import bookmarks, taxonomies
+from aiod._client import client
 from aiod.authentication import create_token, get_current_user, invalidate_token
 
 # from aiod.calls.calls import get_any_asset as get
@@ -25,6 +26,7 @@ from aiod.resources import (
 )
 
 __all__ = [
+    "client",
     "config",
     "taxonomies",
     "bookmarks",

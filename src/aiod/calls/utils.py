@@ -2,8 +2,8 @@ from collections.abc import Callable
 from functools import partial, update_wrapper
 from typing import Literal
 
+import httpx
 import pandas as pd
-import requests
 
 
 def format_response(response: list | dict, data_format: Literal["pandas", "json"]) -> pd.Series | pd.DataFrame | dict | list:
@@ -55,7 +55,7 @@ class EndpointUndefinedError(Exception):
 class ServerError(RuntimeError):
     """Raised for any server error that does not (yet) have better client-side handling."""
 
-    def __init__(self, response: requests.Response):
+    def __init__(self, response: httpx.Response):
         self.status_code = response.status_code
         self.detail = response.json().get("detail")
         self.reference = response.json().get("reference")

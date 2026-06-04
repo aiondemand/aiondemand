@@ -40,14 +40,11 @@ EndpointUndefinedError is raised.
 import dataclasses
 import functools
 import sys
-from http import HTTPStatus
 from typing import TypedDict
 
-import requests
-
+from aiod._client import AiodNotFoundError, client
 from aiod.calls.urls import server_url
 from aiod.calls.utils import EndpointUndefinedError
-from aiod.configuration import config
 
 _mod = sys.modules[__name__]
 _TAXONOMIES = [
@@ -109,16 +106,10 @@ def _get_taxonomy(name: str):
     # Since taxonomies rarely change, we cache the result in memory.
     @functools.cache
     def get_taxonomy() -> list["Term"]:
-        response = requests.get(
-            f"{server_url()}{name}",
-            timeout=config.request_timeout_seconds,
-        )
-        if response.status_code == HTTPStatus.NOT_FOUND:
+        try:
+            response = client.get(f"{server_url()}{name}")
+        except AiodNotFoundError:
             raise EndpointUndefinedError()
-        if response.status_code != HTTPStatus.OK:
-            raise RuntimeError(
-                f"Unexpected response from ({response.status_code}, {response.json()})"
-            )
         return [_parse_term(term, name.replace("_", " ")) for term in response.json()]
 
     get_taxonomy.__wrapped__.__doc__ = f"""
