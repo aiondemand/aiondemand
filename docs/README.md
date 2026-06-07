@@ -13,6 +13,10 @@ A web interface for assets is available through [the AIoD catalogue](https://cat
 | **CI/CD** | [![github-actions](https://img.shields.io/github/actions/workflow/status/aiondemand/aiondemand/release.yaml?logo=github)](https://github.com/aiondemand/aiondemand/actions/workflows/release.yaml) |
 | **Code** |  [![!pypi](https://img.shields.io/pypi/v/aiondemand?color=orange)](https://pypi.org/project/aiondemand/) [![!python-versions](https://img.shields.io/pypi/pyversions/aiondemand)](https://www.python.org/) |
 
+## Server Status
+
+> **Note**: The AIoD platform is currently undergoing migration to DeployAI infrastructure. During this transition, some services may be temporarily unavailable. The Python SDK will continue to work once the migration is complete.
+
 ## Installation
 
 Install from [PyPI](https://pypi.org/project/aiondemand/) via:

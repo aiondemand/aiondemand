@@ -221,7 +221,28 @@ cd aiondemand
 # source venv/bin/activate  # Mac/Linux
 
 python -m pytest -v
-``` 
+```
+
+### Understanding the Test Suite
+
+The project has three types of tests:
+
+1. **Unit Tests** - Fast, isolated tests that don't require external services
+   ```bash
+   pytest tests/  # Runs all non-server tests
+   ```
+
+2. **Mocked Integration Tests** - Tests that simulate server interactions without connecting to a live server
+   ```bash
+   pytest tests/test_integration_mocked.py
+   ```
+
+3. **Server Integration Tests** - Tests that connect to a live AIoD server (skipped by default)
+   ```bash
+   pytest -m server tests/  # Only run if server is available
+   ```
+
+**Note**: Server integration tests are automatically skipped if the AIoD server is unavailable. This prevents CI failures during server maintenance or migration periods.
 
 ### Run Linting
 ```bash
