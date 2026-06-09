@@ -3,6 +3,7 @@ import responses
 from responses import matchers
 
 import aiod.bookmarks
+from aiod.exceptions import AssetNotFoundError
 
 
 @responses.activate
@@ -30,7 +31,7 @@ def test_bookmark_create_invalid_identifier(valid_refresh_token):
         },
         match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
     )
-    with pytest.raises(KeyError):
+    with pytest.raises(AssetNotFoundError):
         aiod.bookmarks.register("not_an_identifier")
 
 

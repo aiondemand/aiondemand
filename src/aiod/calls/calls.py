@@ -18,7 +18,8 @@ from aiod.calls.urls import (
     url_to_resource_counts,
     url_to_search,
 )
-from aiod.calls.utils import ServerError, format_response, wrap_calls
+from aiod.calls.utils import format_response, wrap_calls
+from aiod.exceptions import AssetNotFoundError, ServerError
 from aiod.configuration import config
 
 
@@ -42,7 +43,7 @@ def get_any_asset(
 
     Raises
     ------
-    KeyError
+    AssetNotFoundError
         If the asset cannot be found.
     """
     res = requests.get(
@@ -52,7 +53,7 @@ def get_any_asset(
     )
 
     if res.status_code == HTTPStatus.NOT_FOUND:
-        raise KeyError(f"Asset with identifier {identifier!r} not found.")
+        raise AssetNotFoundError(res, detail=f"Asset with identifier {identifier!r} not found.")
     if res.status_code != HTTPStatus.OK:
         raise ServerError(res)
     return format_response(res.json(), data_format)
@@ -130,7 +131,9 @@ def delete_asset(
         timeout=config.request_timeout_seconds,
     )
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
-        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+        raise AssetNotFoundError(res, detail=f"No {asset_type} with identifier {identifier!r} found.")
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     return res
 
 
@@ -167,7 +170,7 @@ def put_asset(
 
     Raises
     ------
-        KeyError if the identifier is not known by the server.
+        AssetNotFoundError if the identifier is not known by the server.
     """
     url = url_to_get_asset(asset_type, identifier, version)
     res = requests.put(
@@ -177,7 +180,9 @@ def put_asset(
         timeout=config.request_timeout_seconds,
     )
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
-        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+        raise AssetNotFoundError(res, detail=f"No {asset_type} with identifier {identifier!r} found.")
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     return res
 
 
@@ -212,7 +217,7 @@ def patch_asset(
 
     Raises
     ------
-        KeyError if the identifier is not known by the server.
+        AssetNotFoundError if the identifier is not known by the server.
     """
     url = url_to_get_asset(asset_type, identifier, version)
 
@@ -228,7 +233,9 @@ def patch_asset(
         timeout=config.request_timeout_seconds,
     )
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
-        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+        raise AssetNotFoundError(res, detail=f"No {asset_type} with identifier {identifier!r} found.")
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     return res
 
 
@@ -321,7 +328,7 @@ def get_asset(
 
     Raises
     ------
-    KeyError
+    AssetNotFoundError
         If the asset cannot be found.
     """
     url = url_to_get_asset(asset_type, identifier, version)
@@ -331,7 +338,9 @@ def get_asset(
         timeout=config.request_timeout_seconds,
     )
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
-        raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+        raise AssetNotFoundError(res, detail=f"No {asset_type} with identifier {identifier!r} found.")
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -368,7 +377,9 @@ def get_asset_from_platform(
     url = url_to_get_asset_from_platform(asset_type, platform, platform_identifier, version)
     res = requests.get(url, timeout=config.request_timeout_seconds)
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
-        raise KeyError(f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found.")
+        raise AssetNotFoundError(res, detail=f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found.")
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     resources = format_response(res.json(), data_format)
     return resources
 

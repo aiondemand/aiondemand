@@ -13,7 +13,7 @@ from typing import Callable
 
 import aiod
 from aiod.calls.urls import server_url
-from aiod.calls.utils import EndpointUndefinedError
+from aiod.exceptions import EndpointUndefinedError, AssetNotFoundError
 from aiod.taxonomies import Term
 
 resources_path = Path(__file__).parent / "resources"
@@ -324,7 +324,7 @@ def test_update_asset_incorrect_identifier(asset_name, valid_refresh_token):
         status=HTTPStatus.NOT_FOUND,
     )
     module = getattr(aiod, asset_name)
-    with pytest.raises(KeyError) as e:
+    with pytest.raises(AssetNotFoundError) as e:
         module.update(identifier=identifier, metadata=dict(description="Foo"))
     msg = e.value.args[0]
     assert msg.startswith("No") and msg.endswith("found.")
@@ -356,7 +356,7 @@ def test_delete_asset_incorrect_identifier(asset_name, valid_refresh_token):
         status=HTTPStatus.NOT_FOUND,
     )
     module = getattr(aiod, asset_name)
-    with pytest.raises(KeyError) as e:
+    with pytest.raises(AssetNotFoundError) as e:
         module.delete(identifier=identifier)
     msg = e.value.args[0]
     assert msg.startswith("No") and msg.endswith("found.")

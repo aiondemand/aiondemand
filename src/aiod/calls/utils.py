@@ -46,17 +46,3 @@ def wrap_calls(asset_type: str, calls: list[Callable], module: str) -> tuple[Cal
     return tuple(wrapper_list)
 
 
-class EndpointUndefinedError(Exception):
-    """Raised when a function tries to connect to an endpoint that does not exist."""
-
-    pass
-
-
-class ServerError(RuntimeError):
-    """Raised for any server error that does not (yet) have better client-side handling."""
-
-    def __init__(self, response: requests.Response):
-        self.status_code = response.status_code
-        self.detail = response.json().get("detail")
-        self.reference = response.json().get("reference")
-        self._response = response

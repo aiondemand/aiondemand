@@ -46,7 +46,7 @@ from typing import TypedDict
 import requests
 
 from aiod.calls.urls import server_url
-from aiod.calls.utils import EndpointUndefinedError
+from aiod.exceptions import EndpointUndefinedError
 from aiod.configuration import config
 
 _mod = sys.modules[__name__]
