@@ -1,25 +1,123 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![python](https://img.shields.io/badge/Python-3.10+-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org)
+# [AI-on-Demand](https://aiodp.eu) - obtain and share AI resources with ease
 
-# Connect to [AI-on-Demand](https://aiod.eu) in Python.
+* quick instantiation of AI models from string IDs across the ecosystem
+* cross-platform metadata catalogue for papers, projects, datasets, models
+* marketplace features for sharing models and assets (under development)
 
-The [AI-on-Demand](https://aiod.eu) (AIOD) platform empowers AI research and innovation for industry and academia. 
-At its core is the [metadata catalogue](https://api.aiod.eu) which indexes countless AI resources, such as datasets, papers, and educational material, 
-from many different platforms such as [Zenodo](https://www.zenodo.org), [OpenML](https://www.openml.org), and [AIDA](https://https://www.i-aida.org/ai-educational-resources/).
+A web interface for assets is available through [the AIoD catalogue](https://catalogue.aiodp.eu) and the [Metadata Catalogue Editor](https://editor.aiodp.eu/) (under construction)
 
-This package is mainly intended for users that want to programmatically access the platform to, e.g., build a service, fetch resources in their scripts, or write a connector that registers metadata of another platform with AI-on-Demand. 
-A web interface for browsing and registering assets is available on AI-on-Demand, through [MyLibrary](https://mylibrary.aiod.eu) and the Metadata Catalogue Editor services (to be deployed), respectively.
+| Overview | **[AIoD Homepage](https://aiodp.eu)** · **[Tutorials](https://github.com/aiondemand/aiondemand/tree/main/docs/examples)** · **[Release Notes](https://github.com/aiondemand/aiondemand/releases)** |
+|---|---|
+| **Open Source** |  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/aiondemand/aiondemand/blob/main/LICENSE) |
+| **Community** | [![!discord](https://img.shields.io/static/v1?logo=discord&label=discord&message=chat&color=lightgreen)](https://discord.gg/A7YDRyvqYE) |
+| **CI/CD** | [![github-actions](https://img.shields.io/github/actions/workflow/status/aiondemand/aiondemand/release.yaml?logo=github)](https://github.com/aiondemand/aiondemand/actions/workflows/release.yaml) |
+| **Code** |  [![!pypi](https://img.shields.io/pypi/v/aiondemand?color=orange)](https://pypi.org/project/aiondemand/) [![!python-versions](https://img.shields.io/pypi/pyversions/aiondemand)](https://www.python.org/) |
 
 ## Installation
-The `aiondemand` package is on [PyPI](https://pypi.org/project/aiondemand/):
+
+Install from [PyPI](https://pypi.org/project/aiondemand/) via:
 
 ```bash
 $ pip install aiondemand
 ```
 
-Tip: install your dependencies in a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/).
+## Quick start
 
-## Usage
+### AI model instantiation
+
+Also see the [AI model instantiation tutorial](https://github.com/aiondemand/aiondemand/blob/main/docs/examples/ai-on-demand.ipynb)
+
+`aiod.get(id: str)` is the key entry point:
+
+* `id` is a unique string describing a model
+* return is the python object, or an exception informing the user of required dependencies
+
+```python
+from aiod import get
+
+clf = get("RandomForestClassifier(n_estimators=42)")
+clf
+```
+
+directly constructs the random forest from `scikit-learn`
+```
+RandomForestClassifier(n_estimators=42)
+```
+
+Works across the ecosystem! 
+
+```python
+from aiod import get
+
+clf = get("XGBClassifier()")
+clf
+```
+
+... constructs the `XGBClassifier`, or raises an informative error message to
+install `xgboost` in the environment (if not available)
+
+```
+XGBClassifier()
+```
+
+Complex pipelines and composites are supported out-of-the-box:
+
+```python
+spec = """
+pipe = Pipeline(steps=[
+    ("imputer", SimpleImputer(strategy="mean")),
+    ("scaler", StandardScaler()),
+    ("classifier", RandomForestClassifier(n_estimators=100))])
+cv = KFold(n_splits=5, shuffle=True, random_state=42)
+
+return GridSearchCV(
+    estimator=pipe,
+    param_grid=[{
+        "classifier__max_depth": [5, 10],
+        "classifier__min_samples_split": [2, 5],
+    },
+    ],
+    cv=cv,
+    )
+"""
+
+get(spec)
+```
+
+* no more hassle with import statements!
+* share your AI model specs as easy-to-handle strings!
+
+#### Indexed libraries
+
+The following libraries are indexed - the scope is expanding, roadmap contributions
+are welcome!
+
+##### `scikit-learn` tabular estimators
+
+- `scikit-learn`
+- `catboost`
+- `feature-engine`
+- `lightgbm`
+- `imbalanced-learn`
+- `mlxtend`
+- `scikit-lego`
+- `xgboost`
+
+##### Probabilistic supervised learning and survival modelling
+
+- `skpro`
+
+##### Time series, forecasting
+
+- `sktime`
+
+
+### AI asset catalogue search
+
+Also see the [AI metadata catalogue tutorial](https://github.com/aiondemand/aiondemand/blob/main/docs/examples/getting-started.ipynb)
+
 You can directly access endpoints through the Python API, for example to browse datasets:
 ```python
 import aiod
@@ -54,6 +152,6 @@ By contributing to this project, you agree to abide by our [Code of Conduct](con
 ## Credits
 
 The `aiondemand` package is being developed with funding from EU’s Horizon Europe research and innovation program under grant agreement [No. 101070000 (AI4EUROPE)](https://cordis.europa.eu/project/id/101070000).
-Not all contributors need be affiliated with this funding.
+Not all contributors are affiliated with this funding.
 
 [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter) were used to create the repository structure.

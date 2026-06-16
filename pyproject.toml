@@ -1,15 +1,43 @@
 [project]
 name = "aiondemand"
-description = "Python SDK for the AIoD metadata catalogue"
+version = "0.3.1"
+description = "Obtain and share AI resources with ease"
 authors = [
+  { name = "aiod developers", email = "info@gcos.ai" },
   { name = "Jean Matias", email = "smatias.jean@gmail.com" },
   { name = "Pieter Gijsbers", email = "p.gijsbers@tue.nl" },
 ]
+maintainers = [
+  { name = "aiod developers", email = "info@gcos.ai" },
+]
 readme = "docs/README.md"
-requires-python = ">=3.10"
-license = "MIT"
-dynamic = ["version"]
 
+keywords = [
+    "artificial-intelligence",
+    "data-science",
+    "machine-learning",
+    "ai-on-demand",
+]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+requires-python = ">=3.10,<3.15"
 dependencies = [
     "aiohttp",
     "pandas",
@@ -42,11 +70,14 @@ requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
 [project.urls]
-Homepage = "https://www.aiod.eu"
+Homepage = "https://research.aiodp.eu"
 Documentation = "https://aiondemand.github.io/aiondemand/"
 Repository = "https://github.com/aiondemand/aiondemand"
 Issues = "https://github.com/aiondemand/aiondemand/issues"
 Changelog = "https://aiondemand.github.io/aiondemand/changelog/"
+
+[project.license]
+file = "LICENSE"
 
 [tool.hatch.version]
 path = "src/aiod/__init__.py"
@@ -56,11 +87,6 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/aiod"]
-
-[tool.commitizen]
-name = "cz_conventional_commits"
-version = "0.1.6"
-version_files = ["pyproject.toml:version", "src/aiod/__init__.py:__version__"]
 
 [project.entry-points."mkdocs.plugins"]
 asset-type-replacer = "docs.tools.asset_type_replacer:AssetTypeReplacer"

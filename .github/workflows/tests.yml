@@ -38,8 +38,12 @@ jobs:
         name: Run local tests
       - run: python -m pytest src/aiod
         name: Run tests in package
-      - run: python -m pytest -m server tests
-        name: Run integration tests
+      # Temporarily disabled: AIoD API is currently not responding
+      # See issue: https://github.com/aiondemand/AIOD-rest-api/issues/717
+      # These integration tests depend on the live server and
+      # are causing CI to fail. Re-enable once the API is back up and stable.
+      # - run: python -m pytest -m server tests
+      #   name: Run integration tests
 
   code-quality:
     name: code-quality
