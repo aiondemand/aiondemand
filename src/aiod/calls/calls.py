@@ -99,6 +99,7 @@ def get_list(
         url,
         timeout=config.request_timeout_seconds,
     )
+    res.raise_for_status()
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -129,8 +130,9 @@ def delete_asset(
         headers=get_token().headers,
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail", ""):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+    res.raise_for_status()
     return res
 
 
@@ -176,8 +178,9 @@ def put_asset(
         json=metadata,
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail", ""):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+    res.raise_for_status()
     return res
 
 
@@ -227,8 +230,9 @@ def patch_asset(
         json=asset,
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail", ""):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+    res.raise_for_status()
     return res
 
 
@@ -237,7 +241,7 @@ def post_asset(
     asset_type: str,
     metadata: dict,
     version: str | None = None,
-) -> str | requests.Response:
+) -> str:
     """Register ASSET_TYPE in catalogue.
 
     All parameters must be specified by name.
@@ -253,8 +257,6 @@ def post_asset(
     -------
     identifier: str
         if the asset is registered successfully
-    error response: requests.Response
-        error response, if it failed to register successfully
     """
     url = f"{server_url(version)}{asset_type}"
     res = requests.post(
@@ -263,9 +265,8 @@ def post_asset(
         json=metadata,
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.OK:
-        return res.json()["identifier"]
-    return res
+    res.raise_for_status()
+    return res.json()["identifier"]
 
 
 def counts(*, asset_type: str, version: str | None = None, per_platform: bool = False) -> int | dict[str, int]:
@@ -290,6 +291,7 @@ def counts(*, asset_type: str, version: str | None = None, per_platform: bool = 
     """
     url = url_to_resource_counts(version, per_platform, asset_type)
     res = requests.get(url, timeout=config.request_timeout_seconds)
+    res.raise_for_status()
     return res.json()
 
 
@@ -330,8 +332,9 @@ def get_asset(
         headers=_get_auth_headers(required=False),
         timeout=config.request_timeout_seconds,
     )
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail", ""):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
+    res.raise_for_status()
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -367,8 +370,9 @@ def get_asset_from_platform(
     """
     url = url_to_get_asset_from_platform(asset_type, platform, platform_identifier, version)
     res = requests.get(url, timeout=config.request_timeout_seconds)
-    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
+    if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail", ""):
         raise KeyError(f"No {asset_type} with of {platform!r} with identifier {platform_identifier!r} found.")
+    res.raise_for_status()
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -403,6 +407,7 @@ def get_content(
         url,
         timeout=config.request_timeout_seconds,
     )
+    res.raise_for_status()
     distribution = res.content
     return distribution
 
@@ -464,6 +469,7 @@ def search(
         url,
         timeout=config.request_timeout_seconds,
     )
+    res.raise_for_status()
     resources = format_response(res.json()["resources"], data_format)
     return resources
 
@@ -550,6 +556,7 @@ async def get_list_async(
 async def _fetch_resources(urls) -> list[dict]:
     async def _fetch_data(session, url) -> dict:
         async with session.get(url, timeout=config.request_timeout_seconds) as response:
+            response.raise_for_status()
             return await response.json()
 
     async with aiohttp.ClientSession() as session:
