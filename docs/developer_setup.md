@@ -46,11 +46,15 @@ python -m venv venv
 source venv/bin/activate
 ```
 
-**Install Package with developer dependencies**
+**Install the package with all development and test dependencies**
 
 ```bash
 pip install -e ".[dev]"
 ```
+
+> **Note:** The `dev` extras group includes everything needed to run tests and use linting tools:
+> `pytest`, `pytest-asyncio`, `responses`, `aioresponses`, `ruff`, and `pre-commit`.
+> Without this step, running `pytest` will fail with `ModuleNotFoundError: No module named 'responses'`.
 
 **Quick check**:
 ```bash
@@ -215,13 +219,21 @@ docker compose down
 Before raising a pull request, run these checks to ensure code quality:
 
 ### Run Full Test Suite
+
+> **Important:** Make sure you have installed all dev dependencies first:
+> ```bash
+> pip install -e ".[dev]"
+> ```
+
 ```bash
 cd aiondemand
 .\venv\Scripts\activate  # Windows
 # source venv/bin/activate  # Mac/Linux
 
 python -m pytest -v
-``` 
+```
+
+Expected outcome: all tests pass. If you see `ModuleNotFoundError: No module named 'responses'` or similar, re-run `pip install -e ".[dev]"` inside your active virtual environment. 
 
 ### Run Linting
 ```bash
