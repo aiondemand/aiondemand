@@ -21,6 +21,18 @@ from aiod.calls.urls import (
 from aiod.calls.utils import ServerError, format_response, wrap_calls
 from aiod.configuration import config
 
+def _safe_json(res: requests.Response):
+    """Safely parse JSON response."""
+    if not res.text or not res.text.strip():
+        raise RuntimeError(f"Server error {res.status_code}: empty response")
+
+    try:
+        return res.json()
+    except Exception:
+        raise RuntimeError(
+            f"Invalid JSON response from server (status {res.status_code}): {res.text}"
+        )
+
 
 def get_any_asset(
     identifier: str,
@@ -55,8 +67,8 @@ def get_any_asset(
         raise KeyError(f"Asset with identifier {identifier!r} not found.")
     if res.status_code != HTTPStatus.OK:
         raise ServerError(res)
-    return format_response(res.json(), data_format)
-
+    data = _safe_json(res)
+    return format_response(data, data_format)
 
 def get_list(
     *,
@@ -99,9 +111,13 @@ def get_list(
         url,
         timeout=config.request_timeout_seconds,
     )
-    resources = format_response(res.json(), data_format)
-    return resources
 
+    # check server response
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
+    data = _safe_json(res)   
+    resources = format_response(data, data_format)
+    return resources
 
 def delete_asset(
     *,
@@ -290,7 +306,7 @@ def counts(*, asset_type: str, version: str | None = None, per_platform: bool = 
     """
     url = url_to_resource_counts(version, per_platform, asset_type)
     res = requests.get(url, timeout=config.request_timeout_seconds)
-    return res.json()
+    return _safe_json(res)
 
 
 def get_asset(
@@ -332,7 +348,8 @@ def get_asset(
     )
     if res.status_code == HTTPStatus.NOT_FOUND and "not found" in res.json().get("detail"):
         raise KeyError(f"No {asset_type} with identifier {identifier!r} found.")
-    resources = format_response(res.json(), data_format)
+    data = _safe_json(res)
+    resources = format_response(data, data_format)
     return resources
 
 
@@ -464,7 +481,8 @@ def search(
         url,
         timeout=config.request_timeout_seconds,
     )
-    resources = format_response(res.json()["resources"], data_format)
+    data = _safe_json(res)
+    resources = format_response(data["resources"], data_format)
     return resources
 
 
@@ -550,7 +568,15 @@ async def get_list_async(
 async def _fetch_resources(urls) -> list[dict]:
     async def _fetch_data(session, url) -> dict:
         async with session.get(url, timeout=config.request_timeout_seconds) as response:
-            return await response.json()
+            text = await response.text()
+            if not text.strip():
+                raise RuntimeError(f"Server error {response.status}: empty response")
+            try:
+                return await response.json()
+            except Exception:
+                raise RuntimeError(
+                    f"Invalid JSON response from server (status {response.status}): {text}"
+                )
 
     async with aiohttp.ClientSession() as session:
         tasks = [_fetch_data(session, url) for url in urls]
