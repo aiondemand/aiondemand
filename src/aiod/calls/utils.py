@@ -57,6 +57,10 @@ class ServerError(RuntimeError):
 
     def __init__(self, response: requests.Response):
         self.status_code = response.status_code
+        try:
+            body = response.json()
+        except Exception:
+            body = {}
         self.detail = response.json().get("detail")
         self.reference = response.json().get("reference")
         self._response = response
