@@ -93,7 +93,7 @@ docker compose up fill-db-with-examples
 ```bash
 py -3.11 -m venv .venv
 .venv\Scripts\activate
-pip install -e ".[dev]"
+python -m pip install -e ".[dev]"
 pytest src/tests
 ```
 Note: currently the tests are expected to fail. update regarding this is currently tracked here: https://github.com/aiondemand/AIOD-rest-api/issues/681
