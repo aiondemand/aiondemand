@@ -57,6 +57,10 @@ pip install -e ".[dev]"
 python -c "import aiod; print('aiondemand installed successfully!')"
 ```
 
+> [!NOTE]
+> The pip package is named `aiondemand` but the importable Python module is `aiod`. You will always use `import aiod` in your code.
+
+
 ---
 
 ### Part 2: Setup `AIOD-rest-api` (Backend Service)
@@ -69,7 +73,8 @@ cd AIOD-rest-api
 
 **Configure environment:**
 
-Edit the `.env` file to enable local development mode (located at line no.: 4):
+Edit the `.env` file — find the line starting with `USE_LOCAL_DEV=` and set it to `true`:
+
 ```bash
 USE_LOCAL_DEV=true
 ```
@@ -86,17 +91,26 @@ docker compose build
 # Run DB data migration
 docker compose up fill-db-with-examples
 ```
+> [!WARNING]
+> Run `docker compose up fill-db-with-examples` only once. Running it again may insert duplicate data into the database.
 
 - **Note:** Add this command in the `Dockerfile` after the `apt-get install` block if the python package dependencies seem to be broken (happens sometimes in Windows): `pip install --upgrade pip setuptools wheel`
 
 **Running tests**
 ```bash
-py -3.11 -m venv .venv
+# Windows
+py -m venv .venv
 .venv\Scripts\activate
+
+# Mac/Linux
+python3 -m venv .venv
+source .venv/bin/activate
+
 pip install -e ".[dev]"
 pytest src/tests
 ```
-Note: currently the tests are expected to fail. update regarding this is currently tracked here: https://github.com/aiondemand/AIOD-rest-api/issues/681
+> [!WARNING]
+> Currently all tests are expected to fail. This is a known issue and is being tracked here: https://github.com/aiondemand/AIOD-rest-api/issues/681
 
 ---
 
@@ -107,8 +121,12 @@ After completing both setup parts, verify the entire system is working:
 ### 1. Verify Python Client Installation
 ```bash
 cd aiondemand
-.\venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Mac/Linux
+
+# Windows
+.\venv\Scripts\activate
+
+# Mac/Linux
+source venv/bin/activate
 
 python -c "import aiod; print(f'aiod version: {aiod.__version__}')"
 ```
@@ -192,8 +210,12 @@ This will retrieve data from your locally running backend instead of the remote 
 1. **Activate Python environment:**
    ```bash
    cd aiondemand
-   .\venv\Scripts\activate  # Windows
-   # source venv/bin/activate  # Mac/Linux
+
+   # Windows
+   .\venv\Scripts\activate
+
+   # Mac/Linux
+   source venv/bin/activate
    ```
 
 2. **Start backend services:**
@@ -217,8 +239,12 @@ Before raising a pull request, run these checks to ensure code quality:
 ### Run Full Test Suite
 ```bash
 cd aiondemand
-.\venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Mac/Linux
+
+# Windows
+.\venv\Scripts\activate
+
+# Mac/Linux
+source venv/bin/activate
 
 python -m pytest -v
 ``` 
