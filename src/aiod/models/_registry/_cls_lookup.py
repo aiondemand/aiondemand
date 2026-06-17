@@ -9,7 +9,9 @@ def _get_class(id: str):
     Parameter
     ---------
     id : str
-        unique identifier of class to retrieve
+        unique identifier of object to retrieve. May be a plain class name
+        (e.g. ``"RandomForestClassifier"``) or a specification string
+        (e.g. ``"RandomForestClassifier(n_estimators=100)"``).
 
     Returns
     -------
@@ -21,6 +23,11 @@ def _get_class(id: str):
     ModuleNotFoundError
         if dependencies of object to retrieve are not satisfied
     """
+    if "(" in id:
+        from aiod.registry import craft
+
+        return craft(id)
+
     id_lookup = _id_lookup()
     obj = id_lookup.get(id)
     if obj is None:

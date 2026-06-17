@@ -1,15 +1,13 @@
 import asyncio
 import json
+from collections.abc import Callable
 from http import HTTPStatus
+from pathlib import Path
 
-from aiohttp.pytest_plugin import loop
 import pytest
 import responses
-from responses import matchers
-
 from aioresponses import aioresponses
-from pathlib import Path
-from typing import Callable
+from responses import matchers
 
 import aiod
 from aiod.calls.urls import server_url
@@ -63,18 +61,18 @@ def asset_with_search(request):
 
 def test_common_endpoints_are_created(asset_name: str):
     asset = getattr(aiod, asset_name)
-    assert isinstance(getattr(asset, "get_list"), Callable)
-    assert isinstance(getattr(asset, "counts"), Callable)
-    assert isinstance(getattr(asset, "get_asset"), Callable)
-    assert isinstance(getattr(asset, "get_asset_from_platform"), Callable)
-    assert isinstance(getattr(asset, "get_content"), Callable)
-    assert isinstance(getattr(asset, "get_list_async"), Callable)
-    assert isinstance(getattr(asset, "get_assets_async"), Callable)
+    assert isinstance(asset.get_list, Callable)
+    assert isinstance(asset.counts, Callable)
+    assert isinstance(asset.get_asset, Callable)
+    assert isinstance(asset.get_asset_from_platform, Callable)
+    assert isinstance(asset.get_content, Callable)
+    assert isinstance(asset.get_list_async, Callable)
+    assert isinstance(asset.get_assets_async, Callable)
 
 
 def test_search_endpoints_are_created(asset_with_search: str):
     asset = getattr(aiod, asset_with_search)
-    assert isinstance(getattr(asset, "search"), Callable)
+    assert isinstance(asset.search, Callable)
 
 
 def test_endpoint_get_list(asset_name):
@@ -172,7 +170,7 @@ def test_endpoint_get_asset_from_platform(asset_name):
 
 def test_get_content(asset_name):
     with responses.RequestsMock() as mocked_requests:
-        with open(resources_path / "content.csv", "r") as f:
+        with open(resources_path / "content.csv") as f:
             res_body = f.read()
         mocked_requests.add(
             responses.GET,
@@ -188,7 +186,7 @@ def test_get_content(asset_name):
 
 def test_get_content_with_distribution_idx(asset_name):
     with responses.RequestsMock() as mocked_requests:
-        with open(resources_path / "content.csv", "r") as f:
+        with open(resources_path / "content.csv") as f:
             res_body = f.read()
         mocked_requests.add(
             responses.GET,
@@ -365,7 +363,7 @@ def test_delete_asset_incorrect_identifier(asset_name, valid_refresh_token):
 @responses.activate
 def test_industrial_sector_taxonomy():
     taxonomy = json.loads((resources_path / "industrial_sectors.json").read_text())
-    responses.get(f"http://not.set/not_set/industrial_sectors", json=taxonomy)
+    responses.get("http://not.set/not_set/industrial_sectors", json=taxonomy)
 
     industrial_sectors = aiod.taxonomies.industrial_sectors()
     car_industry = Term(
@@ -379,7 +377,7 @@ def test_industrial_sector_taxonomy():
 @responses.activate
 def test_taxonomy_not_found():
     responses.get(
-        f"http://not.set/not_set/industrial_sectors",
+        "http://not.set/not_set/industrial_sectors",
         json={"detail": "Not Found"},
         status=HTTPStatus.NOT_FOUND,
     )

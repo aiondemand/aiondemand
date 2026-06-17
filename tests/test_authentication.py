@@ -1,21 +1,21 @@
+from unittest.mock import Mock
+
 import pytest
+import requests
 import responses
 from responses import matchers
 
-from unittest.mock import Mock
-import requests
-
 import aiod
-from aiod.configuration import config
 from aiod.authentication.authentication import (
-    keycloak_openid,
     AuthenticationError,
+    NotAuthenticatedError,
+    Token,
     create_token,
     get_token,
+    keycloak_openid,
     set_token,
-    Token,
-    NotAuthenticatedError,
 )
+from aiod.configuration import config
 
 
 @pytest.fixture

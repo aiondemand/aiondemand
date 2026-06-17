@@ -5,8 +5,8 @@ from http import HTTPStatus
 import pytest
 import responses
 
-from aiod import config
 import aiod.authentication.authentication as authentication
+from aiod import config
 
 
 @pytest.fixture(autouse=True)
