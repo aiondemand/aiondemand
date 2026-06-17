@@ -183,3 +183,24 @@ def test_token_to_file_creates_parent_directory(tmp_path):
     # Calling it multiple times should not result in an error,
     # even if the directory or file already exist.
     token.to_file(token_file)
+
+
+def test_token_from_file_preserves_long_expiry(tmp_path):
+    """Regression: Token.from_file must preserve expiry durations longer than 24 hours.
+
+    Previously, `timedelta.seconds` was used instead of `timedelta.total_seconds()`,
+    which wraps around at 86400 and loses the days component.
+    """
+    token_file = tmp_path / "token.toml"
+    # A token that expires in ~2 days (172800 seconds)
+    token = Token(
+        refresh_token="long_lived",
+        access_token="valid_access",
+        expires_in_seconds=172800,
+    )
+    token.to_file(token_file)
+
+    restored = Token.from_file(token_file)
+    # The restored token should NOT have expired (it has ~2 days left)
+    assert not restored.has_expired
+    assert restored._access_token == "valid_access"

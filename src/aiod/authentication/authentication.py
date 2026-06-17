@@ -141,7 +141,7 @@ class Token:
                 kwargs.update(
                     {
                         "access_token": str(doc["access_token"]),
-                        "expires_in_seconds": expires_in.seconds,
+                        "expires_in_seconds": int(expires_in.total_seconds()),
                     }
                 )
         return Token(**kwargs)  # type: ignore[arg-type]
