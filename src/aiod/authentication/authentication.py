@@ -345,9 +345,17 @@ def get_current_user() -> User:
         timeout=config.request_timeout_seconds,
     )
 
-    content = response.json()
     if response.status_code == http.client.UNAUTHORIZED:
-        raise NotAuthenticatedError(content)
+        raise NotAuthenticatedError(response.text)
+    if response.status_code != http.client.OK:
+        try:
+            detail = response.json()
+        except Exception:
+            detail = response.text
+        raise RuntimeError(
+            f"Unexpected server response {response.status_code}: {detail}"
+        )
+    content = response.json()
     return User(
         name=content["name"],
         roles=tuple(content["roles"]),
