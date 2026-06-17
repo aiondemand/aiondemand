@@ -50,9 +50,9 @@ class _AiodModelPkg(_BasePkg):
             return _safe_import(obj_loc, pkg_name=pkg_name)
 
         if pkg_obj == "code":
-            exec(self._obj)
-
-            return obj  # noqa: F821
+            namespace = {}
+            exec(self._obj, globals(), namespace)
+            return namespace.get("obj")
 
         # elif pkg_obj == "craft":
         #    identify and call appropriate craft method
