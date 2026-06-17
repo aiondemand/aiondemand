@@ -552,7 +552,8 @@ async def _fetch_resources(urls) -> list[dict]:
         async with session.get(url, timeout=config.request_timeout_seconds) as response:
             return await response.json()
 
-    async with aiohttp.ClientSession() as session:
+    headers = _get_auth_headers(required=False)
+    async with aiohttp.ClientSession(headers=headers) as session:
         tasks = [_fetch_data(session, url) for url in urls]
         response_data = await asyncio.gather(*tasks)
     return response_data
