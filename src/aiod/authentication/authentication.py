@@ -366,5 +366,5 @@ if _user_token_file.exists() and _user_token_file.is_file():
     try:
         _token = Token.from_file(_user_token_file)
     except Exception as e:
-        e.add_note(f"Failed to load credentials from {str(_user_token_file)!r}")
-        raise e
+        logger.warning(f"Failed to load credentials from {str(_user_token_file)!r}: {e}")
+        _token = None

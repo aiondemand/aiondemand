@@ -1,12 +1,15 @@
+import logging
+
 import pytest
 import responses
 from responses import matchers
 
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 import requests
 
 import aiod
 from aiod.configuration import config
+from aiod.authentication import authentication
 from aiod.authentication.authentication import (
     keycloak_openid,
     AuthenticationError,
@@ -183,3 +186,35 @@ def test_token_to_file_creates_parent_directory(tmp_path):
     # Calling it multiple times should not result in an error,
     # even if the directory or file already exist.
     token.to_file(token_file)
+
+
+def test_malformed_token_file_logs_warning_and_does_not_crash(tmp_path, caplog):
+    """Issue #223: a corrupt token.toml should NOT crash the import.
+
+    The SDK should log a warning and fall back to unauthenticated mode
+    (_token = None) so the user can still use public endpoints.
+
+    We use importlib.reload() so the actual module-level loading block in
+    authentication.py is exercised — not a copy of it.
+    """
+    import importlib
+
+    # Create a token file with invalid TOML content
+    bad_token_file = tmp_path / "token.toml"
+    bad_token_file.write_text("{bad")  # malformed TOML
+
+    original_token = authentication._token
+    try:
+        # Patch the module-level path and reload so the real boot-time block runs
+        with patch.object(authentication, "_user_token_file", bad_token_file):
+            with caplog.at_level(logging.WARNING, logger="aiod.authentication.authentication"):
+                importlib.reload(authentication)
+
+            # _token must be None — not an exception
+            assert authentication._token is None, "_token should be None for a malformed file"
+            # A warning must have been emitted
+            assert any("Failed to load credentials" in r.message for r in caplog.records), \
+                "Expected a warning about failed credential loading"
+    finally:
+        # Restore original token so other tests are not affected
+        authentication._token = original_token
