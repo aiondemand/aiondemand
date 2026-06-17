@@ -3,10 +3,38 @@ import re
 from http import HTTPStatus
 
 import pytest
+import requests
 import responses
 
 from aiod import config
 import aiod.authentication.authentication as authentication
+
+# Cache the server reachability check so it runs only once per test session.
+_server_reachable = None
+_server_skip_reason = ""
+
+
+@pytest.fixture(autouse=True)
+def skip_if_server_unreachable(request):
+    """Auto-skip @pytest.mark.server tests when the AIoD API is unreachable."""
+    if not request.node.get_closest_marker("server"):
+        return
+
+    global _server_reachable, _server_skip_reason
+    if _server_reachable is None:
+        try:
+            response = requests.get(config.api_server, timeout=300)
+            response.raise_for_status()
+            _server_reachable = True
+        except (requests.ConnectionError, requests.Timeout) as e:
+            _server_reachable = False
+            _server_skip_reason = (
+                "AIoD server unreachable. "
+                f"{type(e).__name__}: {e}"
+            )
+
+    if _server_reachable is False:
+        pytest.skip(_server_skip_reason)
 
 
 @pytest.fixture(autouse=True)
