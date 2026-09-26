@@ -1,3 +1,4 @@
+import dataclasses
 import logging
 import textwrap
 from collections import defaultdict
@@ -114,7 +115,11 @@ def load_configuration(file: Path) -> Config:
         raise
 
     global config
+    known_keys = {f.name for f in dataclasses.fields(config)}
     for key, value in _user_config.items():
+        if key not in known_keys:
+            logger.warning(f"Unknown configuration key {key!r} in {file}, ignoring.")
+            continue
         setattr(config, key, value)
     return config
 
@@ -131,6 +136,7 @@ def _add_decode_error_note(file: Path, e: tomlkit.exceptions.ParseError) -> None
                 """
         )
     )
+
 
 config = Config()  # Modified through `load_configuration`
 _user_config_file = Path("~/.aiod/config.toml").expanduser()
