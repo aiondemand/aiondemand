@@ -1,7 +1,12 @@
-"""Tests which connect to the server.
+"""Tests which connect to an AIoD server.
+
+These tests are deselected by default (see the ``-m 'not server'`` addopts in
+``pyproject.toml``), because they need a reachable AIoD server. To run them,
+override the marker expression on the command line::
+
+    pytest -m server tests/test_integration.py
 
 Do not add new tests unless there is a very good reason.
-These tests do not run with the default test configuration.
 
 """
 

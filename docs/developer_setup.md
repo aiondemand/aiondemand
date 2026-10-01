@@ -228,6 +228,13 @@ python -m pytest -v
 ruff check .
 ```
 
+### Run Integration Tests
+The integration tests in `tests/test_integration.py` connect to a live AIoD server and are marked with `@pytest.mark.server`. They are deselected by default (see the `-m 'not server'` addopts in `pyproject.toml`), so running `pytest tests/test_integration.py` on its own collects nothing. To run them, override the marker expression:
+```bash
+python -m pytest -m server tests/test_integration.py
+```
+Note: these tests need a reachable AIoD server, so they only pass while the API is up.
+
 ### Auto-fix Linting Issues
 ```bash
 ruff check --fix .
