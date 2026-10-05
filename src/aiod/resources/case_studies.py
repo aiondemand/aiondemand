@@ -2,6 +2,7 @@ from aiod.calls import calls
 
 (
     get_list,
+    get_all,
     counts,
     get_asset,
     register,

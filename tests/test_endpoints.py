@@ -70,6 +70,7 @@ def test_common_endpoints_are_created(asset_name: str):
     assert isinstance(getattr(asset, "get_content"), Callable)
     assert isinstance(getattr(asset, "get_list_async"), Callable)
     assert isinstance(getattr(asset, "get_assets_async"), Callable)
+    assert isinstance(getattr(asset, "get_all"), Callable)
 
 
 def test_search_endpoints_are_created(asset_with_search: str):
@@ -89,6 +90,68 @@ def test_endpoint_get_list(asset_name):
         metadata_list = endpoint.get_list()
 
         assert len(metadata_list) == 2
+
+
+def test_endpoint_get_all(asset_name):
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{server_url()}{asset_name}?offset=0&limit=2",
+            body=b'[{"resource_1": "info"},{"resource_2": "info"}]',
+            status=200,
+        )
+        mocked_requests.add(
+            responses.GET,
+            f"{server_url()}{asset_name}?offset=2&limit=2",
+            body=b'[{"resource_3": "info"}]',
+            status=200,
+        )
+        mocked_requests.add(
+            responses.GET,
+            f"{server_url()}{asset_name}?offset=4&limit=2",
+            body=b"[]",
+            status=200,
+        )
+        endpoint = getattr(aiod, asset_name)
+        all_metadata = endpoint.get_all(batch_size=2)
+
+        assert len(all_metadata) == 3
+        assert list(all_metadata.index) == [0, 1, 2]
+
+
+def test_endpoint_get_all_json(asset_name):
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{server_url()}{asset_name}?offset=0&limit=2",
+            body=b'[{"resource_1": "info"}]',
+            status=200,
+        )
+        mocked_requests.add(
+            responses.GET,
+            f"{server_url()}{asset_name}?offset=2&limit=2",
+            body=b"[]",
+            status=200,
+        )
+        endpoint = getattr(aiod, asset_name)
+        all_metadata = endpoint.get_all(batch_size=2, data_format="json")
+
+        assert all_metadata == [{"resource_1": "info"}]
+
+
+def test_endpoint_get_all_empty(asset_name):
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{server_url()}{asset_name}?offset=0&limit=100",
+            body=b"[]",
+            status=200,
+        )
+        endpoint = getattr(aiod, asset_name)
+        all_metadata = endpoint.get_all()
+
+        assert len(all_metadata) == 0
+
 
 
 def test_endpoint_counts(asset_name):

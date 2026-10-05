@@ -103,6 +103,57 @@ def get_list(
     return resources
 
 
+def get_all(
+    *,
+    asset_type: str,
+    platform: str | None = None,
+    batch_size: int = 100,
+    version: str | None = None,
+    data_format: Literal["pandas", "json"] = "pandas",
+) -> pd.DataFrame | list[dict]:
+    """Retrieve all ASSET_TYPE from the catalogue, transparently paginating.
+
+    Repeatedly calls get_list() until an empty page is returned, so callers
+    do not need to write their own pagination loop.
+
+    All parameters must be specified by name.
+
+    Parameters
+    ----------
+    platform
+        Return metadata of ASSET_TYPE assets of this platform (default is None).
+    batch_size
+        The number of items to retrieve per internal request (default is 100).
+    version
+        The version of the endpoint (default is None).
+    data_format
+        The desired format for the response (default is "pandas").
+        For "json" formats, the returned type is a json decoded type,
+        in this case a list of dicts.
+
+    Returns
+    -------
+    :
+        The retrieved metadata in the specified format.
+    """
+    all_results = []
+    offset = 0
+    while True:
+        page = get_list(
+            asset_type=asset_type,
+            platform=platform,
+            offset=offset,
+            limit=batch_size,
+            version=version,
+            data_format="json",
+        )
+        if not page:
+            break
+        all_results.extend(page)
+        offset += batch_size
+    return format_response(all_results, data_format)
+
+
 def delete_asset(
     *,
     asset_type: str,
@@ -562,6 +613,7 @@ wrap_common_calls = partial(
     wrap_calls,
     calls=[
         get_list,
+        get_all,
         counts,
         get_asset,
         post_asset,
