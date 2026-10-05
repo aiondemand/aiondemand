@@ -1,8 +1,5 @@
-import asyncio
 import json
 from http import HTTPStatus
-
-from aiohttp.pytest_plugin import loop
 import pytest
 import responses
 from responses import matchers
@@ -232,10 +229,8 @@ def test_search(asset_with_search):
         assert metadata_list == [{"resource_1": "info"}, {"resource_2": "info"}]
 
 
-def test_endpoint_get_asset_async(asset_name):
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
+@pytest.mark.asyncio
+async def test_endpoint_get_asset_async(asset_name):
     with aioresponses() as mocked_responses:
         mocked_responses.get(
             f"{server_url()}{asset_name}/1",
@@ -249,19 +244,15 @@ def test_endpoint_get_asset_async(asset_name):
         )
 
         endpoint = getattr(aiod, asset_name)
-        metadata = loop.run_until_complete(
-            endpoint.get_assets_async(identifiers=[1, 3], data_format="json")
-        )
+        metadata = await endpoint.get_assets_async(identifiers=[1, 3], data_format="json")
         assert metadata == [
             {"resource": "fake_details"},
             {"resource": "fake_details_2"},
         ]
 
 
-def test_endpoint_get_list_async(asset_name):
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
+@pytest.mark.asyncio
+async def test_endpoint_get_list_async(asset_name):
     with aioresponses() as mocked_responses:
         mocked_responses.get(
             f"{server_url()}{asset_name}?offset=0&limit=2",
@@ -275,9 +266,7 @@ def test_endpoint_get_list_async(asset_name):
         )
 
         endpoint = getattr(aiod, asset_name)
-        metadata = loop.run_until_complete(
-            endpoint.get_list_async(offset=0, limit=3, batch_size=2, data_format="json")
-        )
+        metadata = await endpoint.get_list_async(offset=0, limit=3, batch_size=2, data_format="json")
         assert metadata == [
             {"resource_1": "info"},
             {"resource_2": "info"},
