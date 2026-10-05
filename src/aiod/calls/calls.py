@@ -89,6 +89,11 @@ def get_list(
     -------
     :
         The retrieved metadata in the specified format.
+
+    Raises
+    ------
+    ServerError
+        If the server responds with an error status code.
     """
     url = (
         url_to_get_list_from_platform(asset_type, platform, offset, limit, version)
@@ -99,6 +104,8 @@ def get_list(
         url,
         timeout=config.request_timeout_seconds,
     )
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     resources = format_response(res.json(), data_format)
     return resources
 
@@ -195,6 +202,8 @@ def patch_asset(
     Notes
     -----
     This is a best-effort implementation, but is not yet officially supported by the server.
+    It is implemented as a GET followed by a local merge and a PUT, which is not atomic:
+    another client may modify the asset between the GET and the PUT.
 
     Parameters
     ----------
@@ -237,7 +246,7 @@ def post_asset(
     asset_type: str,
     metadata: dict,
     version: str | None = None,
-) -> str | requests.Response:
+) -> str:
     """Register ASSET_TYPE in catalogue.
 
     All parameters must be specified by name.
@@ -252,9 +261,12 @@ def post_asset(
     Returns
     -------
     identifier: str
-        if the asset is registered successfully
-    error response: requests.Response
-        error response, if it failed to register successfully
+        The identifier of the asset, if it was registered successfully.
+
+    Raises
+    ------
+    ServerError
+        If the server fails to register the asset.
     """
     url = f"{server_url(version)}{asset_type}"
     res = requests.post(
@@ -265,7 +277,7 @@ def post_asset(
     )
     if res.status_code == HTTPStatus.OK:
         return res.json()["identifier"]
-    return res
+    raise ServerError(res)
 
 
 def counts(*, asset_type: str, version: str | None = None, per_platform: bool = False) -> int | dict[str, int]:
@@ -449,6 +461,11 @@ def search(
     -------
     :
         The retrieved metadata in the specified format.
+
+    Raises
+    ------
+    ServerError
+        If the server responds with an error status code.
     """
     url = url_to_search(
         asset_type,
@@ -464,6 +481,8 @@ def search(
         url,
         timeout=config.request_timeout_seconds,
     )
+    if res.status_code != HTTPStatus.OK:
+        raise ServerError(res)
     resources = format_response(res.json()["resources"], data_format)
     return resources
 

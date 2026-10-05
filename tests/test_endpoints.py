@@ -13,7 +13,7 @@ from typing import Callable
 
 import aiod
 from aiod.calls.urls import server_url
-from aiod.calls.utils import EndpointUndefinedError
+from aiod.calls.utils import EndpointUndefinedError, ServerError
 from aiod.taxonomies import Term
 
 resources_path = Path(__file__).parent / "resources"
@@ -230,6 +230,75 @@ def test_search(asset_with_search):
 
         assert len(metadata_list) == 2
         assert metadata_list == [{"resource_1": "info"}, {"resource_2": "info"}]
+
+
+def test_endpoint_get_list_server_error(asset_name):
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{server_url()}{asset_name}?offset=0&limit=10",
+            json={"detail": "Something went wrong on the server."},
+            status=500,
+        )
+        endpoint = getattr(aiod, asset_name)
+        with pytest.raises(ServerError):
+            endpoint.get_list()
+
+
+def test_endpoint_get_list_server_error_non_json(asset_name):
+    # A non-JSON error body should still raise ServerError, not a JSONDecodeError.
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{server_url()}{asset_name}?offset=0&limit=10",
+            body=b"<html><body>Internal Server Error</body></html>",
+            content_type="text/html",
+            status=500,
+        )
+        endpoint = getattr(aiod, asset_name)
+        with pytest.raises(ServerError):
+            endpoint.get_list()
+
+
+def test_search_server_error(asset_with_search):
+    search_query = "my query"
+    search_field = "name"
+    platforms = ["aiod", "openml"]
+    get_all = True
+
+    query = (
+        f"?search_query={search_query.replace(' ', '+')}&platforms={platforms[0]}"
+        f"&platforms={platforms[1]}&offset=0&limit=10&search_fields={search_field}&get_all=true"
+    )
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{server_url()}search/{asset_with_search}{query}",
+            json={"detail": "Something went wrong on the server."},
+            status=500,
+        )
+        endpoint = getattr(aiod, asset_with_search)
+        with pytest.raises(ServerError):
+            endpoint.search(
+                query=search_query,
+                search_field=search_field,
+                platforms=platforms,
+                get_all=get_all,
+                data_format="json",
+            )
+
+
+@responses.activate
+def test_register_asset_server_error(asset_name, valid_refresh_token):
+    responses.post(
+        f"http://not.set/not_set/{asset_name}",
+        match=[matchers.header_matcher({"Authorization": "Bearer valid_access"})],
+        json={"detail": "Could not register the asset."},
+        status=500,
+    )
+    module = getattr(aiod, asset_name)
+    with pytest.raises(ServerError):
+        module.register(metadata=dict(name="Foo"))
 
 
 def test_endpoint_get_asset_async(asset_name):

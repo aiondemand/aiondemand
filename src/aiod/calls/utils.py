@@ -56,7 +56,15 @@ class ServerError(RuntimeError):
     """Raised for any server error that does not (yet) have better client-side handling."""
 
     def __init__(self, response: requests.Response):
+        super().__init__(
+            f"Server request failed with status code {response.status_code}."
+        )
         self.status_code = response.status_code
-        self.detail = response.json().get("detail")
-        self.reference = response.json().get("reference")
+        try:
+            body = response.json()
+        except ValueError:
+            # The response body is not JSON, e.g. an HTML error page.
+            body = {}
+        self.detail = body.get("detail")
+        self.reference = body.get("reference")
         self._response = response
