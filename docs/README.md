@@ -23,6 +23,8 @@ $ pip install aiondemand
 
 ## Quick start
 
+Also see the [example script](https://github.com/aiondemand/aiondemand/blob/main/examples/fetch_resources_basic.py) that fetches and displays datasets from the catalogue.
+
 ### AI model instantiation
 
 Also see the [AI model instantiation tutorial](https://github.com/aiondemand/aiondemand/blob/main/docs/examples/ai-on-demand.ipynb)
