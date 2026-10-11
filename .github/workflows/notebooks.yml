@@ -1,0 +1,36 @@
+name: Notebook tests
+
+on:
+  pull_request:
+    paths:
+      - "docs/examples/**/*.ipynb"
+      - "src/aiod/**"
+      - "tests/test_example_notebooks.py"
+      - "pyproject.toml"
+      - ".github/workflows/notebooks.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/examples/**/*.ipynb"
+      - "src/aiod/**"
+      - "tests/test_example_notebooks.py"
+      - "pyproject.toml"
+      - ".github/workflows/notebooks.yml"
+  workflow_dispatch:
+
+jobs:
+  notebook-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install ".[tests_integrations,tests_notebooks]"
+
+      - name: Execute safe notebook cells
+        run: python -m pytest tests/test_example_notebooks.py -vv
