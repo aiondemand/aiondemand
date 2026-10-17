@@ -2,7 +2,6 @@ import asyncio
 import json
 from http import HTTPStatus
 
-from aiohttp.pytest_plugin import loop
 import pytest
 import responses
 from responses import matchers
