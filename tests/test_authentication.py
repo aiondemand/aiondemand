@@ -1,21 +1,25 @@
+import json
+from pathlib import Path
+from unittest.mock import Mock
+
 import pytest
+import requests
 import responses
 from responses import matchers
 
-from unittest.mock import Mock
-import requests
-
 import aiod
-from aiod.configuration import config
 from aiod.authentication.authentication import (
-    keycloak_openid,
     AuthenticationError,
+    NotAuthenticatedError,
+    Token,
     create_token,
     get_token,
+    keycloak_openid,
     set_token,
-    Token,
-    NotAuthenticatedError,
 )
+from aiod.configuration import config
+
+resources_path = Path(__file__).parent / "resources"
 
 
 @pytest.fixture
@@ -48,6 +52,32 @@ def test_get_user_endpoint(mocked_token: Mock):
         assert header == "Bearer fake_token", header
         assert user.name == "user", user
         assert user.roles == ("a_role",), user
+
+
+def test_get_user_endpoint_unauthorized(mocked_token: Mock):
+    keycloak_openid().token = mocked_token
+    unauthorized_data = json.loads((resources_path / "unauthorized.json").read_text())
+
+    with responses.RequestsMock() as mocked_requests:
+        mocked_requests.add(
+            responses.GET,
+            f"{config.api_server}authorization_test",
+            json=unauthorized_data,
+            status=401,
+        )
+        set_token(
+            Token(
+                refresh_token="fake_refresh",
+                access_token="fake_token",
+                expires_in_seconds=300,
+            )
+        )
+        with pytest.raises(NotAuthenticatedError) as e:
+            aiod.get_current_user()
+
+        header = mocked_requests.calls[0].request.headers["Authorization"]
+        assert header == "Bearer fake_token", header
+        assert e.value.args[0] == unauthorized_data
 
 
 def test_device_flow_success(monkeypatch):
