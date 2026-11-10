@@ -96,12 +96,31 @@ are welcome!
 
 - `scikit-learn`
 - `catboost`
+- `category-encoders` (2.8.1 or later)
 - `feature-engine`
 - `lightgbm`
 - `imbalanced-learn`
 - `mlxtend`
 - `scikit-lego`
 - `xgboost`
+
+Category Encoders is an optional dependency. Install it with
+`pip install "category-encoders>=2.8.1"`, then create an encoder or pipeline:
+
+```python
+from aiod import get
+
+encoder = get("BinaryEncoder(cols=['color'])")
+pipeline = get("Pipeline(steps=[('encoder', BinaryEncoder(cols=['color']))])")
+```
+
+The index covers the 21 public encoders available in Category Encoders 2.8.1.
+Three identifiers use a `CategoryEncoders` prefix to avoid replacing the existing
+scikit-learn identifiers: `CategoryEncodersOneHotEncoder`,
+`CategoryEncodersOrdinalEncoder`, and `CategoryEncodersTargetEncoder`.
+For example, `get("CategoryEncodersTargetEncoder()")` constructs Category
+Encoders' target encoder, while `get("TargetEncoder()")` retains scikit-learn's.
+`GLMMEncoder` additionally requires `statsmodels` (`pip install statsmodels`).
 
 ##### Probabilistic supervised learning and survival modelling
 

@@ -63,6 +63,8 @@ doc = [
 ]
 tests_integrations = [
     "scikit-learn",
+    "category-encoders>=2.8.1",
+    "statsmodels",
 ]
 
 [build-system]
