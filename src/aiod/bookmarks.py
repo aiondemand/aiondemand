@@ -19,7 +19,8 @@ class Bookmark:
     identifier: str
         The identifier of the asset on AI-on-Demand, e.g., 'data_xyz...'
     created: datetime
-        The datetime when the bookmark was originally created.
+        The datetime when the bookmark was originally created, normalized to UTC.
+        Timestamps without a timezone are interpreted as UTC.
     """
 
     identifier: str
@@ -28,6 +29,14 @@ class Bookmark:
 
 def _bookmarks_url() -> str:
     return server_url() + "bookmarks"
+
+
+def _parse_created_at(value: str) -> datetime:
+    """Convert a creation timestamp to UTC, treating naive timestamps as UTC."""
+    created = datetime.fromisoformat(value)
+    if created.tzinfo is None:
+        return created.replace(tzinfo=timezone.utc)
+    return created.astimezone(timezone.utc)
 
 
 def register(identifier: str) -> Bookmark:
@@ -63,15 +72,15 @@ def register(identifier: str) -> Bookmark:
 
     return Bookmark(
         identifier=res.json()["resource_identifier"],
-        created=datetime.fromisoformat(res.json()["created_at"]).replace(tzinfo=timezone.utc),
+        created=_parse_created_at(res.json()["created_at"]),
     )
 
 
 def delete(identifier: str):
     """Remove the bookmark for the asset with `identifier` for the user.
 
-    This method does not raise an error if the identifier is not recognized by AI-on-Demand,
-    or if the identifier is valid but the user has not bookmarked it.
+    This method does not raise an error if the identifier is not recognized by
+    AI-on-Demand, or if the identifier is valid but the user has not bookmarked it.
 
     Parameters
     ----------
@@ -113,7 +122,7 @@ def get_list() -> list[Bookmark]:
     return [
         Bookmark(
             identifier=bookmark["resource_identifier"],
-            created=datetime.fromisoformat(bookmark["created_at"]).replace(tzinfo=timezone.utc),
+            created=_parse_created_at(bookmark["created_at"]),
         )
         for bookmark in res.json()
     ]
