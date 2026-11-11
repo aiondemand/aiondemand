@@ -120,6 +120,9 @@ def load_configuration(file: Path) -> Config:
 
 
 def _add_decode_error_note(file: Path, e: tomlkit.exceptions.ParseError) -> None:
+    # Exception notes were introduced in Python 3.11.
+    if not hasattr(e, "add_note"):
+        return
     # Lines are 1-indexed and columns are 0-indexed
     e.add_note(
         textwrap.dedent(
@@ -131,6 +134,7 @@ def _add_decode_error_note(file: Path, e: tomlkit.exceptions.ParseError) -> None
                 """
         )
     )
+
 
 config = Config()  # Modified through `load_configuration`
 _user_config_file = Path("~/.aiod/config.toml").expanduser()
