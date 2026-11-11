@@ -5,6 +5,8 @@ from tomlkit.exceptions import ParseError
 
 from aiod.configuration._config import load_configuration
 
+# Regression for https://github.com/aiondemand/aiondemand/issues/272.
+
 
 def test_config_parse_error_is_preserved(tmp_path):
     """Malformed TOML must raise its parse error, including on Python 3.10."""
